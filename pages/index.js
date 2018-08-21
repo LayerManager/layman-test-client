@@ -30,7 +30,7 @@ const requestToParamsClass = {
 
 const endpointToUrlPartGetter = {
   'layers': () => '/layers',
-  'layer': ({layername}) => `/layer/${layername}`,
+  'layer': ({layername}) => `/layers/${layername}`,
 }
 
 const endpointToPathParams = {
