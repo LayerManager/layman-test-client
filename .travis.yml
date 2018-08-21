@@ -6,7 +6,7 @@ script:
 - npm run build
 - npm run export
 before_deploy:
-- tar -zcf release.tar.gz ./out/
+- tar -zcf release.tar.gz -C ./out .
 deploy:
   provider: releases
   api_key:
