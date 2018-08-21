@@ -3,16 +3,14 @@ node_js:
 - node
 install: npm install
 script:
-  - npm run build
-  - npm run export
-
+- npm run build
+- npm run export
 before_deploy:
-  - tar -zcf release.tar.gz ./out/
-
+- tar -zcf release.tar.gz ./out/
 deploy:
   provider: releases
-#  api_key:
-#    secure:
+  api_key:
+    secure: N5DTOiV1Kr5iT/l3yzDST0Ayeuzv45VQ513OJkJveimsdzeubOd5TproSa/+hM8k5O+SK+TboRq/0qq5UrkYpV7u2u1+xn5NOENEZLtozRffONI/mk+vdEYjzEouZufw1oSUp0Ij9XaA9ZIvvvbo9WpuJyXsB12eLk+p+AiI81EwS/jH2yjkjsfzwji/kBTsYaqa7CC8FCG/P/7LITv1mJLm8lVFmlv7EPRoVxN3yEBAh+KAF9PNvVBL31BxuUau69M4UtSveItdjs68OSF6xmyoMUlm1K0YcWLQGTkcIIo4AAUiLDTcZe6nQSvT+uKUYkID+xJFqo8dNwB24gH1Ks+tLYh8JlLr8b+QhLbo9bdYrI9DGe4L9GkM4ahz+NlB4SGvezk5AgtWl5Gu7ZERgLNAKBvJoQNk8TKxb4hLeCmGcKFZPq+Kcy7VMBO/qBnvk0Lt/135PJ6ZQEWhqy6mRYJdyIoHJjtYe8TpOJf2jUgtOmZQXIzxxFecBvKrs3HfJwYvqLVR3f7uwnMAN+UvviYynWeXB75bCxLRG3e+8tdY/l47/RjqVKDxbL3z7KB6ZlS6QvFEJ69n4WQvyZAbj65G51T9hy1oYM/ijOnmqlOEctz92ATY0hVfVddVrT1v3tlmdknNGzhANJWvcBVtNrW65xtIuLR/a15k/GT1bkA=
   file: release.tar.gz
   skip_cleanup: true
   on:
