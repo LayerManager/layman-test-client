@@ -1,0 +1,19 @@
+language: node_js
+node_js:
+- node
+install: npm install
+script:
+  - npm run build
+  - npm run export
+
+before_deploy:
+  - tar -zcf release.tar.gz ./out/
+
+deploy:
+  provider: releases
+#  api_key:
+#    secure:
+  file: release.tar.gz
+  skip_cleanup: true
+  on:
+    tags: true
