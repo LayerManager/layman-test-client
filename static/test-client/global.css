@@ -1,0 +1,6 @@
+.ui.form .field.inline.mandatory input {
+    border-width: 3px;
+}
+.ui.form .field.inline:not(.mandatory) > label {
+    font-weight: normal;
+}

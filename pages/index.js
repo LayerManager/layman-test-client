@@ -1,6 +1,8 @@
 import HeaderMenu from './../components/HeaderMenu'
-import {Container, Form, Button, Header, Table, Ref, Segment} from 'semantic-ui-react'
+import {Container, Form, Button, Header, Table, Ref, Segment, Label, Message} from 'semantic-ui-react'
 import fetch from 'unfetch';
+import PostLayersParams from "../components/PostLayersParams";
+import GetLayerParams from "../components/GetLayerParams";
 
 const containerStyle = {
   position: 'absolute',
@@ -8,10 +10,52 @@ const containerStyle = {
   padding: '1em',
 };
 
-const clickableCell = {
-  cursor: 'pointer'
+const toTitleCase = (str) => {
+    return str.replace(/\w\S*/g, (txt) => {
+        return txt.charAt(0).toUpperCase() + txt.substr(1);
+    });
 };
 
+const getRequestTitle = (request) => {
+  const parts = request.split('-')
+  parts[0] = parts[0].toUpperCase();
+  const title = toTitleCase(parts.join(' '));
+  return title;
+}
+
+const requestToParamsClass = {
+  'post-layers': PostLayersParams,
+  'get-layer': GetLayerParams,
+}
+
+const endpointToUrlPartGetter = {
+  'layers': () => '/layers',
+  'layer': ({layername}) => `/layer/${layername}`,
+}
+
+const endpointToPathParams = {
+  'layers': [],
+  'layer': ['name'],
+}
+
+const getEndpointDefaultParamsState = (endpoint, state) => {
+  const getters = {
+    'layers': () => ({layername: ''}),
+    'layer': ({layername}) => ({layername}),
+  }
+  const getter = getters[endpoint];
+  return getter ? getter(state) : {};
+}
+
+const requestToEndpoint = (request) => {
+  const parts = request.split('-')
+  parts.shift();
+  return parts.join('-');
+}
+
+const requestToMethod = (request) => {
+  return request.split('-', 1)[0];
+}
 
 class IndexPage extends React.PureComponent {
   constructor(props) {
@@ -19,6 +63,7 @@ class IndexPage extends React.PureComponent {
     this.state = {
       user: 'browser',
       request: 'post-layers',
+      layername: '',
       response: null,
     };
     this.formEl;
@@ -29,32 +74,49 @@ class IndexPage extends React.PureComponent {
     this.setState({user: event.target.value});
   }
 
+  handleLayernameChange(event) {
+    this.setState({layername: event.target.value});
+  }
+
   setRequest(request) {
+    const endpoint = requestToEndpoint(request);
     this.setState({
+      ...getEndpointDefaultParamsState(endpoint, this.state),
       request,
       response: null
     });
   }
 
   handleSubmitClick(event) {
-    console.log('submit click', this.formEl);
-    const formData = new FormData(this.formEl);
-    console.log('formData', formData)
-    for (var [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
+    this.setState({response: null});
 
     const response = {};
 
-    fetch(`/rest/${this.state.user}/layers`, {
-      method: 'POST',
-      body: formData
-    }).then( r => {
+    const method = requestToMethod(this.state.request);
+    const fetchOpts = {
+      method: method.toUpperCase(),
+    };
+
+    if(method !== 'get') {
+      const formData = new FormData(this.formEl);
+      const endpoint = requestToEndpoint(this.state.request);
+      const pathParams = (endpointToPathParams[endpoint] || []).concat();
+      pathParams.push('user');
+      pathParams.forEach(pathParam => {
+        formData.delete(pathParam);
+      })
+      fetchOpts['body'] = formData;
+    }
+
+    fetch(this.getRequestUrlPath(), fetchOpts).then( r => {
       response.status = r.status;
-      console.log('statusCode', r.status)
-      return r.json()
-    }).then( json => {
-      response.json = json;
+      response.ok = r.ok;
+      return r.text()
+    }).then( text => {
+      response.text = text;
+      try {
+        response.json = JSON.parse(text);
+      } catch (e) {}
     }).finally(() => {
       this.setState({response});
     });
@@ -62,20 +124,41 @@ class IndexPage extends React.PureComponent {
   }
 
   handleFormRef(formElement) {
-    console.log('handleFormRef', formElement);
     this.formEl = formElement;
+  }
+
+  getRequestUrlPath() {
+    const endpoint = requestToEndpoint(this.state.request);
+    const getter = endpointToUrlPartGetter[endpoint];
+    const urlPart = getter ? getter(this.state) : '';
+    const url = `/rest/${this.state.user}${urlPart}`;
+    return url
   }
 
   render() {
     const {response} = this.state;
     let respEl = null;
     if(response) {
-      respEl = <Segment>
-        <Header as='h2'>Response</Header>
-        <Header as='h3'>Status code {response.status}</Header>
-        <code>{JSON.stringify(response.json, null, 2)}</code>
-      </Segment>
+      const respBody = response.json ?
+          JSON.stringify(response.json, null, 2) :
+          response.text;
+      respEl =
+  <Message positive={response.ok}  negative={!response.ok}>
+    <Message.Header>Response</Message.Header>
+    <p>Status code {response.status}</p>
+    <code style={{whiteSpace: 'pre'}}>{respBody}</code>
+  </Message>
     }
+
+    const paramsClass = requestToParamsClass[this.state.request];
+    const params = paramsClass ? React.createElement(
+        paramsClass,
+        {
+          layername: this.state.layername,
+          onLayernameChange: this.handleLayernameChange.bind(this),
+        }
+    ) : null;
+
     return (
         <div>
           <HeaderMenu/>
@@ -86,6 +169,7 @@ class IndexPage extends React.PureComponent {
               <a href="https://github.com/jirik/gspld/blob/master/REST.md"
                  target="_blank">Documentation</a>
             </p>
+            <Header as='h2'>Endpoints and Actions</Header>
             <Table celled>
               <Table.Header>
                 <Table.Row>
@@ -102,58 +186,66 @@ class IndexPage extends React.PureComponent {
                 <Table.Row>
                   <Table.Cell>Layers</Table.Cell>
                   <Table.Cell><code>/rest/&lt;user&gt;/layers</code></Table.Cell>
-                  <Table.Cell
-                      style={clickableCell}
-                      onClick={this.setRequest.bind(this, 'get-layers')}
-                      active={this.state.request === 'get-layers'}
-                      >GET</Table.Cell>
-                  <Table.Cell
-                      style={clickableCell}
-                      onClick={this.setRequest.bind(this, 'post-layers')}
-                      active={this.state.request === 'post-layers'}
-                      >POST</Table.Cell>
+                  <Table.Cell>
+                    <Button
+                        toggle
+                        active={this.state.request === 'get-layers'}
+                        onClick={this.setRequest.bind(this, 'get-layers')}
+                    >GET</Button>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Button
+                        toggle
+                        active={this.state.request === 'post-layers'}
+                        onClick={this.setRequest.bind(this, 'post-layers')}
+                    >POST</Button>
+                  </Table.Cell>
                   <Table.Cell>x</Table.Cell>
                   <Table.Cell>x</Table.Cell>
                 </Table.Row>
                 <Table.Row>
                   <Table.Cell>Layer</Table.Cell>
                   <Table.Cell><code>/rest/&lt;user&gt;/layers/&lt;layername&gt;</code></Table.Cell>
-                  <Table.Cell
-                      style={clickableCell}
-                      onClick={this.setRequest.bind(this, 'get-layer')}
-                      active={this.state.request === 'get-layer'}
-                      >GET</Table.Cell>
+                  <Table.Cell>
+                    <Button
+                        toggle
+                        active={this.state.request === 'get-layer'}
+                        onClick={this.setRequest.bind(this, 'get-layer')}
+                    >GET</Button>
+                  </Table.Cell>
                   <Table.Cell>x</Table.Cell>
-                  <Table.Cell
-                      style={clickableCell}
-                      onClick={this.setRequest.bind(this, 'put-layer')}
-                      active={this.state.request === 'put-layer'}
-                      >PUT</Table.Cell>
-                  <Table.Cell
-                      style={clickableCell}
-                      onClick={this.setRequest.bind(this, 'delete-layer')}
-                      active={this.state.request === 'delete-layer'}
-                      >DELETE</Table.Cell>
+                  <Table.Cell>
+                    <Button
+                        toggle
+                        active={this.state.request === 'put-layer'}
+                        onClick={this.setRequest.bind(this, 'put-layer')}
+                    >PUT</Button>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Button
+                        toggle
+                        active={this.state.request === 'delete-layer'}
+                        onClick={this.setRequest.bind(this, 'delete-layer')}
+                    >DELETE</Button>
+                  </Table.Cell>
                 </Table.Row>
               </Table.Body>
 
             </Table>
+            <Header as='h2'>{getRequestTitle(this.state.request)}</Header>
+            <Header as='h3'>Parameters</Header>
             <Ref innerRef={this.handleFormRef.bind(this)}>
               <Form>
-                <Form.Field inline >
-                  <label>Vector data file</label>
-                  <input name="file" type="file" accept=".geojson,.json" multiple />
-                </Form.Field>
-                <Form.Input inline name="user" label='User name' placeholder='User name' value={this.state.user} onChange={this.handleUserChange.bind(this)} />
-                <Form.Input inline name="name" label='Layer name' placeholder='Layer name' />
-                <Form.Input inline name="title" label='Layer title' placeholder='Layer title' />
-                <Form.Input inline name="description" label='Layer description' placeholder='Layer description' />
-                <Form.Input inline name="crs" label='CRS' placeholder='CRS' />
-                <Form.Field inline >
-                  <label>SLD style</label>
-                  <input name="sld" type="file" accept=".sld,.xml" />
-                </Form.Field>
-                <Button type='submit' onClick={this.handleSubmitClick.bind(this)}>Submit</Button>
+                <Form.Input
+                    inline
+                    className="mandatory"
+                    name="user"
+                    label='User name'
+                    placeholder='User name'
+                    value={this.state.user}
+                    onChange={this.handleUserChange.bind(this)}/>
+                {params}
+                <Button primary type='submit' onClick={this.handleSubmitClick.bind(this)}>Submit</Button>
               </Form>
             </Ref>
             {respEl}
