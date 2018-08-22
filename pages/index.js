@@ -1,8 +1,11 @@
 import HeaderMenu from './../components/HeaderMenu'
 import {Container, Form, Button, Header, Table, Ref, Segment, Label, Message} from 'semantic-ui-react'
 import fetch from 'unfetch';
+import ReactDOM from 'react-dom';
 import PostLayersParams from "../components/PostLayersParams";
 import GetLayerParams from "../components/GetLayerParams";
+import GetLayerThumbnailParams from "../components/GetLayerThumbnailParams";
+import scrollIntoView from 'scroll-into-view';
 
 const containerStyle = {
   position: 'absolute',
@@ -26,22 +29,26 @@ const getRequestTitle = (request) => {
 const requestToParamsClass = {
   'post-layers': PostLayersParams,
   'get-layer': GetLayerParams,
+  'get-layer-thumbnail': GetLayerThumbnailParams,
 }
 
 const endpointToUrlPartGetter = {
   'layers': () => '/layers',
   'layer': ({layername}) => `/layers/${layername}`,
+  'layer-thumbnail': ({layername}) => `/layers/${layername}/thumbnail`,
 }
 
 const endpointToPathParams = {
   'layers': [],
   'layer': ['name'],
+  'layer-thumbnail': ['name'],
 }
 
 const getEndpointDefaultParamsState = (endpoint, state) => {
   const getters = {
     'layers': () => ({layername: ''}),
     'layer': ({layername}) => ({layername}),
+    'layer-thumbnail': ({layername}) => ({layername}),
   }
   const getter = getters[endpoint];
   return getter ? getter(state) : {};
@@ -57,6 +64,10 @@ const requestToMethod = (request) => {
   return request.split('-', 1)[0];
 }
 
+const isBlob = (response) => {
+  return ['image/png'].includes(response.contentType);
+}
+
 class IndexPage extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -67,7 +78,7 @@ class IndexPage extends React.PureComponent {
       response: null,
     };
     this.formEl;
-    this.formRef = React.createRef();
+    this.respRef = React.createRef();
   }
 
   handleUserChange(event) {
@@ -111,14 +122,25 @@ class IndexPage extends React.PureComponent {
     fetch(this.getRequestUrlPath(), fetchOpts).then( r => {
       response.status = r.status;
       response.ok = r.ok;
-      return r.text()
-    }).then( text => {
-      response.text = text;
-      try {
-        response.json = JSON.parse(text);
-      } catch (e) {}
+      response.contentType = r.headers.get('content-type');
+      return isBlob(response) ? r.blob() : r.text();
+    }).then( textOrBlob => {
+      if(isBlob(response)) {
+        const blob = textOrBlob;
+        response.image_url = window.URL.createObjectURL(blob);
+      } else {
+        const text = textOrBlob;
+        response.text = text;
+        try {
+          response.json = JSON.parse(text);
+        } catch (e) {}
+      }
     }).finally(() => {
       this.setState({response});
+      const domNode = ReactDOM.findDOMNode(this.respRef.current)
+      if(domNode) {
+        scrollIntoView(domNode);
+      }
     });
 
   }
@@ -139,15 +161,22 @@ class IndexPage extends React.PureComponent {
     const {response} = this.state;
     let respEl = null;
     if(response) {
-      const respBody = response.json ?
-          JSON.stringify(response.json, null, 2) :
-          response.text;
+      let resp_body;
+      if(response.image_url) {
+        resp_body = <img src={response.image_url} />
+      } else {
+        const resp_body_text = response.json ?
+            JSON.stringify(response.json, null, 2) :
+            response.text;
+        resp_body = <code style={{whiteSpace: 'pre'}}>{resp_body_text}</code>
+      }
       respEl =
-  <Message positive={response.ok}  negative={!response.ok}>
-    <Message.Header>Response</Message.Header>
-    <p>Status code {response.status}</p>
-    <code style={{whiteSpace: 'pre'}}>{respBody}</code>
-  </Message>
+          <Message positive={response.ok}  negative={!response.ok} ref={this.respRef}>
+            <Message.Header>Response</Message.Header>
+            <p>Status code: {response.status}</p>
+            <p>Content-Type: {response.contentType}</p>
+            {resp_body}
+          </Message>
     }
 
     const paramsClass = requestToParamsClass[this.state.request];
@@ -164,10 +193,10 @@ class IndexPage extends React.PureComponent {
           <HeaderMenu/>
 
           <Container style={containerStyle}>
-            <Header as='h1'>Simple Client to Test Layman REST API</Header>
+            <Header as='h1'>Test Client of Layman REST API</Header>
             <p>
-              <a href="https://github.com/jirik/gspld/blob/master/REST.md"
-                 target="_blank">Documentation</a>
+              <a href="https://github.com/jirik/gspld/blob/stage-2/REST.md"
+                 target="_blank">Layman REST API Documentation</a>
             </p>
             <Header as='h2'>Endpoints and Actions</Header>
             <Table celled>
@@ -189,6 +218,7 @@ class IndexPage extends React.PureComponent {
                   <Table.Cell>
                     <Button
                         toggle
+                        disabled
                         active={this.state.request === 'get-layers'}
                         onClick={this.setRequest.bind(this, 'get-layers')}
                     >GET</Button>
@@ -217,6 +247,7 @@ class IndexPage extends React.PureComponent {
                   <Table.Cell>
                     <Button
                         toggle
+                        disabled
                         active={this.state.request === 'put-layer'}
                         onClick={this.setRequest.bind(this, 'put-layer')}
                     >PUT</Button>
@@ -224,10 +255,25 @@ class IndexPage extends React.PureComponent {
                   <Table.Cell>
                     <Button
                         toggle
+                        disabled
                         active={this.state.request === 'delete-layer'}
                         onClick={this.setRequest.bind(this, 'delete-layer')}
                     >DELETE</Button>
                   </Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell>Layer Thumbnail</Table.Cell>
+                  <Table.Cell><code>/rest/&lt;user&gt;/layers/&lt;layername&gt;/thumbnail</code></Table.Cell>
+                  <Table.Cell>
+                    <Button
+                        toggle
+                        active={this.state.request === 'get-layer-thumbnail'}
+                        onClick={this.setRequest.bind(this, 'get-layer-thumbnail')}
+                    >GET</Button>
+                  </Table.Cell>
+                  <Table.Cell>x</Table.Cell>
+                  <Table.Cell>x</Table.Cell>
+                  <Table.Cell>x</Table.Cell>
                 </Table.Row>
               </Table.Body>
 
