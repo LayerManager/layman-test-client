@@ -218,7 +218,6 @@ class IndexPage extends React.PureComponent {
                   <Table.Cell>
                     <Button
                         toggle
-                        disabled
                         active={this.state.request === 'get-layers'}
                         onClick={this.setRequest.bind(this, 'get-layers')}
                     >GET</Button>
