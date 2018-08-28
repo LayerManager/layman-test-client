@@ -7,6 +7,7 @@ class GetLayersParams extends React.PureComponent {
         <div>
           <Form.Input
               inline
+              className="mandatory"
               name="name"
               label='Layer name'
               placeholder='Layer name'

@@ -6,6 +6,7 @@ import PostLayersParams from "../components/PostLayersParams";
 import GetLayerParams from "../components/GetLayerParams";
 import GetLayerThumbnailParams from "../components/GetLayerThumbnailParams";
 import scrollIntoView from 'scroll-into-view';
+import PutLayerParams from "../components/PutLayerParams";
 
 const containerStyle = {
   position: 'absolute',
@@ -28,6 +29,7 @@ const getRequestTitle = (request) => {
 
 const requestToParamsClass = {
   'post-layers': PostLayersParams,
+  'put-layer': PutLayerParams,
   'get-layer': GetLayerParams,
   'get-layer-thumbnail': GetLayerThumbnailParams,
 }
@@ -246,7 +248,6 @@ class IndexPage extends React.PureComponent {
                   <Table.Cell>
                     <Button
                         toggle
-                        disabled
                         active={this.state.request === 'put-layer'}
                         onClick={this.setRequest.bind(this, 'put-layer')}
                     >PUT</Button>
