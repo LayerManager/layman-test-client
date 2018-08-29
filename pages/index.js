@@ -121,7 +121,8 @@ class IndexPage extends React.PureComponent {
       fetchOpts['body'] = formData;
     }
 
-    fetch(this.getRequestUrlPath(), fetchOpts).then( r => {
+    const url_path = this.getRequestUrlPath() + '?' + (+new Date());
+    fetch(url_path, fetchOpts).then( r => {
       response.status = r.status;
       response.ok = r.ok;
       response.contentType = r.headers.get('content-type');
