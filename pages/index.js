@@ -7,6 +7,7 @@ import GetLayerParams from "../components/GetLayerParams";
 import GetLayerThumbnailParams from "../components/GetLayerThumbnailParams";
 import scrollIntoView from 'scroll-into-view';
 import PutLayerParams from "../components/PutLayerParams";
+import DeleteLayerParams from "../components/DeleteLayerParams";
 
 const containerStyle = {
   position: 'absolute',
@@ -31,6 +32,7 @@ const requestToParamsClass = {
   'post-layers': PostLayersParams,
   'put-layer': PutLayerParams,
   'get-layer': GetLayerParams,
+  'delete-layer': DeleteLayerParams,
   'get-layer-thumbnail': GetLayerThumbnailParams,
 }
 
@@ -198,7 +200,7 @@ class IndexPage extends React.PureComponent {
           <Container style={containerStyle}>
             <Header as='h1'>Test Client of Layman REST API</Header>
             <p>
-              <a href="https://github.com/jirik/gspld/blob/stage-2/REST.md"
+              <a href="https://github.com/jirik/gspld/blob/master/REST.md"
                  target="_blank">Layman REST API Documentation</a>
             </p>
             <Header as='h2'>Endpoints and Actions</Header>
@@ -256,7 +258,6 @@ class IndexPage extends React.PureComponent {
                   <Table.Cell>
                     <Button
                         toggle
-                        disabled
                         active={this.state.request === 'delete-layer'}
                         onClick={this.setRequest.bind(this, 'delete-layer')}
                     >DELETE</Button>
