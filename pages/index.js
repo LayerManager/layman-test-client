@@ -297,7 +297,7 @@ class IndexPage extends React.PureComponent {
                       && !response.resumable_errors.length;
         const negative = !!response.resumable_errors.length;
         resuming_body =
-            <Message positive={positive} negative={negative} ref={this.respRef}>
+            <Message positive={positive} negative={negative}>
               {resumable_header}
               <Progress percent={Math.ceil(response.resumable_progress*100)}
                   success={positive} warning={negative}
