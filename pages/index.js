@@ -1,5 +1,5 @@
 import HeaderMenu from './../components/HeaderMenu'
-import {Container, Form, Button, Header, Table, Ref, Segment, Label, Message} from 'semantic-ui-react'
+import {Container, Form, Button, Header, Table, Ref, Icon, Segment, Message, Progress} from 'semantic-ui-react'
 import fetch from 'unfetch';
 import ReactDOM from 'react-dom';
 import PostLayersParams from "../components/PostLayersParams";
@@ -8,6 +8,10 @@ import GetLayerThumbnailParams from "../components/GetLayerThumbnailParams";
 import scrollIntoView from 'scroll-into-view';
 import PutLayerParams from "../components/PutLayerParams";
 import DeleteLayerParams from "../components/DeleteLayerParams";
+import Resumable from "resumablejs";
+
+let RESUMABLE_ENABLED = false;
+const PREFER_RESUMABLE_SIZE_LIMIT = 1 * 1024 * 1024;
 
 const containerStyle = {
   position: 'absolute',
@@ -34,6 +38,14 @@ const requestToParamsClass = {
   'get-layer': GetLayerParams,
   'delete-layer': DeleteLayerParams,
   'get-layer-thumbnail': GetLayerThumbnailParams,
+}
+
+const requestToResumableParams = {
+  'post-layers': ['file'],
+  'put-layer': ['file'],
+  'get-layer': [],
+  'delete-layer': [],
+  'get-layer-thumbnail': [],
 }
 
 const endpointToUrlPartGetter = {
@@ -112,6 +124,9 @@ class IndexPage extends React.PureComponent {
       method: method.toUpperCase(),
     };
 
+    let resuming = false;
+    let files_to_upload = [];
+
     if(method !== 'get') {
       const formData = new FormData(this.formEl);
       const endpoint = requestToEndpoint(this.state.request);
@@ -119,7 +134,40 @@ class IndexPage extends React.PureComponent {
       pathParams.push('user');
       pathParams.forEach(pathParam => {
         formData.delete(pathParam);
-      })
+      });
+      console.log('RESUMABLE_ENABLED', RESUMABLE_ENABLED);
+      if(RESUMABLE_ENABLED) {
+        const resumableParams = (requestToResumableParams[this.state.request] || [])
+            .concat()
+            .filter(resumableParam => formData.has(resumableParam));
+        const sum_file_size = resumableParams.reduce((prev, resumableParam) => {
+          return prev + formData.getAll(resumableParam)
+              .filter(f => f.name)
+              .reduce((prev, f) => prev + f.size, 0)
+        }, 0);
+        resuming = sum_file_size >= PREFER_RESUMABLE_SIZE_LIMIT;
+        console.log(`Sum of file sizes: ${sum_file_size} B`);
+        console.log(`Use upload by chunks: ${resuming}`);
+        if(resuming) {
+          console.log('Choosing to upload files by chunks');
+          resumableParams.forEach(resumableParam => {
+            const files = formData.getAll(resumableParam)
+                .filter(f => f.name);
+            files.forEach(file => {
+              files_to_upload.push({
+                'layman_original_parameter': resumableParam,
+                'file': file,
+              });
+            });
+            const file_names = files.map(f => f.name);
+            formData.delete(resumableParam);
+            file_names.forEach(fn => {
+              formData.append(resumableParam, fn);
+            });
+            // console.log(resumableParam, 'file_names', formData.getAll(resumableParam));
+          });
+        }
+      }
       fetchOpts['body'] = formData;
     }
 
@@ -127,6 +175,9 @@ class IndexPage extends React.PureComponent {
     fetch(url_path, fetchOpts).then( r => {
       response.status = r.status;
       response.ok = r.ok;
+      if(r.ok && resuming) {
+        response.resumable = true;
+      }
       response.contentType = r.headers.get('content-type');
       return isBlob(response) ? r.blob() : r.text();
     }).then( textOrBlob => {
@@ -139,6 +190,54 @@ class IndexPage extends React.PureComponent {
         try {
           response.json = JSON.parse(text);
         } catch (e) {}
+      }
+    }).then( () => {
+      if(response.resumable && response.json) {
+        // console.log('create resumable');
+        const resumable = new Resumable({
+          target: `/rest/${this.state.user}/layers/${response.json[0].name}/chunk`,
+          query: resumable_file => ({
+            'layman_original_parameter': files_to_upload.find(
+                fo => fo.file === resumable_file.file
+            ).layman_original_parameter
+          }),
+          testChunks: true,
+        });
+        response.resumable_progress = 0;
+        response.resumable_errors = [];
+
+        resumable.on('progress', () => {
+          response.resumable_progress = resumable.progress();
+          this.setState({
+            response: {...response}
+          });
+        });
+        files_to_upload = files_to_upload.filter(fo =>
+          !!response.json[0]['files_to_upload'].find(fo_server =>
+              fo.layman_original_parameter ===
+                  fo_server.layman_original_parameter
+                  &&
+              fo.file.name === fo_server.file
+          )
+        );
+        // console.log(`adding ${files_to_upload.length} files`);
+        resumable.addFiles(files_to_upload.map(fo => fo.file));
+
+        resumable.on('filesAdded', (files) => {
+          // console.log(`added ${files.length} to resumable, starting upload`);
+          resumable.upload();
+        });
+
+        resumable.on('error', (message, file, next) => {
+          response.resumable_errors.push({
+            message,
+            file,
+          });
+          response.resumable_progress = resumable.progress();
+          this.setState({
+            response: {...response}
+          });
+        });
       }
     }).finally(() => {
       this.setState({response});
@@ -162,6 +261,18 @@ class IndexPage extends React.PureComponent {
     return url
   }
 
+  componentDidMount() {
+    // console.log('componentDidMount');
+    RESUMABLE_ENABLED = (new Resumable()).support;
+  }
+
+
+  componentDidUpdate() {
+    // console.log('componentDidUpdate');
+    RESUMABLE_ENABLED = (new Resumable()).support;
+  }
+
+
   render() {
     const {response} = this.state;
     let respEl = null;
@@ -175,13 +286,43 @@ class IndexPage extends React.PureComponent {
             response.text;
         resp_body = <code style={{whiteSpace: 'pre'}}>{resp_body_text}</code>
       }
+
+      let resuming_body = null;
+      let resuming_errors = null;
+      if(response.resumable) {
+        const resumable_header = response.resumable_progress < 1 ?
+            <Message.Header><Icon loading name='spinner' />Uploading files</Message.Header>
+            : <Message.Header>Upload finished!</Message.Header>;
+        const positive = response.resumable_progress === 1
+                      && !response.resumable_errors.length;
+        const negative = !!response.resumable_errors.length;
+        resuming_body =
+            <Message positive={positive} negative={negative} ref={this.respRef}>
+              {resumable_header}
+              <Progress percent={Math.ceil(response.resumable_progress*100)}
+                  success={positive} warning={negative}
+              />
+            </Message>
+        resuming_errors = response.resumable_errors.map((err, idx) => (
+            <Message key={idx} negative>
+              <Message.Header>Error during upload</Message.Header>
+              {err.file ? <p>File name: {err.file.file.name}</p> : null}
+              <code>${err.message}</code>
+            </Message>
+        ));
+      }
+
       respEl =
-          <Message positive={response.ok}  negative={!response.ok} ref={this.respRef}>
-            <Message.Header>Response</Message.Header>
-            <p>Status code: {response.status}</p>
-            <p>Content-Type: {response.contentType}</p>
-            {resp_body}
-          </Message>
+          <Segment ref={this.respRef}>
+            <Message positive={response.ok}  negative={!response.ok}>
+              <Message.Header>Response</Message.Header>
+              <p>Status code: {response.status}</p>
+              <p>Content-Type: {response.contentType}</p>
+              {resp_body}
+            </Message>
+            {resuming_body}
+            {resuming_errors}
+          </Segment>
     }
 
     const paramsClass = requestToParamsClass[this.state.request];
