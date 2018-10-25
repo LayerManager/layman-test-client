@@ -1,6 +1,6 @@
 {
   "name": "gspld-test-client",
-  "version": "0.4.1",
+  "version": "0.5",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -17,12 +17,12 @@
     "express": "^4.16.3",
     "http-proxy-middleware": "^0.18.0",
     "isomorphic-unfetch": "^2.0.0",
-    "next": "^5.1.0",
-    "react": "^16.3.1",
-    "react-dom": "^16.3.1",
+    "next": "7.0.2",
+    "react": "16.4.2",
+    "react-dom": "16.4.2",
     "resumablejs": "^1.1.0",
     "scroll-into-view": "^1.9.3",
-    "semantic-ui-react": "^0.79.1"
+    "semantic-ui-react": "0.83.0"
   },
   "devDependencies": {}
 }

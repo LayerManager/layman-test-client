@@ -80,6 +80,24 @@ const requestToMethod = (request) => {
   return request.split('-', 1)[0];
 }
 
+const requestResponseToLayername = (request, responseJson) => {
+  const getters = {
+    'post-layers': responseJson => responseJson[0]['name'],
+    'put-layer': responseJson => responseJson['name'],
+  }
+  const getter = getters[request];
+  return getter ? getter(responseJson) : '';
+}
+
+const requestResponseToFilesToUpload = (request, responseJson) => {
+  const getters = {
+    'post-layers': responseJson => responseJson[0]['files_to_upload'],
+    'put-layer': responseJson => responseJson['files_to_upload'],
+  }
+  const getter = getters[request];
+  return getter ? getter(responseJson) : '';
+}
+
 const isBlob = (response) => {
   return ['image/png'].includes(response.contentType);
 }
@@ -149,7 +167,6 @@ class IndexPage extends React.PureComponent {
         console.log(`Sum of file sizes: ${sum_file_size} B`);
         console.log(`Use upload by chunks: ${resuming}`);
         if(resuming) {
-          console.log('Choosing to upload files by chunks');
           resumableParams.forEach(resumableParam => {
             const files = formData.getAll(resumableParam)
                 .filter(f => f.name);
@@ -161,10 +178,7 @@ class IndexPage extends React.PureComponent {
             });
             const file_names = files.map(f => f.name);
             formData.delete(resumableParam);
-            file_names.forEach(fn => {
-              formData.append(resumableParam, fn);
-            });
-            // console.log(resumableParam, 'file_names', formData.getAll(resumableParam));
+            file_names.forEach(fn => formData.append(resumableParam, fn));
           });
         }
       }
@@ -193,9 +207,11 @@ class IndexPage extends React.PureComponent {
       }
     }).then( () => {
       if(response.resumable && response.json) {
+        const layername = requestResponseToLayername(this.state.request,
+            response.json);
         // console.log('create resumable');
         const resumable = new Resumable({
-          target: `/rest/${this.state.user}/layers/${response.json[0].name}/chunk`,
+          target: `/rest/${this.state.user}/layers/${layername}/chunk`,
           query: resumable_file => ({
             'layman_original_parameter': files_to_upload.find(
                 fo => fo.file === resumable_file.file
@@ -212,12 +228,14 @@ class IndexPage extends React.PureComponent {
             response: {...response}
           });
         });
+        const expected_files_to_upload = requestResponseToFilesToUpload(
+            this.state.request, response.json
+        );
         files_to_upload = files_to_upload.filter(fo =>
-          !!response.json[0]['files_to_upload'].find(fo_server =>
-              fo.layman_original_parameter ===
-                  fo_server.layman_original_parameter
+          !!expected_files_to_upload.find(exp_fo =>
+              fo.layman_original_parameter === exp_fo.layman_original_parameter
                   &&
-              fo.file.name === fo_server.file
+              fo.file.name === exp_fo.file
           )
         );
         // console.log(`adding ${files_to_upload.length} files`);
@@ -311,18 +329,19 @@ class IndexPage extends React.PureComponent {
             </Message>
         ));
       }
-
       respEl =
-          <Segment ref={this.respRef}>
-            <Message positive={response.ok}  negative={!response.ok}>
-              <Message.Header>Response</Message.Header>
-              <p>Status code: {response.status}</p>
-              <p>Content-Type: {response.contentType}</p>
-              {resp_body}
-            </Message>
-            {resuming_body}
-            {resuming_errors}
-          </Segment>
+          <div ref={this.respRef}>
+            <Segment>
+              {resuming_body}
+              {resuming_errors}
+              <Message positive={response.ok}  negative={!response.ok}>
+                <Message.Header>Response</Message.Header>
+                <p>Status code: {response.status}</p>
+                <p>Content-Type: {response.contentType}</p>
+                {resp_body}
+              </Message>
+            </Segment>
+          </div>
     }
 
     const paramsClass = requestToParamsClass[this.state.request];
