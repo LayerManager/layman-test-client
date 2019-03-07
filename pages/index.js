@@ -6,7 +6,7 @@ import PostLayersParams from "../components/PostLayersParams";
 import GetLayerParams from "../components/GetLayerParams";
 import GetLayerThumbnailParams from "../components/GetLayerThumbnailParams";
 import scrollIntoView from 'scroll-into-view';
-import PutLayerParams from "../components/PutLayerParams";
+import PatchLayerParams from "../components/PatchLayerParams";
 import DeleteLayerParams from "../components/DeleteLayerParams";
 import Resumable from "resumablejs";
 
@@ -34,7 +34,7 @@ const getRequestTitle = (request) => {
 
 const requestToParamsClass = {
   'post-layers': PostLayersParams,
-  'put-layer': PutLayerParams,
+  'patch-layer': PatchLayerParams,
   'get-layer': GetLayerParams,
   'delete-layer': DeleteLayerParams,
   'get-layer-thumbnail': GetLayerThumbnailParams,
@@ -42,7 +42,7 @@ const requestToParamsClass = {
 
 const requestToResumableParams = {
   'post-layers': ['file'],
-  'put-layer': ['file'],
+  'patch-layer': ['file'],
   'get-layer': [],
   'delete-layer': [],
   'get-layer-thumbnail': [],
@@ -83,7 +83,7 @@ const requestToMethod = (request) => {
 const requestResponseToLayername = (request, responseJson) => {
   const getters = {
     'post-layers': responseJson => responseJson[0]['name'],
-    'put-layer': responseJson => responseJson['name'],
+    'patch-layer': responseJson => responseJson['name'],
   }
   const getter = getters[request];
   return getter ? getter(responseJson) : '';
@@ -92,7 +92,7 @@ const requestResponseToLayername = (request, responseJson) => {
 const requestResponseToFilesToUpload = (request, responseJson) => {
   const getters = {
     'post-layers': responseJson => responseJson[0]['files_to_upload'],
-    'put-layer': responseJson => responseJson['files_to_upload'],
+    'patch-layer': responseJson => responseJson['files_to_upload'],
   }
   const getter = getters[request];
   return getter ? getter(responseJson) : '';
@@ -371,7 +371,7 @@ class IndexPage extends React.PureComponent {
                   <Table.HeaderCell>URL</Table.HeaderCell>
                   <Table.HeaderCell>GET</Table.HeaderCell>
                   <Table.HeaderCell>POST</Table.HeaderCell>
-                  <Table.HeaderCell>PUT</Table.HeaderCell>
+                  <Table.HeaderCell>PATCH</Table.HeaderCell>
                   <Table.HeaderCell>DELETE</Table.HeaderCell>
                 </Table.Row>
               </Table.Header>
@@ -411,9 +411,9 @@ class IndexPage extends React.PureComponent {
                   <Table.Cell>
                     <Button
                         toggle
-                        active={this.state.request === 'put-layer'}
-                        onClick={this.setRequest.bind(this, 'put-layer')}
-                    >PUT</Button>
+                        active={this.state.request === 'patch-layer'}
+                        onClick={this.setRequest.bind(this, 'patch-layer')}
+                    >PATCH</Button>
                   </Table.Cell>
                   <Table.Cell>
                     <Button

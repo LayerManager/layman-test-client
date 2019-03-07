@@ -1,6 +1,6 @@
 import {Form} from 'semantic-ui-react'
 
-class PutLayerParams extends React.PureComponent {
+class PatchLayerParams extends React.PureComponent {
 
   render() {
     return (
@@ -40,5 +40,5 @@ class PutLayerParams extends React.PureComponent {
   }
 }
 
-export default PutLayerParams;
+export default PatchLayerParams;
 
