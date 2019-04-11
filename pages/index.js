@@ -1,5 +1,5 @@
 import HeaderMenu from './../components/HeaderMenu'
-import {Container, Form, Button, Header, Table, Ref, Icon, Segment, Message, Progress} from 'semantic-ui-react'
+import {Container, Form, Button, Header, Table, Ref, Icon, Segment, Message, Progress, Tab} from 'semantic-ui-react'
 import fetch from 'unfetch';
 import ReactDOM from 'react-dom';
 import PostLayersParams from "../components/PostLayersParams";
@@ -9,6 +9,8 @@ import scrollIntoView from 'scroll-into-view';
 import PatchLayerParams from "../components/PatchLayerParams";
 import DeleteLayerParams from "../components/DeleteLayerParams";
 import Resumable from "resumablejs";
+import PostMapsParams from "../components/PostMapsParams";
+import GetMapFileParams from "../components/GetMapFileParams";
 
 let RESUMABLE_ENABLED = false;
 const PREFER_RESUMABLE_SIZE_LIMIT = 1 * 1024 * 1024;
@@ -25,6 +27,13 @@ const toTitleCase = (str) => {
     });
 };
 
+const PUBLICATION_TYPES = ['layer', 'map'];
+
+const publicationTypeToDefaultRequest = {
+  'layer': 'post-layers',
+  'map': 'post-maps',
+}
+
 const getRequestTitle = (request) => {
   const parts = request.split('-')
   parts[0] = parts[0].toUpperCase();
@@ -38,26 +47,33 @@ const requestToParamsClass = {
   'get-layer': GetLayerParams,
   'delete-layer': DeleteLayerParams,
   'get-layer-thumbnail': GetLayerThumbnailParams,
+  'post-maps': PostMapsParams,
+  'get-map-file': GetMapFileParams,
 }
 
 const requestToResumableParams = {
   'post-layers': ['file'],
   'patch-layer': ['file'],
-  'get-layer': [],
-  'delete-layer': [],
-  'get-layer-thumbnail': [],
 }
 
 const endpointToUrlPartGetter = {
   'layers': () => '/layers',
   'layer': ({layername}) => `/layers/${layername}`,
   'layer-thumbnail': ({layername}) => `/layers/${layername}/thumbnail`,
+  'maps': () => '/maps',
+  'map': ({mapname}) => `/maps/${mapname}`,
+  'map-file': ({mapname}) => `/maps/${mapname}/file`,
+  'map-thumbnail': ({mapname}) => `/maps/${mapname}/thumbnail`,
 }
 
 const endpointToPathParams = {
   'layers': [],
   'layer': ['name'],
   'layer-thumbnail': ['name'],
+  'maps': [],
+  'map': ['name'],
+  'map-file': ['name'],
+  'map-thumbnail': ['name'],
 }
 
 const getEndpointDefaultParamsState = (endpoint, state) => {
@@ -65,9 +81,32 @@ const getEndpointDefaultParamsState = (endpoint, state) => {
     'layers': () => ({layername: ''}),
     'layer': ({layername}) => ({layername}),
     'layer-thumbnail': ({layername}) => ({layername}),
+    'maps': () => ({mapname: ''}),
+    'map': ({mapname}) => ({mapname}),
+    'map-file': ({mapname}) => ({mapname}),
+    'map-thumbnail': ({mapname}) => ({mapname}),
   }
   const getter = getters[endpoint];
   return getter ? getter(state) : {};
+}
+
+const getEndpointParamsProps = (endpoint, component) => {
+  const layer_props = {
+    layername: component.state.layername,
+    onLayernameChange: component.handleLayernameChange.bind(component),
+  };
+  const map_props = {
+    mapname: component.state.mapname,
+    onMapnameChange: component.handleMapnameChange.bind(component),
+  };
+  const props = {
+    'layer': layer_props,
+    'layer-thumbnail': layer_props,
+    'map': map_props,
+    'map-file': map_props,
+    'map-thumbnail': map_props,
+  }
+  return props[endpoint];
 }
 
 const requestToEndpoint = (request) => {
@@ -109,6 +148,8 @@ class IndexPage extends React.PureComponent {
       user: 'browser',
       request: 'post-layers',
       layername: '',
+      mapname: '',
+      publication_type: 'layer',
       response: null,
     };
     this.formEl;
@@ -121,6 +162,18 @@ class IndexPage extends React.PureComponent {
 
   handleLayernameChange(event) {
     this.setState({layername: event.target.value});
+  }
+
+  handleMapnameChange(event) {
+    this.setState({mapname: event.target.value});
+  }
+
+  handlePublicationTypeChange(event, {activeIndex}) {
+    const ptype = PUBLICATION_TYPES[activeIndex];
+    this.setState({
+      publication_type: ptype,
+      request: publicationTypeToDefaultRequest[ptype],
+    });
   }
 
   setRequest(request) {
@@ -345,13 +398,204 @@ class IndexPage extends React.PureComponent {
     }
 
     const paramsClass = requestToParamsClass[this.state.request];
-    const params = paramsClass ? React.createElement(
-        paramsClass,
-        {
-          layername: this.state.layername,
-          onLayernameChange: this.handleLayernameChange.bind(this),
-        }
-    ) : null;
+    let params = null;
+    if (paramsClass) {
+      const endpoint = requestToEndpoint(this.state.request);
+      const paramsProps = getEndpointParamsProps(endpoint, this);
+      params = React.createElement(
+          paramsClass,
+          paramsProps
+      )
+    }
+
+    const panes = [
+      {
+        menuItem: 'Layer', render: () => {
+          return (
+              <Tab.Pane>
+                <Table celled>
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.HeaderCell>Endpoint</Table.HeaderCell>
+                      <Table.HeaderCell>URL</Table.HeaderCell>
+                      <Table.HeaderCell>GET</Table.HeaderCell>
+                      <Table.HeaderCell>POST</Table.HeaderCell>
+                      <Table.HeaderCell>PATCH</Table.HeaderCell>
+                      <Table.HeaderCell>DELETE</Table.HeaderCell>
+                    </Table.Row>
+                  </Table.Header>
+
+                  <Table.Body>
+                    <Table.Row>
+                      <Table.Cell>Layers</Table.Cell>
+                      <Table.Cell><code>/rest/&lt;user&gt;/layers</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-layers'}
+                            onClick={this.setRequest.bind(this, 'get-layers')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'post-layers'}
+                            onClick={this.setRequest.bind(this, 'post-layers')}
+                        >POST</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                    </Table.Row>
+                    <Table.Row>
+                      <Table.Cell>Layer</Table.Cell>
+                      <Table.Cell><code>/rest/&lt;user&gt;/layers/&lt;layername&gt;</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-layer'}
+                            onClick={this.setRequest.bind(this, 'get-layer')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'patch-layer'}
+                            onClick={this.setRequest.bind(this, 'patch-layer')}
+                        >PATCH</Button>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'delete-layer'}
+                            onClick={this.setRequest.bind(this, 'delete-layer')}
+                        >DELETE</Button>
+                      </Table.Cell>
+                    </Table.Row>
+                    <Table.Row>
+                      <Table.Cell>Layer Thumbnail</Table.Cell>
+                      <Table.Cell><code>/rest/&lt;user&gt;/layers/&lt;layername&gt;/thumbnail</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-layer-thumbnail'}
+                            onClick={this.setRequest.bind(this, 'get-layer-thumbnail')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                    </Table.Row>
+                  </Table.Body>
+                </Table>
+              </Tab.Pane>
+          );
+        },
+      },
+      {
+        menuItem: 'Map', render: () => {
+          return (
+              <Tab.Pane>
+                <Table celled>
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.HeaderCell>Endpoint</Table.HeaderCell>
+                      <Table.HeaderCell>URL</Table.HeaderCell>
+                      <Table.HeaderCell>GET</Table.HeaderCell>
+                      <Table.HeaderCell>POST</Table.HeaderCell>
+                      <Table.HeaderCell>PATCH</Table.HeaderCell>
+                      <Table.HeaderCell>DELETE</Table.HeaderCell>
+                    </Table.Row>
+                  </Table.Header>
+
+                  <Table.Body>
+                    <Table.Row>
+                      <Table.Cell>Maps</Table.Cell>
+                      <Table.Cell><code>/rest/&lt;user&gt;/maps</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-maps'}
+                            onClick={this.setRequest.bind(this, 'get-maps')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'post-maps'}
+                            onClick={this.setRequest.bind(this, 'post-maps')}
+                        >POST</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                    </Table.Row>
+                    <Table.Row>
+                      <Table.Cell>Map</Table.Cell>
+                      <Table.Cell><code>/rest/&lt;user&gt;/maps/&lt;mapname&gt;</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            disabled
+                            // active={this.state.request === 'get-map'}
+                            // onClick={this.setRequest.bind(this, 'get-map')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            disabled
+                            // active={this.state.request === 'patch-map'}
+                            // onClick={this.setRequest.bind(this, 'patch-map')}
+                        >PATCH</Button>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            disabled
+                            // active={this.state.request === 'delete-map'}
+                            // onClick={this.setRequest.bind(this, 'delete-map')}
+                        >DELETE</Button>
+                      </Table.Cell>
+                    </Table.Row>
+                    <Table.Row>
+                      <Table.Cell>Map File</Table.Cell>
+                      <Table.Cell><code>/rest/&lt;user&gt;/maps/&lt;mapname&gt;/file</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-map-file'}
+                            onClick={this.setRequest.bind(this, 'get-map-file')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                    </Table.Row>
+                    <Table.Row>
+                      <Table.Cell>Map Thumbnail</Table.Cell>
+                      <Table.Cell><code>/rest/&lt;user&gt;/maps/&lt;mapname&gt;/thumbnail</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            disabled
+                            // active={this.state.request === 'get-map-thumbnail'}
+                            // onClick={this.setRequest.bind(this, 'get-map-thumbnail')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                    </Table.Row>
+                  </Table.Body>
+                </Table>
+              </Tab.Pane>
+          )
+        },
+      }
+    ]
+
+    const publ_idx = PUBLICATION_TYPES.indexOf(this.state.publication_type);
 
     return (
         <div>
@@ -360,86 +604,11 @@ class IndexPage extends React.PureComponent {
           <Container style={containerStyle}>
             <Header as='h1'>Test Client of Layman REST API</Header>
             <p>
-              <a href="https://github.com/jirik/gspld/blob/master/REST.md"
+              <a href="https://github.com/jirik/gspld/blob/master/doc/rest.md"
                  target="_blank">Layman REST API Documentation</a>
             </p>
             <Header as='h2'>Endpoints and Actions</Header>
-            <Table celled>
-              <Table.Header>
-                <Table.Row>
-                  <Table.HeaderCell>Endpoint</Table.HeaderCell>
-                  <Table.HeaderCell>URL</Table.HeaderCell>
-                  <Table.HeaderCell>GET</Table.HeaderCell>
-                  <Table.HeaderCell>POST</Table.HeaderCell>
-                  <Table.HeaderCell>PATCH</Table.HeaderCell>
-                  <Table.HeaderCell>DELETE</Table.HeaderCell>
-                </Table.Row>
-              </Table.Header>
-
-              <Table.Body>
-                <Table.Row>
-                  <Table.Cell>Layers</Table.Cell>
-                  <Table.Cell><code>/rest/&lt;user&gt;/layers</code></Table.Cell>
-                  <Table.Cell>
-                    <Button
-                        toggle
-                        active={this.state.request === 'get-layers'}
-                        onClick={this.setRequest.bind(this, 'get-layers')}
-                    >GET</Button>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Button
-                        toggle
-                        active={this.state.request === 'post-layers'}
-                        onClick={this.setRequest.bind(this, 'post-layers')}
-                    >POST</Button>
-                  </Table.Cell>
-                  <Table.Cell>x</Table.Cell>
-                  <Table.Cell>x</Table.Cell>
-                </Table.Row>
-                <Table.Row>
-                  <Table.Cell>Layer</Table.Cell>
-                  <Table.Cell><code>/rest/&lt;user&gt;/layers/&lt;layername&gt;</code></Table.Cell>
-                  <Table.Cell>
-                    <Button
-                        toggle
-                        active={this.state.request === 'get-layer'}
-                        onClick={this.setRequest.bind(this, 'get-layer')}
-                    >GET</Button>
-                  </Table.Cell>
-                  <Table.Cell>x</Table.Cell>
-                  <Table.Cell>
-                    <Button
-                        toggle
-                        active={this.state.request === 'patch-layer'}
-                        onClick={this.setRequest.bind(this, 'patch-layer')}
-                    >PATCH</Button>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Button
-                        toggle
-                        active={this.state.request === 'delete-layer'}
-                        onClick={this.setRequest.bind(this, 'delete-layer')}
-                    >DELETE</Button>
-                  </Table.Cell>
-                </Table.Row>
-                <Table.Row>
-                  <Table.Cell>Layer Thumbnail</Table.Cell>
-                  <Table.Cell><code>/rest/&lt;user&gt;/layers/&lt;layername&gt;/thumbnail</code></Table.Cell>
-                  <Table.Cell>
-                    <Button
-                        toggle
-                        active={this.state.request === 'get-layer-thumbnail'}
-                        onClick={this.setRequest.bind(this, 'get-layer-thumbnail')}
-                    >GET</Button>
-                  </Table.Cell>
-                  <Table.Cell>x</Table.Cell>
-                  <Table.Cell>x</Table.Cell>
-                  <Table.Cell>x</Table.Cell>
-                </Table.Row>
-              </Table.Body>
-
-            </Table>
+            <Tab panes={panes} activeIndex={publ_idx} onTabChange={this.handlePublicationTypeChange.bind(this)} />
             <Header as='h2'>{getRequestTitle(this.state.request)}</Header>
             <Header as='h3'>Parameters</Header>
             <Ref innerRef={this.handleFormRef.bind(this)}>
