@@ -1,7 +1,7 @@
 language: node_js
 node_js:
-- node
-install: npm install
+  - "11"
+install: npm ci
 script:
 - npm run build
 - npm run export
