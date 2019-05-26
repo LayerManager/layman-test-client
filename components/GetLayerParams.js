@@ -1,6 +1,6 @@
 import {Form} from 'semantic-ui-react'
 
-class GetLayersParams extends React.PureComponent {
+class GetLayerParams extends React.PureComponent {
 
   render() {
     return (
@@ -18,5 +18,5 @@ class GetLayersParams extends React.PureComponent {
   }
 }
 
-export default GetLayersParams;
+export default GetLayerParams;
 

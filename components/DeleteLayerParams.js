@@ -1,6 +1,6 @@
 import {Form} from 'semantic-ui-react'
 
-class DeleteLayersParams extends React.PureComponent {
+class DeleteLayerParams extends React.PureComponent {
 
   render() {
     return (
@@ -18,5 +18,5 @@ class DeleteLayersParams extends React.PureComponent {
   }
 }
 
-export default DeleteLayersParams;
+export default DeleteLayerParams;
 

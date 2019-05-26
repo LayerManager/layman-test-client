@@ -10,6 +10,9 @@ import PatchLayerParams from "../components/PatchLayerParams";
 import DeleteLayerParams from "../components/DeleteLayerParams";
 import Resumable from "resumablejs";
 import PostMapsParams from "../components/PostMapsParams";
+import GetMapParams from "../components/GetMapParams";
+import PatchMapParams from "../components/PatchMapParams";
+import DeleteMapParams from "../components/DeleteMapParams";
 import GetMapFileParams from "../components/GetMapFileParams";
 
 let RESUMABLE_ENABLED = false;
@@ -48,6 +51,9 @@ const requestToParamsClass = {
   'delete-layer': DeleteLayerParams,
   'get-layer-thumbnail': GetLayerThumbnailParams,
   'post-maps': PostMapsParams,
+  'patch-map': PatchMapParams,
+  'get-map': GetMapParams,
+  'delete-map': DeleteMapParams,
   'get-map-file': GetMapFileParams,
 }
 
@@ -535,26 +541,23 @@ class IndexPage extends React.PureComponent {
                       <Table.Cell>
                         <Button
                             toggle
-                            disabled
-                            // active={this.state.request === 'get-map'}
-                            // onClick={this.setRequest.bind(this, 'get-map')}
+                            active={this.state.request === 'get-map'}
+                            onClick={this.setRequest.bind(this, 'get-map')}
                         >GET</Button>
                       </Table.Cell>
                       <Table.Cell>x</Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            disabled
-                            // active={this.state.request === 'patch-map'}
-                            // onClick={this.setRequest.bind(this, 'patch-map')}
+                            active={this.state.request === 'patch-map'}
+                            onClick={this.setRequest.bind(this, 'patch-map')}
                         >PATCH</Button>
                       </Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            disabled
-                            // active={this.state.request === 'delete-map'}
-                            // onClick={this.setRequest.bind(this, 'delete-map')}
+                            active={this.state.request === 'delete-map'}
+                            onClick={this.setRequest.bind(this, 'delete-map')}
                         >DELETE</Button>
                       </Table.Cell>
                     </Table.Row>
