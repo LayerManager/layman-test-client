@@ -14,6 +14,7 @@ import GetMapParams from "../components/GetMapParams";
 import PatchMapParams from "../components/PatchMapParams";
 import DeleteMapParams from "../components/DeleteMapParams";
 import GetMapFileParams from "../components/GetMapFileParams";
+import GetMapThumbnailParams from "../components/GetMapThumbnailParams";
 
 let RESUMABLE_ENABLED = false;
 const PREFER_RESUMABLE_SIZE_LIMIT = 1 * 1024 * 1024;
@@ -55,6 +56,7 @@ const requestToParamsClass = {
   'get-map': GetMapParams,
   'delete-map': DeleteMapParams,
   'get-map-file': GetMapFileParams,
+  'get-map-thumbnail': GetMapThumbnailParams,
 }
 
 const requestToResumableParams = {
@@ -581,9 +583,8 @@ class IndexPage extends React.PureComponent {
                       <Table.Cell>
                         <Button
                             toggle
-                            disabled
-                            // active={this.state.request === 'get-map-thumbnail'}
-                            // onClick={this.setRequest.bind(this, 'get-map-thumbnail')}
+                            active={this.state.request === 'get-map-thumbnail'}
+                            onClick={this.setRequest.bind(this, 'get-map-thumbnail')}
                         >GET</Button>
                       </Table.Cell>
                       <Table.Cell>x</Table.Cell>
