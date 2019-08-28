@@ -608,7 +608,7 @@ class IndexPage extends React.PureComponent {
           <Container style={containerStyle}>
             <Header as='h1'>Test Client of Layman REST API</Header>
             <p>
-              <a href="https://github.com/jirik/gspld/blob/master/doc/rest.md"
+              <a href="https://github.com/jirik/layman/blob/master/doc/rest.md"
                  target="_blank">Layman REST API Documentation</a>
             </p>
             <Header as='h2'>Endpoints and Actions</Header>
