@@ -15,7 +15,7 @@ class PostMapsParams extends React.PureComponent {
               label='Map name'
               placeholder='Map name'
               value={this.props.mapname}
-              onChange={this.props.onMapnameChange}/>
+              onChange={this.props.handleMapnameChange}/>
           <Form.Input
               inline
               name="title"

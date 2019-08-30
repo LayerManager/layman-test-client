@@ -15,7 +15,7 @@ class PostLayersParams extends React.PureComponent {
               label='Layer name'
               placeholder='Layer name'
               value={this.props.layername}
-              onChange={this.props.onLayernameChange}/>
+              onChange={this.props.handleLayernameChange}/>
           <Form.Input
               inline
               name="title"

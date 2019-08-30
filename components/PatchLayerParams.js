@@ -5,14 +5,6 @@ class PatchLayerParams extends React.PureComponent {
   render() {
     return (
         <div>
-          <Form.Input
-              inline
-              className="mandatory"
-              name="name"
-              label='Layer name'
-              placeholder='Layer name'
-              value={this.props.layername}
-              onChange={this.props.onLayernameChange}/>
           <Form.Field inline>
             <label>Vector data file</label>
             <input name="file" type="file" accept=".geojson,.json" multiple/>

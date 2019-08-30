@@ -3,18 +3,14 @@ import {Container, Form, Button, Header, Table, Ref, Icon, Segment, Message, Pro
 import fetch from 'unfetch';
 import ReactDOM from 'react-dom';
 import PostLayersParams from "../components/PostLayersParams";
-import GetLayerParams from "../components/GetLayerParams";
-import GetLayerThumbnailParams from "../components/GetLayerThumbnailParams";
 import scrollIntoView from 'scroll-into-view';
 import PatchLayerParams from "../components/PatchLayerParams";
-import DeleteLayerParams from "../components/DeleteLayerParams";
 import Resumable from "resumablejs";
 import PostMapsParams from "../components/PostMapsParams";
-import GetMapParams from "../components/GetMapParams";
 import PatchMapParams from "../components/PatchMapParams";
-import DeleteMapParams from "../components/DeleteMapParams";
-import GetMapFileParams from "../components/GetMapFileParams";
-import GetMapThumbnailParams from "../components/GetMapThumbnailParams";
+import UserPathParams from "../components/UserPathParams";
+import LayerPathParams from "../components/LayerPathParams";
+import MapPathParams from "../components/MapPathParams";
 
 let RESUMABLE_ENABLED = false;
 const PREFER_RESUMABLE_SIZE_LIMIT = 1 * 1024 * 1024;
@@ -48,15 +44,8 @@ const getRequestTitle = (request) => {
 const requestToParamsClass = {
   'post-layers': PostLayersParams,
   'patch-layer': PatchLayerParams,
-  'get-layer': GetLayerParams,
-  'delete-layer': DeleteLayerParams,
-  'get-layer-thumbnail': GetLayerThumbnailParams,
   'post-maps': PostMapsParams,
   'patch-map': PatchMapParams,
-  'get-map': GetMapParams,
-  'delete-map': DeleteMapParams,
-  'get-map-file': GetMapFileParams,
-  'get-map-thumbnail': GetMapThumbnailParams,
 }
 
 const requestToResumableParams = {
@@ -65,24 +54,35 @@ const requestToResumableParams = {
 }
 
 const endpointToUrlPartGetter = {
-  'layers': () => '/layers',
-  'layer': ({layername}) => `/layers/${layername}`,
-  'layer-thumbnail': ({layername}) => `/layers/${layername}/thumbnail`,
-  'maps': () => '/maps',
-  'map': ({mapname}) => `/maps/${mapname}`,
-  'map-file': ({mapname}) => `/maps/${mapname}/file`,
-  'map-thumbnail': ({mapname}) => `/maps/${mapname}/thumbnail`,
+  'layers': ({user}) => `/${user}/layers`,
+  'layer': ({user, layername}) => `/${user}/layers/${layername}`,
+  'layer-thumbnail': ({user, layername}) => `/${user}/layers/${layername}/thumbnail`,
+  'maps': ({user}) => `/${user}/maps`,
+  'map': ({user, mapname}) => `/${user}/maps/${mapname}`,
+  'map-file': ({user, mapname}) => `/${user}/maps/${mapname}/file`,
+  'map-thumbnail': ({user, mapname}) => `/${user}/maps/${mapname}/thumbnail`,
 }
 
 const endpointToPathParams = {
-  'layers': [],
-  'layer': ['name'],
-  'layer-thumbnail': ['name'],
-  'maps': [],
-  'map': ['name'],
-  'map-file': ['name'],
-  'map-thumbnail': ['name'],
+  'layers': ['user'],
+  'layer': ['user', 'name'],
+  'layer-thumbnail': ['user', 'name'],
+  'maps': ['user'],
+  'map': ['user', 'name'],
+  'map-file': ['user', 'name'],
+  'map-thumbnail': ['user', 'name'],
 }
+
+const endpointToPathParamsClass = {
+  'layers': UserPathParams,
+  'layer': LayerPathParams,
+  'layer-thumbnail': LayerPathParams,
+  'maps': UserPathParams,
+  'map': MapPathParams,
+  'map-file': MapPathParams,
+  'map-thumbnail': MapPathParams,
+}
+
 
 const getEndpointDefaultParamsState = (endpoint, state) => {
   const getters = {
@@ -99,17 +99,25 @@ const getEndpointDefaultParamsState = (endpoint, state) => {
 }
 
 const getEndpointParamsProps = (endpoint, component) => {
+  const user_props = {
+    user: component.state.user,
+    handleUserChange: component.handleUserChange.bind(component),
+  };
   const layer_props = {
+    ...user_props,
     layername: component.state.layername,
-    onLayernameChange: component.handleLayernameChange.bind(component),
+    handleLayernameChange: component.handleLayernameChange.bind(component),
   };
   const map_props = {
+    ...user_props,
     mapname: component.state.mapname,
-    onMapnameChange: component.handleMapnameChange.bind(component),
+    handleMapnameChange: component.handleMapnameChange.bind(component),
   };
   const props = {
+    'layers': user_props,
     'layer': layer_props,
     'layer-thumbnail': layer_props,
+    'maps': user_props,
     'map': map_props,
     'map-file': map_props,
     'map-thumbnail': map_props,
@@ -210,7 +218,6 @@ class IndexPage extends React.PureComponent {
       const formData = new FormData(this.formEl);
       const endpoint = requestToEndpoint(this.state.request);
       const pathParams = (endpointToPathParams[endpoint] || []).concat();
-      pathParams.push('user');
       pathParams.forEach(pathParam => {
         formData.delete(pathParam);
       });
@@ -336,7 +343,7 @@ class IndexPage extends React.PureComponent {
     const endpoint = requestToEndpoint(this.state.request);
     const getter = endpointToUrlPartGetter[endpoint];
     const urlPart = getter ? getter(this.state) : '';
-    const url = `/rest/${this.state.user}${urlPart}`;
+    const url = `/rest${urlPart}`;
     return url
   }
 
@@ -405,11 +412,20 @@ class IndexPage extends React.PureComponent {
           </div>
     }
 
+    const endpoint = requestToEndpoint(this.state.request);
+    const paramsProps = getEndpointParamsProps(endpoint, this);
+    const pathParamsClass = endpointToPathParamsClass[endpoint];
+    let pathParams = null;
+    if (pathParamsClass) {
+      pathParams = React.createElement(
+          pathParamsClass,
+          paramsProps
+      )
+    }
+
     const paramsClass = requestToParamsClass[this.state.request];
     let params = null;
     if (paramsClass) {
-      const endpoint = requestToEndpoint(this.state.request);
-      const paramsProps = getEndpointParamsProps(endpoint, this);
       params = React.createElement(
           paramsClass,
           paramsProps
@@ -617,14 +633,7 @@ class IndexPage extends React.PureComponent {
             <Header as='h3'>Parameters</Header>
             <Ref innerRef={this.handleFormRef.bind(this)}>
               <Form>
-                <Form.Input
-                    inline
-                    className="mandatory"
-                    name="user"
-                    label='User name'
-                    placeholder='User name'
-                    value={this.state.user}
-                    onChange={this.handleUserChange.bind(this)}/>
+                {pathParams}
                 {params}
                 <Button primary type='submit' onClick={this.handleSubmitClick.bind(this)}>Submit</Button>
               </Form>

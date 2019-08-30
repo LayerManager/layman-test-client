@@ -1,10 +1,12 @@
 import {Form} from 'semantic-ui-react'
+import UserPathParams from "./UserPathParams";
 
-class GetLayerThumbnailParams extends React.PureComponent {
+class LayerPathParams extends React.PureComponent {
 
   render() {
     return (
         <div>
+          <UserPathParams user={this.props.user} handleUserChange={this.props.handleUserChange}/>
           <Form.Input
               inline
               className="mandatory"
@@ -12,11 +14,11 @@ class GetLayerThumbnailParams extends React.PureComponent {
               label='Layer name'
               placeholder='Layer name'
               value={this.props.layername}
-              onChange={this.props.onLayernameChange}/>
+              onChange={this.props.handleLayernameChange}/>
         </div>
     );
   }
 }
 
-export default GetLayerThumbnailParams;
+export default LayerPathParams;
 
