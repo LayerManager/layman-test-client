@@ -619,7 +619,7 @@ class IndexPage extends React.PureComponent {
 
     return (
         <div>
-          <HeaderMenu/>
+          <HeaderMenu user={this.props.user} />
 
           <Container style={containerStyle}>
             <Header as='h1'>Test Client of Layman REST API</Header>
