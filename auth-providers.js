@@ -55,8 +55,7 @@ module.exports = () => {
         // probably rename /rest/<username>/* to /rest/users/<username>/* (breaking change !!!)
 
         return done(null, {
-          username: profile.username,
-          display_name: profile.claims.email,
+          ...liferay.user_profile_to_client_page_props(profile),
           authn: {
             iss_id: iss_id,
             iss: iss,
@@ -65,6 +64,16 @@ module.exports = () => {
             refresh_token: refreshToken,
           }
         });
+      },
+      get_authn_headers: liferay.get_authn_headers,
+      user_profile_to_client_page_props: liferay.user_profile_to_client_page_props,
+      refresh_authn_info: (user) => {
+        return liferay.refresh_authn_info(
+            process.env.LIFERAY_OAUTH2_TOKEN_URL,
+            process.env.LIFERAY_OAUTH2_CLIENT_ID,
+            process.env.LIFERAY_OAUTH2_SECRET,
+            user
+        );
       },
     };
 

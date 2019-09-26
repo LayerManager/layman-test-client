@@ -2,6 +2,9 @@ const isProd = process.env.NODE_ENV === 'production';
 module.exports = {
   distDir: 'build',
   assetPrefix: isProd ? '/static/test-client' : '',
+  publicRuntimeConfig: {
+    REFRESH_USER_INTERVAL: 2,
+  },
   exportPathMap: function () {
     return {
       '/': { page: '/index' },
