@@ -32,4 +32,38 @@ module.exports = {
     }
     return profile;
   },
+
+  get_authn_headers: (user) => {
+    return {
+      AuthorizationIssUrl: user.authn.iss,
+      Authorization: `Bearer ${user.authn.access_token}`,
+    }
+  },
+
+  user_profile_to_client_page_props: (profile) => {
+    return {
+      username: profile.username,
+      display_name: profile.claims.email,
+    }
+  },
+
+  refresh_authn_info: async (oauth2_token_url, client_id, client_secret, user) => {
+    try {
+      // https://issues.liferay.com/browse/OAUTH2-167
+      const new_info = await rp({
+        uri: oauth2_token_url,
+        form: {
+          grant_type: 'refresh_token',
+          client_id,
+          client_secret,
+          refresh_token: user.authn.refresh_token,
+        },
+        json: true
+      });
+      console.log('refresh_authn_info new_info', new_info);
+    } catch (e) {
+      console.log('refresh_authn_info e', e);
+      throw e;
+    }
+  },
 };

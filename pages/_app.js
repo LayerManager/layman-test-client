@@ -1,5 +1,14 @@
 import React from "react";
 import App, {Container as NextContainer} from "next/app";
+import getConfig from 'next/config'
+import fetch from 'isomorphic-unfetch';
+const { publicRuntimeConfig } = getConfig()
+
+
+const anonymous_user = {
+  authenticated: false,
+  display_name: 'Anonymous',
+};
 
 class MyApp extends App {
   static async getInitialProps({Component, ctx}) {
@@ -22,13 +31,6 @@ class MyApp extends App {
         }
       }
     }
-    // todo if this runs on client-side, it's always anonymous, and correct user is passed in render() from state
-    if (!pageProps.user) {
-      pageProps.user = {
-            authenticated: false,
-            display_name: 'Anonymous',
-      }
-    }
     console.log(`_app.js getInitialProps pageProps=${JSON.stringify(pageProps)}`);
     return {pageProps};
   }
@@ -36,14 +38,33 @@ class MyApp extends App {
   constructor(props) {
     console.log(`_app.js constructor pageProps=${JSON.stringify(props.pageProps)}`);
     super(props);
+    const user = props.pageProps.user || JSON.parse(JSON.stringify(anonymous_user));
     this.state = {
-      user: props.pageProps.user
+      user,
     };
+
+  }
+  componentDidMount() {
+    setInterval(this.refresh_user.bind(this), publicRuntimeConfig.REFRESH_USER_INTERVAL*1000);
   }
 
+  async refresh_user() {
+    const res = await fetch('/current-user-props');
+    const json = await res.json();
+    // console.log('refresh_user', json);
+    const user = json.authenticated ? json : JSON.parse(JSON.stringify(anonymous_user));
+    if(!json.authenticated && (json.authn_error || this.state.user.latest_authn_error)) {
+      user.latest_authn_error = json.authn_error || this.state.user.latest_authn_error;
+    }
+    console.log('setting state', user);
+    this.setState({
+      user,
+    });
+  };
+
   render() {
-    console.log(`_app.js render state=${JSON.stringify(this.state)}`);
-    console.log(`_app.js render this.props.pageProps=${JSON.stringify(this.props.pageProps)}`);
+    // console.log(`_app.js render state=${JSON.stringify(this.state)}`);
+    // console.log(`_app.js render this.props.pageProps=${JSON.stringify(this.props.pageProps)}`);
     const {Component, pageProps} = this.props;
 
     const props = {
