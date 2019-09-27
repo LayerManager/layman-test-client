@@ -1,6 +1,6 @@
-const rp = require('request-promise-native');
+import rp from 'request-promise-native';
 
-module.exports = {
+export default {
   user_profile: (iss, access_token, done) => {
     const options = {
       uri: process.env.LAYMAN_USER_PROFILE_URL,

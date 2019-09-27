@@ -1,5 +1,5 @@
-const rp = require('request-promise-native');
-const rp_errors = require('request-promise-native/errors');
+import rp from 'request-promise-native';
+import rp_errors from 'request-promise-native/errors';
 
 const serialize_user = (user, done) => {
   console.log('serialize_user', user);
@@ -41,10 +41,28 @@ const _request_with_refresh = async (provider, user, rp_opts) => {
 };
 
 const current_user_props = async (auth_providers, req, res) => {
-  const authenticated = !!(req.session.passport && req.session.passport.user);
-  const response = {
-    authenticated,
-  };
+  const response = {};
+  let authenticated = !!(req.session.passport && req.session.passport.user);
+  try {
+    const user = req.session.passport.user;
+    const provider = auth_providers[user.authn.iss_id];
+    const profile = await check_current_user(auth_providers, req);
+    authenticated = profile && profile.authenticated;
+    if (authenticated) {
+      const page_props = provider.user_profile_to_client_page_props(profile);
+      Object.assign(response, page_props);
+    }
+  } catch (e) {
+    authenticated = false;
+    response.authn_error = e.toString();
+  }
+  response.authenticated = authenticated;
+  res.json(response);
+};
+
+
+const check_current_user = async (auth_providers, req) => {
+  let authenticated = !!(req.session.passport && req.session.passport.user);
   if (authenticated) {
     const user = req.session.passport.user;
     const provider = auth_providers[user.authn.iss_id];
@@ -56,28 +74,27 @@ const current_user_props = async (auth_providers, req, res) => {
         json: true
       };
       profile = await _request_with_refresh(provider, user, rp_opts);
-      response.authenticated = profile.authenticated;
+      authenticated = profile.authenticated;
     } catch (e) {
-      response.authenticated = false;
-      response.authn_error = e.toString();
+      console.log('AUTOMATICALLY LOGGING OUT');
+      req.logout();
+      throw e;
     }
-    if (response.authenticated) {
-      const page_props = provider.user_profile_to_client_page_props(profile);
-      Object.assign(response, page_props);
+    if(authenticated) {
+      return profile;
     } else {
-      if (req.session.passport && req.session.passport.user) {
-        console.log('AUTOMATICALLY LOGGING OUT');
-        req.logout();
-      }
+      console.log('AUTOMATICALLY LOGGING OUT');
+      req.logout();
     }
   }
-  res.json(response);
-}
+  return null;
+};
 
 
 
-module.exports = {
+export default {
   serialize_user,
   deserialize_user,
   current_user_props,
-};
+  check_current_user,
+}

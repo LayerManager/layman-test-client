@@ -1,9 +1,23 @@
+require("@babel/register")({
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "node": "current"
+        },
+      },
+    ]
+  ]
+});
+
+
 const express = require('express');
 const next = require('next');
 const proxy = require('http-proxy-middleware');
-const auth_routes = require("./auth-routes");
-const auth_providers = require("./auth-providers")();
-const user_util = require("./src/user");
+const auth_routes = require("./auth-routes").default;
+const auth_providers = require("./auth-providers").default();
+const user_util = require("./src/user").default;
 
 const dev = process.env.NODE_ENV !== 'production';
 const nextApp = next({ dev });

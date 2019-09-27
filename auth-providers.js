@@ -1,11 +1,12 @@
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 
-const liferay = require('./src/liferay');
+import liferay from './src/liferay';
 
 
 const providers = {};
 
-module.exports = () => {
+export default () => {
 
 
 
