@@ -13,7 +13,7 @@ module.exports = {
 
     rp(options)
         .then((profile) => {
-          console.log('userProfile callback', profile);
+          // console.log('userProfile callback', profile);
           done(null, profile);
         });
   },
@@ -48,22 +48,19 @@ module.exports = {
   },
 
   refresh_authn_info: async (oauth2_token_url, client_id, client_secret, user) => {
-    try {
-      // https://issues.liferay.com/browse/OAUTH2-167
-      const new_info = await rp({
-        uri: oauth2_token_url,
-        form: {
-          grant_type: 'refresh_token',
-          client_id,
-          client_secret,
-          refresh_token: user.authn.refresh_token,
-        },
-        json: true
-      });
-      console.log('refresh_authn_info new_info', new_info);
-    } catch (e) {
-      console.log('refresh_authn_info e', e);
-      throw e;
-    }
+    // https://issues.liferay.com/browse/OAUTH2-167
+    const new_info = await rp({
+      uri: oauth2_token_url,
+      method: 'POST',
+      form: {
+        grant_type: 'refresh_token',
+        client_id,
+        client_secret,
+        refresh_token: user.authn.refresh_token,
+      },
+      json: true
+    });
+    user.authn.access_token = new_info.access_token;
+    user.authn.refresh_token = new_info.refresh_token;
   },
 };
