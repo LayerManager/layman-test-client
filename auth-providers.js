@@ -38,20 +38,10 @@ module.exports = () => {
       },
       strategy_callback: async (req, accessToken, refreshToken, extraParams, profile, done) => {
         profile = await liferay.ensure_username(iss, accessToken, profile);
-        console.log('strategy_callback', accessToken, refreshToken, extraParams, profile);
+        // console.log('strategy_callback', accessToken, refreshToken, extraParams, profile);
 
-
-        // if needed, we can save anything else to session
-        // it will be available only on server side and saved in REDIS with key "sess:<cookie connect.sid>"
-        // req.session[LIFERAY_PROVIDER_KEY] = {
-        //   accessToken: accessToken
-        // };
-        // however it's not deleted on req.logout() !!!
 
         // TODO get expiration times and save it to session (or maybe add it to GET current-user response)
-        // TODO save tokens to REDIS for given user & provider
-        // see https://github.com/iaincollins/next-auth/blob/f52ccae5a58c5b8b6f0140604618626bf1a21af4/src/passport-strategies.js#L79,L287
-        // and relates functions.* calls
         // probably rename /rest/<username>/* to /rest/users/<username>/* (breaking change !!!)
 
         return done(null, {
@@ -67,8 +57,8 @@ module.exports = () => {
       },
       get_authn_headers: liferay.get_authn_headers,
       user_profile_to_client_page_props: liferay.user_profile_to_client_page_props,
-      refresh_authn_info: (user) => {
-        return liferay.refresh_authn_info(
+      refresh_authn_info: async (user) => {
+        return await liferay.refresh_authn_info(
             process.env.LIFERAY_OAUTH2_TOKEN_URL,
             process.env.LIFERAY_OAUTH2_CLIENT_ID,
             process.env.LIFERAY_OAUTH2_SECRET,
