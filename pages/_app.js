@@ -2,7 +2,7 @@ import React from "react";
 import App, {Container as NextContainer} from "next/app";
 import getConfig from 'next/config'
 import fetch from 'isomorphic-unfetch';
-const { publicRuntimeConfig } = getConfig()
+const { publicRuntimeConfig } = getConfig();
 
 
 const anonymous_user = {
@@ -17,18 +17,18 @@ class MyApp extends App {
     if (Component.getInitialProps) {
       pageProps = await Component.getInitialProps(ctx);
     }
-    if (ctx.req && ctx.req.session.passport) {
-      console.log('_app.js getInitialProps ctx.req.session', Object.keys(ctx.req.session));
-      if (ctx.req.session.passport) {
-        console.log('_app.js getInitialProps ctx.req.session.passport', Object.keys(ctx.req.session.passport));
-        if (ctx.req.session.passport.user) {
-          console.log('_app.js getInitialProps ctx.req.session.passport.user', Object.keys(ctx.req.session.passport.user));
-          pageProps.user = {
-            authenticated: true,
-            username: ctx.req.session.passport.user.username,
-            display_name: ctx.req.session.passport.user.display_name,
-          };
-        }
+    if (ctx.req && ctx.req.session.passport && ctx.req.session.passport.user) {
+      const user_util = require('./../src/user').default;
+      const auth_providers = require('./../auth-providers').default();
+      await user_util.check_current_user(auth_providers, ctx.req);
+
+      // we need to check it again, because check_current_user could logout automatically
+      if (ctx.req && ctx.req.session.passport && ctx.req.session.passport.user) {
+        pageProps.user = {
+          authenticated: true,
+          username: ctx.req.session.passport.user.username,
+          display_name: ctx.req.session.passport.user.display_name,
+        };
       }
     }
     console.log(`_app.js getInitialProps pageProps=${JSON.stringify(pageProps)}`);

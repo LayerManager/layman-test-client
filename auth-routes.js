@@ -1,6 +1,7 @@
-const express = require("express");
-const passport = require("passport");
-const auth_providers = require("./auth-providers")();
+import express from "express";
+import passport from "passport";
+import auth_providers_m from "./auth-providers";
+const auth_providers = auth_providers_m();
 
 const router = express.Router();
 
@@ -41,4 +42,4 @@ Object.values(auth_providers).forEach(provider => {
 
 
 
-module.exports = router;
+export default router;
