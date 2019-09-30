@@ -70,6 +70,7 @@ class MyApp extends App {
     const props = {
       ...pageProps,
       user: this.state.user,
+      handle_unauthn_request: this.refresh_user.bind(this),
     };
 
     return (

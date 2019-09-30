@@ -95,22 +95,29 @@ nextApp.prepare()
         changeOrigin: true,
         onProxyReq: (proxyReq, req, res) => {
           // console.log('onProxyReq', Object.keys(proxyReq), Object.keys(req));
-          console.log('onProxyReq url', req.url);
-          console.log('onProxyReq user', req.session.passport && req.session.passport.user);
+          // console.log('onProxyReq url', req.url);
+          // console.log('onProxyReq user', req.session.passport && req.session.passport.user);
           if(req.session.passport && req.session.passport.user) {
             const user = req.session.passport.user;
             const headers = auth_providers[user.authn.iss_id].get_authn_headers(user);
-            console.log('adding headers', headers);
+            // console.log('adding headers', headers);
             Object.keys(headers).forEach(k => {
               const v = headers[k];
               proxyReq.setHeader(k, v);
 
             });
             // proxyReq.setHeader('x-added', 'foobar');
-            console.log('onProxyReq new headers', headers);
+            // console.log('onProxyReq new headers', headers);
           }
 
-        }
+        },
+        onProxyRes: async (proxyRes, req, res) => {
+          // console.log('onProxyRes proxyRes');
+          if(proxyRes.statusCode === 403) {
+            // console.log('checking current user');
+            user_util.check_current_user(auth_providers, req);
+          }
+        },
       }));
 
 
