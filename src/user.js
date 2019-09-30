@@ -31,9 +31,8 @@ const _request_with_refresh = async (provider, user, rp_opts) => {
           throw e2;
         }
 
-      // TODO
-      // use automatically refresh_authn_info also in HTTP proxy in server.js
-      // or some level up
+      // TODO refresh token in HTTP proxy if expiration time is close (e.g. 10 seconds, but always < then lifetime of access token)
+      // e.g. because of chunk upload ...
       }
     }
     throw e;
