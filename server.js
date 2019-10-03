@@ -31,7 +31,7 @@ const session = require("express-session");
 const RedisStore = require('connect-redis')(session);
 
 // 2 - add session management to Express
-console.log(`process.env.REDIS_URI ${process.env.REDIS_URI}`)
+// console.log(`process.env.REDIS_URI ${process.env.REDIS_URI}`)
 const sessionStore = new RedisStore({
   url: process.env.REDIS_URI,
   db: 1
@@ -82,39 +82,46 @@ nextApp.prepare()
       });
 
       // 5 - adding Passport and authentication routes
+      server.use((req, res, next) => {
+        const d = new Date();
+        const seconds = Math.round(d.getTime() / 1000);
+        req.incoming_timestamp = seconds;
+        next();
+      });
       server.use(passport.initialize());
       server.use(passport.session());
       server.use(auth_routes);
 
-      server.get('/current-user-props', async (req, res) => {
+      const refresh_authn_info_if_needed = async (req, res, next) => {
+        if(req.session.passport && req.session.passport.user) {
+          const user = req.session.passport.user;
+          const provider = auth_providers[user.authn.iss_id];
+          await provider.refresh_authn_info_if_needed(req);
+        }
+        next();
+      };
+
+      server.get('/current-user-props', refresh_authn_info_if_needed, async (req, res) => {
         await user_util.current_user_props(auth_providers, req, res);
       });
 
-      server.use('/rest', proxy({
+      server.use('/rest', refresh_authn_info_if_needed, proxy({
         target: 'http://localhost:8000',
         changeOrigin: true,
         onProxyReq: (proxyReq, req, res) => {
           // console.log('onProxyReq', Object.keys(proxyReq), Object.keys(req));
-          // console.log('onProxyReq url', req.url);
-          // console.log('onProxyReq user', req.session.passport && req.session.passport.user);
           if(req.session.passport && req.session.passport.user) {
             const user = req.session.passport.user;
             const headers = auth_providers[user.authn.iss_id].get_authn_headers(user);
-            // console.log('adding headers', headers);
             Object.keys(headers).forEach(k => {
               const v = headers[k];
               proxyReq.setHeader(k, v);
-
             });
-            // proxyReq.setHeader('x-added', 'foobar');
-            // console.log('onProxyReq new headers', headers);
           }
-
         },
         onProxyRes: async (proxyRes, req, res) => {
-          // console.log('onProxyRes proxyRes');
           if(proxyRes.statusCode === 403) {
-            // console.log('checking current user');
+            // console.log('onProxyRes proxyRes 403');
             user_util.check_current_user(auth_providers, req);
           }
         },

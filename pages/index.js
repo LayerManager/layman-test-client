@@ -157,10 +157,6 @@ const isBlob = (response) => {
   return ['image/png'].includes(response.contentType);
 }
 
-const sleep = (ms) => {
-  return new Promise(resolve => setTimeout(resolve, ms));
-};
-
 
 class IndexPage extends React.PureComponent {
   constructor(props) {
@@ -259,7 +255,8 @@ class IndexPage extends React.PureComponent {
     }
 
     const url_path = this.getRequestUrlPath() + '?' + (+new Date());
-    const handle_fetch_response = async (r) => {
+
+    fetch(url_path, fetchOpts).then((r) => {
       response.status = r.status;
       response.ok = r.ok;
       if(r.ok && resuming) {
@@ -267,11 +264,7 @@ class IndexPage extends React.PureComponent {
       }
       response.contentType = r.headers.get('content-type');
       return isBlob(response) ? r.blob() : r.text();
-    };
-    const handle_text_or_blob = (textOrBlob) => {
-      delete response.image_url;
-      delete response.text;
-      delete response.json;
+    }).then( async (textOrBlob) => {
       if(isBlob(response)) {
         const blob = textOrBlob;
         response.image_url = window.URL.createObjectURL(blob);
@@ -282,18 +275,10 @@ class IndexPage extends React.PureComponent {
           response.json = JSON.parse(text);
         } catch (e) {}
       }
-    };
-
-    fetch(url_path, fetchOpts)
-        .then(handle_fetch_response)
-        .then( async textOrBlob => {
-      handle_text_or_blob(textOrBlob);
-      if(response.status === 403 && response.json && response.json.code === 32 && response.json.sub_code === 9) {
-        await sleep(1000);
-        await this.props.handle_unauthn_request();
-        const r = await fetch(url_path+(+new Date()), fetchOpts);
-        const textOrBlob = await handle_fetch_response(r);
-        handle_text_or_blob(textOrBlob);
+      // authentication failed
+      if(response.status === 403 && response.json && response.json.code === 32) {
+        // await sleep(1000);
+        await this.props.handle_authn_failed();
       }
 
     }).then( () => {

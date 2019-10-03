@@ -20,6 +20,9 @@ class MyApp extends App {
     if (ctx.req && ctx.req.session.passport && ctx.req.session.passport.user) {
       const user_util = require('./../src/user').default;
       const auth_providers = require('./../auth-providers').default();
+      const user = ctx.req.session.passport.user;
+      const provider = auth_providers[user.authn.iss_id];
+      await provider.refresh_authn_info_if_needed(ctx.req);
       await user_util.check_current_user(auth_providers, ctx.req);
 
       // we need to check it again, because check_current_user could logout automatically
@@ -70,7 +73,7 @@ class MyApp extends App {
     const props = {
       ...pageProps,
       user: this.state.user,
-      handle_unauthn_request: this.refresh_user.bind(this),
+      handle_authn_failed: this.refresh_user.bind(this),
     };
 
     return (

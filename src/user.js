@@ -2,11 +2,11 @@ import rp from 'request-promise-native';
 import rp_errors from 'request-promise-native/errors';
 
 const serialize_user = (user, done) => {
-  console.log('serialize_user', user);
+  // console.log('serialize_user', user);
   done(null, user)
 };
 const deserialize_user = (user, done) => {
-  console.log('deserialize_user', user);
+  // console.log('deserialize_user', user);
   done(null, user)
 };
 
@@ -31,8 +31,6 @@ const _request_with_refresh = async (provider, user, rp_opts) => {
           throw e2;
         }
 
-      // TODO refresh token in HTTP proxy if expiration time is close (e.g. 10 seconds, but always < then lifetime of access token)
-      // e.g. because of chunk upload ...
       }
     }
     throw e;
@@ -72,7 +70,7 @@ const check_current_user = async (auth_providers, req) => {
         headers: provider.get_authn_headers(user),
         json: true
       };
-      profile = await _request_with_refresh(provider, user, rp_opts);
+      profile = await rp(rp_opts);
       authenticated = profile.authenticated;
     } catch (e) {
       console.log('AUTOMATICALLY LOGGING OUT');
