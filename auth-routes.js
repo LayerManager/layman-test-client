@@ -21,7 +21,7 @@ Object.values(auth_providers).forEach(provider => {
         provider.id,
         (err, user) => {
           if (err) return next(err);
-          if (!user) return res.redirect(`/auth/${provider.id}/login`);
+          if (!user) return res.redirect(`/`);
           req.logIn(user, (err) => {
             if (err) return next(err);
             res.redirect("/");

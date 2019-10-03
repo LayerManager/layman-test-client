@@ -1,15 +1,12 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import liferay from './src/liferay';
+import oauth2 from './src/oauth2';
 
 
 const providers = {};
 
 export default () => {
-
-
-
 
   const LIFERAY_PROVIDER_KEY = 'oauth2-liferay';
   if (process.env.LIFERAY_OAUTH2_CLIENT_ID && !providers[LIFERAY_PROVIDER_KEY]) {
@@ -20,7 +17,7 @@ export default () => {
 
     //read user profile
     Strtg.prototype.userProfile = (access_token, done) => {
-      return liferay.user_profile(iss, access_token, done);
+      return oauth2.user_profile(iss, access_token, done);
     };
 
     providers[iss_id] = {
@@ -38,37 +35,46 @@ export default () => {
         callbackURL: process.env.LIFERAY_OAUTH2_CALLBACK_URL
       },
       strategy_callback: async (req, accessToken, refreshToken, extraParams, profile, done) => {
-        profile = await liferay.ensure_username(iss, accessToken, profile);
+        profile = await oauth2.ensure_username(iss, accessToken, profile);
         // console.log('strategy_callback', accessToken, refreshToken, extraParams, profile);
 
 
-        // TODO get expiration times and save it to session (or maybe add it to GET current-user response)
-        // probably rename /rest/<username>/* to /rest/users/<username>/* (breaking change !!!)
+        // TODO probably rename /rest/<username>/* to /rest/users/<username>/* (breaking change !!!)
 
         return done(null, {
-          ...liferay.user_profile_to_client_page_props(profile),
+          ...oauth2.user_profile_to_client_page_props(profile),
           authn: {
             iss_id: iss_id,
             iss: iss,
             sub: profile.claims.sub,
             access_token: accessToken,
+            iat: req.incoming_timestamp, // it's not precise, but should be safe enough
+            exp: req.incoming_timestamp + extraParams.expires_in,  // it's not precise, but should be safe enough
             refresh_token: refreshToken,
           }
         });
       },
-      get_authn_headers: liferay.get_authn_headers,
-      user_profile_to_client_page_props: liferay.user_profile_to_client_page_props,
+      get_authn_headers: oauth2.get_authn_headers,
+      user_profile_to_client_page_props: oauth2.user_profile_to_client_page_props,
       refresh_authn_info: async (user) => {
-        return await liferay.refresh_authn_info(
+        return await oauth2.refresh_authn_info(
             process.env.LIFERAY_OAUTH2_TOKEN_URL,
             process.env.LIFERAY_OAUTH2_CLIENT_ID,
             process.env.LIFERAY_OAUTH2_SECRET,
             user
         );
       },
+      refresh_authn_info_if_needed: async (req) => {
+        return await oauth2.refresh_authn_info_if_needed(
+            process.env.LIFERAY_OAUTH2_TOKEN_URL,
+            process.env.LIFERAY_OAUTH2_CLIENT_ID,
+            process.env.LIFERAY_OAUTH2_SECRET,
+            req
+        );
+      },
     };
 
   }
 
-  return providers
+  return providers;
 };
