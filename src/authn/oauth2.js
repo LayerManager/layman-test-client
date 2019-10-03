@@ -1,4 +1,8 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import rp from 'request-promise-native';
+
 
 const user_profile = (iss, access_token, done) => {
   const options = {
@@ -17,6 +21,7 @@ const user_profile = (iss, access_token, done) => {
       });
 };
 
+
 const ensure_username = async (iss, access_token, profile) => {
   if (!profile['username']) {
     var options = {
@@ -32,12 +37,14 @@ const ensure_username = async (iss, access_token, profile) => {
   return profile;
 };
 
+
 const get_authn_headers = (user) => {
   return {
     AuthorizationIssUrl: user.authn.iss,
     Authorization: `Bearer ${user.authn.access_token}`,
   }
 };
+
 
 const user_profile_to_client_page_props = (profile) => {
   return {
@@ -48,7 +55,7 @@ const user_profile_to_client_page_props = (profile) => {
 
 
 const refresh_authn_info = async (oauth2_token_url, client_id, client_secret, user) => {
-  // console.log('refresh_authn_info');
+  // console.log('oauth2 refresh_authn_info');
   if (user.authn.refreshing) {
     // console.log('ALREADY REFRESHING');
     let i = 0;
@@ -84,12 +91,20 @@ const refresh_authn_info = async (oauth2_token_url, client_id, client_secret, us
   delete user.authn.refreshing;
 };
 
+
 const refresh_authn_info_if_needed = async (oauth2_token_url, client_id, client_secret, req) => {
-  // console.log('refresh_authn_info_if_needed');
+  // console.log('oauth2 refresh_authn_info_if_needed');
   if(req.session.passport && req.session.passport.user) {
     const user = req.session.passport.user;
     const exp = user.authn.exp;
-    if (typeof exp !== "number" || exp - 10 <= req.incoming_timestamp) {
+    if(typeof exp !== "number") {
+      throw Error(`user.authn.exp is not number, but ${exp}`);
+    }
+    const incoming_timestamp = req.incoming_timestamp;
+    if(typeof incoming_timestamp !== "number") {
+      throw Error(`req.incoming_timestamp is not number, but ${exp}`);
+    }
+    if (exp - 10 <= incoming_timestamp) {
       await refresh_authn_info(oauth2_token_url, client_id, client_secret, user);
     }
   }

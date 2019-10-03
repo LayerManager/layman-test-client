@@ -1,10 +1,11 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import oauth2 from './src/oauth2';
+import oauth2 from './oauth2';
 
 
 const providers = {};
+
 
 export default () => {
 

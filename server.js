@@ -11,127 +11,66 @@ require("@babel/register")({
   ]
 });
 
+require('dotenv').config();
 
 const express = require('express');
 const next = require('next');
 const proxy = require('http-proxy-middleware');
-const auth_routes = require("./auth-routes").default;
-const auth_providers = require("./auth-providers").default();
-const user_util = require("./src/user").default;
+const AUTHN_ROUTES = require("./src/authn/routes").default;
+const user_util = require("./src/authn/user").default;
+const authn_util = require("./src/authn/util").default;
+const session_util = require('./src/session');
 
-const dev = process.env.NODE_ENV !== 'production';
-const nextApp = next({ dev });
 
 const server = express();
 
+const dev = process.env.NODE_ENV !== 'production';
+const nextjs_app = next({ dev });
+const nextjs_handle = nextjs_app.getRequestHandler();
 
-// without next-auth
 // https://auth0.com/blog/next-js-authentication-tutorial/
-const session = require("express-session");
-const RedisStore = require('connect-redis')(session);
-
-// 2 - add session management to Express
-// console.log(`process.env.REDIS_URI ${process.env.REDIS_URI}`)
-const sessionStore = new RedisStore({
-  url: process.env.REDIS_URI,
-  db: 1
-});
-
-const sessionConfig = {
-  secret: process.env.SESSION_SECRET,
-  cookie: {
-    maxAge: parseInt(process.env.SESSION_MAX_AGE, 10) * 1000,
-  },
-  resave: false,
-  saveUninitialized: true,
-  store: sessionStore
-};
-
-const expressSession = session(sessionConfig);
-
-server.use(expressSession);
-
-
-const handle = nextApp.getRequestHandler();
-
 const passport = require("passport");
 
-nextApp.prepare()
+nextjs_app.prepare()
     .then(() => {
-      // 4 - configuring Passport
-      Object.values(auth_providers).forEach(provider => {
-        passport.use(
-            provider.id,
-            new provider.Strategy(
-                {
-                    ...provider.strategy_options,
-                  passReqToCallback: true
-                },
-                provider.strategy_callback
-            )
-        );
-      });
-      passport.serializeUser(user_util.serialize_user);
-      passport.deserializeUser(user_util.deserialize_user);
 
-      server.get('/_next/*', (req, res) => {
-          return handle(req, res)
-      });
-      server.get('/static/*', (req, res) => {
-          return handle(req, res)
-      });
+      server.get('/static/*', nextjs_handle);
+      server.get('/_next/*', nextjs_handle);
 
-      // 5 - adding Passport and authentication routes
-      server.use((req, res, next) => {
-        const d = new Date();
-        const seconds = Math.round(d.getTime() / 1000);
-        req.incoming_timestamp = seconds;
-        next();
-      });
+      // setup express session for passport.js
+      server.use(session_util.create_express_session());
+
+      // initialize passport.js and authn routes
+      authn_util.config_passport(passport);
       server.use(passport.initialize());
       server.use(passport.session());
-      server.use(auth_routes);
+      server.use(AUTHN_ROUTES);
 
-      const refresh_authn_info_if_needed = async (req, res, next) => {
-        if(req.session.passport && req.session.passport.user) {
-          const user = req.session.passport.user;
-          const provider = auth_providers[user.authn.iss_id];
-          await provider.refresh_authn_info_if_needed(req);
-        }
-        next();
-      };
-
-      server.get('/current-user-props', refresh_authn_info_if_needed, async (req, res) => {
-        await user_util.current_user_props(auth_providers, req, res);
-      });
-
-      server.use('/rest', refresh_authn_info_if_needed, proxy({
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        onProxyReq: (proxyReq, req, res) => {
-          // console.log('onProxyReq', Object.keys(proxyReq), Object.keys(req));
-          if(req.session.passport && req.session.passport.user) {
-            const user = req.session.passport.user;
-            const headers = auth_providers[user.authn.iss_id].get_authn_headers(user);
-            Object.keys(headers).forEach(k => {
-              const v = headers[k];
-              proxyReq.setHeader(k, v);
-            });
+      // check current user and get props for client side
+      server.get('/current-user-props',
+          authn_util.add_incoming_timestamp,
+          authn_util.refresh_authn_info_if_needed,
+          async (req, res) => {
+            await user_util.current_user_props(req, res);
           }
-        },
-        onProxyRes: async (proxyRes, req, res) => {
-          if(proxyRes.statusCode === 403) {
-            // console.log('onProxyRes proxyRes 403');
-            user_util.check_current_user(auth_providers, req);
-          }
-        },
-      }));
+      );
 
+      //Layman proxy
+      server.use('/rest',
+          authn_util.add_incoming_timestamp,
+          authn_util.refresh_authn_info_if_needed,
+          proxy({
+            target: process.env.LAYMAN_REST_URL,
+            changeOrigin: true,
+            onProxyReq: authn_util.add_authn_headers,
+          }),
+      );
 
       // handling everything else with Next.js
-      server.get('*', (req, res) => {
-          return handle(req, res)
-      });
+      server.get('*',
+          authn_util.add_incoming_timestamp,
+          nextjs_handle,
+      );
 
       server.listen(3000, (err) => {
           if (err) throw err;
