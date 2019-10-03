@@ -1,51 +1,32 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import rp from 'request-promise-native';
-import rp_errors from 'request-promise-native/errors';
+import authn_providers_m from "./providers";
+const AUTHN_PROVIDERS = authn_providers_m();
+
 
 const serialize_user = (user, done) => {
   // console.log('serialize_user', user);
   done(null, user)
 };
+
+
 const deserialize_user = (user, done) => {
   // console.log('deserialize_user', user);
   done(null, user)
 };
 
-const _request_with_refresh = async (provider, user, rp_opts) => {
-  try {
-    const resp = await rp(rp_opts);
-    return resp;
-  } catch(e) {
-    if (e instanceof rp_errors.StatusCodeError && e.statusCode === 403) {
-      const json = e.error;
-      if (json.code === 32 && json.sub_code === 9) {
-        try {
-          await provider.refresh_authn_info(user);
-          rp_opts.headers = rp_opts.headers || {};
-          rp_opts.headers = {
-            ...rp_opts.headers,
-            ...provider.get_authn_headers(user),
-          };
-          const resp = await rp(rp_opts);
-          return resp;
-        } catch (e2) {
-          throw e2;
-        }
 
-      }
-    }
-    throw e;
-  }
-};
-
-const current_user_props = async (auth_providers, req, res) => {
+const current_user_props = async (req, res) => {
   const response = {};
   let authenticated = !!(req.session.passport && req.session.passport.user);
   try {
     const user = req.session.passport.user;
-    const provider = auth_providers[user.authn.iss_id];
-    const profile = await check_current_user(auth_providers, req);
+    const profile = await check_current_user(req);
     authenticated = profile && profile.authenticated;
     if (authenticated) {
+      const provider = AUTHN_PROVIDERS[user.authn.iss_id];
       const page_props = provider.user_profile_to_client_page_props(profile);
       Object.assign(response, page_props);
     }
@@ -58,11 +39,11 @@ const current_user_props = async (auth_providers, req, res) => {
 };
 
 
-const check_current_user = async (auth_providers, req) => {
+const check_current_user = async (req) => {
   let authenticated = !!(req.session.passport && req.session.passport.user);
   if (authenticated) {
     const user = req.session.passport.user;
-    const provider = auth_providers[user.authn.iss_id];
+    const provider = AUTHN_PROVIDERS[user.authn.iss_id];
     let profile;
     try {
       const rp_opts = {

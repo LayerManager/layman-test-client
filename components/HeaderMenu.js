@@ -26,11 +26,11 @@ class HeaderMenu extends React.Component {
 
     if (props.user.authenticated) {
       items_def.push(...[
-          {key: 'logout', name: 'Log Out', href: '/auth/logout', simple_link: true},
+          {key: 'logout', name: 'Log Out', href: '/authn/logout', simple_link: true},
       ])
     } else {
       items_def.push(...[
-          {key: 'login', name: 'Log In', href: '/auth/oauth2-liferay/login', simple_link: true},
+          {key: 'login', name: 'Log In', href: '/authn/oauth2-liferay/login', simple_link: true},
       ])
     }
 

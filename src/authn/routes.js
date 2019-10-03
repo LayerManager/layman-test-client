@@ -1,13 +1,15 @@
 import express from "express";
 import passport from "passport";
-import auth_providers_m from "./auth-providers";
-const auth_providers = auth_providers_m();
+import authn_providers_m from "./providers";
+const PROVIDERS = authn_providers_m();
+
 
 const router = express.Router();
 
-Object.values(auth_providers).forEach(provider => {
+
+Object.values(PROVIDERS).forEach(provider => {
   router.get(
-      `/auth/${provider.id}/login`,
+      `/authn/${provider.id}/login`,
       passport.authenticate(
           provider.id,
           provider.options
@@ -16,7 +18,7 @@ Object.values(auth_providers).forEach(provider => {
   );
 
 
-  router.get(`/auth/${provider.id}/callback`, (req, res, next) => {
+  router.get(`/authn/${provider.id}/callback`, (req, res, next) => {
     passport.authenticate(
         provider.id,
         (err, user) => {
@@ -31,8 +33,8 @@ Object.values(auth_providers).forEach(provider => {
   });
 
 
-  router.get("/auth/logout", (req, res) => {
-    console.log('/auth/logout');
+  router.get("/authn/logout", (req, res) => {
+    console.log('/authn/logout');
     req.logout();
     res.redirect("/");
     // possibly also logout from authentication provider (e. g. Liferay)

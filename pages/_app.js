@@ -18,12 +18,10 @@ class MyApp extends App {
       pageProps = await Component.getInitialProps(ctx);
     }
     if (ctx.req && ctx.req.session.passport && ctx.req.session.passport.user) {
-      const user_util = require('./../src/user').default;
-      const auth_providers = require('./../auth-providers').default();
-      const user = ctx.req.session.passport.user;
-      const provider = auth_providers[user.authn.iss_id];
-      await provider.refresh_authn_info_if_needed(ctx.req);
-      await user_util.check_current_user(auth_providers, ctx.req);
+      const user_util = require('../src/authn/user').default;
+      const authn_util = require('../src/authn/util').default;
+      await authn_util.refresh_authn_info_if_needed(ctx.req);
+      await user_util.check_current_user(ctx.req);
 
       // we need to check it again, because check_current_user could logout automatically
       if (ctx.req && ctx.req.session.passport && ctx.req.session.passport.user) {
@@ -34,7 +32,7 @@ class MyApp extends App {
         };
       }
     }
-    console.log(`_app.js getInitialProps pageProps=${JSON.stringify(pageProps)}`);
+    // console.log(`_app.js getInitialProps pageProps=${JSON.stringify(pageProps)}`);
     return {pageProps};
   }
 
