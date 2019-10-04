@@ -54,13 +54,14 @@ const user_profile_to_client_page_props = (profile) => {
 };
 
 
-const refresh_authn_info = async (oauth2_token_url, client_id, client_secret, user) => {
+const refresh_authn_info = async (oauth2_token_url, client_id, client_secret, req, user) => {
   // console.log('oauth2 refresh_authn_info');
   if (user.authn.refreshing) {
     // console.log('ALREADY REFRESHING');
     let i = 0;
     const timer = setTimeout(() => {
-      if (!user.authn.refreshing || i > 100) {
+      user = req.session.passport && req.session.passport.user;
+      if (!user || !user.authn.refreshing || i > 100) {
         clearTimeout(timer);
       }
     }, 100);
@@ -73,17 +74,33 @@ const refresh_authn_info = async (oauth2_token_url, client_id, client_secret, us
   const seconds = Math.round(d.getTime() / 1000);
   user.authn.refreshing = true;
   // https://issues.liferay.com/browse/OAUTH2-167
-  const new_info = await rp({
-    uri: oauth2_token_url,
-    method: 'POST',
-    form: {
-      grant_type: 'refresh_token',
-      client_id,
-      client_secret,
-      refresh_token: user.authn.refresh_token,
-    },
-    json: true
-  });
+  let new_info;
+  try {
+    new_info = await rp({
+      uri: oauth2_token_url,
+      method: 'POST',
+      form: {
+        grant_type: 'refresh_token',
+        client_id,
+        client_secret,
+        refresh_token: user.authn.refresh_token,
+      },
+      json: true
+    });
+  } catch(e) {
+    console.log(e);
+    console.log('AUTOMATICALLY LOGGING OUT, because of error when refreshing authn info');
+    req.logout();
+    req.session.authn_error = 'Error when refreshing authn info';
+    return;
+  }
+  // console.log('refresh_authn_info', seconds, new_info);
+  if(typeof seconds !== "number") {
+    throw Error(`seconds is not number, but ${seconds}`);
+  }
+  if(typeof new_info.expires_in !== "number") {
+    throw Error(`new_info.expires_in is not number, but ${new_info.expires_in}`);
+  }
   user.authn.access_token = new_info.access_token;
   user.authn.iat = seconds; // it's not precise, but should be safe enough
   user.authn.exp = seconds + new_info.expires_in; // it's not precise, but should be safe enough
@@ -105,7 +122,7 @@ const refresh_authn_info_if_needed = async (oauth2_token_url, client_id, client_
       throw Error(`req.incoming_timestamp is not number, but ${exp}`);
     }
     if (exp - 10 <= incoming_timestamp) {
-      await refresh_authn_info(oauth2_token_url, client_id, client_secret, user);
+      await refresh_authn_info(oauth2_token_url, client_id, client_secret, req, user);
     }
   }
 };

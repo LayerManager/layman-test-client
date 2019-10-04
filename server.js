@@ -44,7 +44,10 @@ nextjs_app.prepare()
       authn_util.config_passport(passport);
       server.use(passport.initialize());
       server.use(passport.session());
-      server.use(AUTHN_ROUTES);
+      server.use(
+          authn_util.add_incoming_timestamp,
+          AUTHN_ROUTES,
+      );
 
       // check current user and get props for client side
       server.get('/current-user-props',
