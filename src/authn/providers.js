@@ -42,6 +42,13 @@ export default () => {
 
         // TODO probably rename /rest/<username>/* to /rest/users/<username>/* (breaking change !!!)
 
+        if(typeof req.incoming_timestamp !== "number") {
+          throw Error(`req.incoming_timestamp is not number, but ${req.incoming_timestamp}`);
+        }
+        if(typeof extraParams.expires_in !== "number") {
+          throw Error(`extraParams.expires_in is not number, but ${extraParams.expires_in}`);
+        }
+
         return done(null, {
           ...oauth2.user_profile_to_client_page_props(profile),
           authn: {

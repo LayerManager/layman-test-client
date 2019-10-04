@@ -21,6 +21,9 @@ const deserialize_user = (user, done) => {
 const current_user_props = async (req, res) => {
   const response = {};
   let authenticated = !!(req.session.passport && req.session.passport.user);
+  if(authenticated) {
+    delete req.session.authn_error;
+  }
   try {
     const user = req.session.passport.user;
     const profile = await check_current_user(req);
@@ -35,6 +38,9 @@ const current_user_props = async (req, res) => {
     response.authn_error = e.toString();
   }
   response.authenticated = authenticated;
+  if(!authenticated && req.session.authn_error) {
+    response.authn_error = req.session.authn_error.toString();
+  }
   res.json(response);
 };
 
@@ -54,14 +60,14 @@ const check_current_user = async (req) => {
       profile = await rp(rp_opts);
       authenticated = profile.authenticated;
     } catch (e) {
-      console.log('AUTOMATICALLY LOGGING OUT');
+      console.log('AUTOMATICALLY LOGGING OUT, because of error when communicating with Layman\'s Current User endpoint.');
       req.logout();
       throw e;
     }
     if(authenticated) {
       return profile;
     } else {
-      console.log('AUTOMATICALLY LOGGING OUT');
+      console.log('AUTOMATICALLY LOGGING OUT, because Layman claimed the user is not authenticated anymore');
       req.logout();
     }
   }

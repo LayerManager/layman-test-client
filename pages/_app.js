@@ -21,10 +21,20 @@ class MyApp extends App {
       const user_util = require('../src/authn/user').default;
       const authn_util = require('../src/authn/util').default;
       await authn_util.refresh_authn_info_if_needed(ctx.req);
-      await user_util.check_current_user(ctx.req);
-
-      // we need to check it again, because check_current_user could logout automatically
-      if (ctx.req && ctx.req.session.passport && ctx.req.session.passport.user) {
+      let authn_error = ctx.req.session.authn_error;
+      // check user again, because refresh_authn_info_if_needed could logout automatically
+      if(ctx.req.session.passport.user) {
+        try {
+          await user_util.check_current_user(ctx.req);
+        } catch (e) {
+          authn_error = e.toString();
+        }
+      }
+      if(authn_error) {
+        pageProps.authn_error = authn_error;
+      }
+      // check user again, because check_current_user could logout automatically
+      if (ctx.req.session.passport.user) {
         pageProps.user = {
           authenticated: true,
           username: ctx.req.session.passport.user.username,
@@ -40,6 +50,9 @@ class MyApp extends App {
     console.log(`_app.js constructor pageProps=${JSON.stringify(props.pageProps)}`);
     super(props);
     const user = props.pageProps.user || JSON.parse(JSON.stringify(anonymous_user));
+    if(props.pageProps.authn_error) {
+      user.latest_authn_error = props.pageProps.authn_error;
+    }
     this.state = {
       user,
     };
