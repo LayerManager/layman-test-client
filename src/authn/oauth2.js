@@ -11,7 +11,7 @@ const user_profile = (iss, access_token, done) => {
       'AuthorizationIssUrl': iss,
       'Authorization': `Bearer ${access_token}`,
     },
-    json: true // Automatically parses the JSON string in the response
+    json: true,
   };
 
   rp(options)
@@ -31,6 +31,7 @@ const ensure_username = async (iss, access_token, profile) => {
         'AuthorizationIssUrl': iss,
         'Authorization': `Bearer ${access_token}`,
       },
+      json: true,
     };
     profile = await rp(options);
   }
