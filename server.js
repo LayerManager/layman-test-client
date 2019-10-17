@@ -31,11 +31,29 @@ const nextjs_handle = nextjs_app.getRequestHandler();
 // https://auth0.com/blog/next-js-authentication-tutorial/
 const passport = require("passport");
 
+const BASEPATH = process.env.LTC_BASEPATH;
+
 nextjs_app.prepare()
     .then(() => {
 
-      server.get('/static/*', nextjs_handle);
-      server.get('/_next/*', nextjs_handle);
+      if(BASEPATH) {
+        server.get('/', (req, res) => res.redirect(`${BASEPATH}/`));
+      }
+
+      server.use(`${BASEPATH}/static`,
+          (req, res, next) => {
+            req.url = '/static'+req.url;
+            next();
+          },
+          nextjs_handle,
+      );
+      server.use(`${BASEPATH}/_next`,
+          (req, res, next) => {
+            req.url = '/_next'+req.url;
+            next();
+          },
+          nextjs_handle,
+      );
 
       // setup express session for passport.js
       server.use(session_util.create_express_session());
@@ -50,7 +68,7 @@ nextjs_app.prepare()
       );
 
       // check current user and get props for client side
-      server.get('/current-user-props',
+      server.get(`${BASEPATH}/current-user-props`,
           authn_util.add_incoming_timestamp,
           authn_util.refresh_authn_info_if_needed,
           async (req, res) => {
@@ -59,18 +77,22 @@ nextjs_app.prepare()
       );
 
       //Layman proxy
-      server.use('/rest',
+      server.use(`${BASEPATH}/rest`,
           authn_util.add_incoming_timestamp,
           authn_util.refresh_authn_info_if_needed,
           proxy({
             target: process.env.LAYMAN_REST_URL,
             changeOrigin: true,
             onProxyReq: authn_util.add_authn_headers,
+            pathRewrite: {
+              [`^/${BASEPATH}/rest`]: '/rest',
+            }
           }),
       );
 
       // handling everything else with Next.js
-      server.get('*',
+      server.use(
+          `${BASEPATH}`,
           authn_util.add_incoming_timestamp,
           nextjs_handle,
       );

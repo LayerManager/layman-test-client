@@ -11,7 +11,10 @@ import PatchMapParams from "../components/PatchMapParams";
 import UserPathParams from "../components/UserPathParams";
 import LayerPathParams from "../components/LayerPathParams";
 import MapPathParams from "../components/MapPathParams";
+import getConfig from 'next/config'
+const { publicRuntimeConfig } = getConfig();
 
+const ASSET_PREFIX = publicRuntimeConfig.ASSET_PREFIX;
 let RESUMABLE_ENABLED = false;
 const PREFER_RESUMABLE_SIZE_LIMIT = 1 * 1024 * 1024;
 
@@ -287,7 +290,7 @@ class IndexPage extends React.PureComponent {
             response.json);
         // console.log('create resumable');
         const resumable = new Resumable({
-          target: `/rest/${this.state.user}/layers/${layername}/chunk`,
+          target: `${ASSET_PREFIX}/rest/${this.state.user}/layers/${layername}/chunk`,
           query: resumable_file => ({
             'layman_original_parameter': files_to_upload.find(
                 fo => fo.file === resumable_file.file
@@ -351,7 +354,7 @@ class IndexPage extends React.PureComponent {
     const endpoint = requestToEndpoint(this.state.request);
     const getter = endpointToUrlPartGetter[endpoint];
     const urlPart = getter ? getter(this.state) : '';
-    const url = `/rest${urlPart}`;
+    const url = `${ASSET_PREFIX}/rest${urlPart}`;
     return url
   }
 
