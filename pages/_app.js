@@ -63,7 +63,7 @@ class MyApp extends App {
   }
 
   async refresh_user() {
-    const res = await fetch('/current-user-props');
+    const res = await fetch(`${publicRuntimeConfig.ASSET_PREFIX}/current-user-props`);
     const json = await res.json();
     // console.log('refresh_user', json);
     const user = json.authenticated ? json : JSON.parse(JSON.stringify(anonymous_user));
