@@ -85,7 +85,7 @@ nextjs_app.prepare()
             changeOrigin: true,
             onProxyReq: authn_util.add_authn_headers,
             pathRewrite: {
-              [`^/${BASEPATH}/rest`]: '/rest',
+              [`^${BASEPATH}/rest`]: '/rest',
             }
           }),
       );
