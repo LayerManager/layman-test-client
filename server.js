@@ -81,7 +81,7 @@ nextjs_app.prepare()
           authn_util.add_incoming_timestamp,
           authn_util.refresh_authn_info_if_needed,
           proxy({
-            target: process.env.LAYMAN_REST_URL,
+            target: process.env.LTC_LAYMAN_REST_URL,
             changeOrigin: true,
             onProxyReq: authn_util.add_authn_headers,
             pathRewrite: {

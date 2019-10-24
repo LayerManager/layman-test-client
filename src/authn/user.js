@@ -53,7 +53,7 @@ const check_current_user = async (req) => {
     let profile;
     try {
       const rp_opts = {
-        uri: process.env.LAYMAN_USER_PROFILE_URL,
+        uri: process.env.LTC_LAYMAN_USER_PROFILE_URL,
         headers: provider.get_authn_headers(user),
         json: true
       };
