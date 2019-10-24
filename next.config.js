@@ -1,4 +1,6 @@
-import dotenv from 'dotenv';
+// import dotenv from 'dotenv';
+// dotenv.config();
+const dotenv = require('dotenv');
 dotenv.config();
 
 const isProd = process.env.NODE_ENV === 'production';
