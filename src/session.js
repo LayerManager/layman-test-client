@@ -10,6 +10,9 @@ export const create_express_session = () => {
     url: process.env.REDIS_URI,
     db: 1
   });
+  session_store.on('disconnect', () => {
+    throw new Error(`Redis instance ${process.env.REDIS_URI} was disconnected!`);
+  });
 
   const session_config = {
     secret: process.env.SESSION_SECRET,
