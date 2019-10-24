@@ -7,7 +7,7 @@ class PostLayersParams extends React.PureComponent {
         <div>
           <Form.Field inline className="mandatory">
             <label>Vector data file</label>
-            <input name="file" type="file" accept=".geojson,.json" multiple/>
+            <input name="file" type="file" multiple/>
           </Form.Field>
           <Form.Input
               inline
