@@ -26,15 +26,16 @@ class HeaderMenu extends React.Component {
       {key: 'home', name: 'Home', href: '/'},
       {key: 'profile', icon: 'user', name: user_label, href: '/profile'},
     ];
-
-    if (props.user.authenticated) {
-      items_def.push(...[
+    if (props.show_log) {
+      if (props.user.authenticated) {
+        items_def.push(...[
           {key: 'logout', name: 'Log Out', href: '/authn/logout', simple_link: true},
-      ])
-    } else {
-      items_def.push(...[
+        ])
+      } else {
+        items_def.push(...[
           {key: 'login', name: 'Log In', href: '/authn/oauth2-liferay/login', simple_link: true},
-      ])
+        ])
+      }
     }
 
     const items = items_def.map(item_def => {
