@@ -165,7 +165,7 @@ class IndexPage extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      user: 'browser',
+      user: props.user && props.user.username ? props.user.username : 'browser',
       request: 'post-layers',
       layername: '',
       mapname: '',
