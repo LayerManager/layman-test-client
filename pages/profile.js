@@ -7,11 +7,11 @@ const containerStyle = {
   padding: '1em',
 };
 
-function Profile({ user }) {
+function Profile({ user, num_authn_providers }) {
     // todo show also information from GET current-user
     return (
         <div>
-          <HeaderMenu user={user} />
+          <HeaderMenu user={user} show_log={!!num_authn_providers} />
 
           <Container style={containerStyle}>
             <Header as='h1'>Client-side user information</Header>

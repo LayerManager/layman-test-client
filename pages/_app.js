@@ -17,6 +17,11 @@ class MyApp extends App {
     if (Component.getInitialProps) {
       pageProps = await Component.getInitialProps(ctx);
     }
+    if (ctx.req) {
+      const providers = require('../src/authn/providers').default();
+      const num_authn_providers = Object.keys(providers).length;
+      pageProps.num_authn_providers = num_authn_providers;
+    }
     if (ctx.req && ctx.req.session.passport && ctx.req.session.passport.user) {
       const user_util = require('../src/authn/user').default;
       const authn_util = require('../src/authn/util').default;
