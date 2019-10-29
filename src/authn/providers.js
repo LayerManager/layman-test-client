@@ -10,7 +10,12 @@ const providers = {};
 export default () => {
 
   const LIFERAY_PROVIDER_KEY = 'oauth2-liferay';
-  if (process.env.OAUTH2_LIFERAY_CLIENT_ID && !providers[LIFERAY_PROVIDER_KEY]) {
+  if (process.env.OAUTH2_LIFERAY_CLIENT_ID
+      && process.env.OAUTH2_LIFERAY_SECRET
+      && process.env.OAUTH2_LIFERAY_AUTH_URL
+      && process.env.OAUTH2_LIFERAY_TOKEN_URL
+      && process.env.OAUTH2_LIFERAY_CALLBACK_URL
+      && !providers[LIFERAY_PROVIDER_KEY]) {
     const iss_id = LIFERAY_PROVIDER_KEY;
     const iss = process.env.OAUTH2_LIFERAY_AUTH_URL;
 
