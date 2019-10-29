@@ -1,7 +1,9 @@
-.env
 .idea
 .next
 node_modules
 build
 out
 *.zip
+
+/.env*
+!/.env.sample
