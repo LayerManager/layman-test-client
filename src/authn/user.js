@@ -61,19 +61,41 @@ const check_current_user = async (req) => {
       authenticated = profile.authenticated;
     } catch (e) {
       console.log('AUTOMATICALLY LOGGING OUT, because of error when communicating with Layman\'s Current User endpoint.');
-      req.logout();
+      await delete_current_user(req);
+      await req.logout();
       throw e;
     }
     if(authenticated) {
       return profile;
     } else {
       console.log('AUTOMATICALLY LOGGING OUT, because Layman claimed the user is not authenticated anymore');
-      req.logout();
+      await delete_current_user(req);
+      await req.logout();
     }
   }
   return null;
 };
 
+
+const delete_current_user = async (req) => {
+  let authenticated = !!(req.session.passport && req.session.passport.user);
+  if (authenticated) {
+    const user = req.session.passport.user;
+    const provider = AUTHN_PROVIDERS[user.authn.iss_id];
+    try {
+      const rp_opts = {
+        method: 'DELETE',
+        uri: process.env.LTC_LAYMAN_USER_PROFILE_URL,
+        headers: provider.get_authn_headers(user),
+        json: true,
+      };
+      await rp(rp_opts);
+    } catch (e) {
+      console.log('Error during DELETE Current User', e);
+    }
+  }
+  return null;
+};
 
 
 export default {
@@ -81,4 +103,5 @@ export default {
   deserialize_user,
   current_user_props,
   check_current_user,
+  delete_current_user,
 }

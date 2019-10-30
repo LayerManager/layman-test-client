@@ -91,7 +91,9 @@ const refresh_authn_info = async (oauth2_token_url, client_id, client_secret, re
   } catch(e) {
     console.log(e);
     console.log('AUTOMATICALLY LOGGING OUT, because of error when refreshing authn info');
-    req.logout();
+    const user_util = require('./user').default;
+    await user_util.delete_current_user(req);
+    await req.logout();
     req.session.authn_error = 'Error when refreshing authn info';
     return;
   }

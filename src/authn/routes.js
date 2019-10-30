@@ -2,6 +2,7 @@ import express from "express";
 import passport from "passport";
 import authn_providers_m from "./providers";
 const PROVIDERS = authn_providers_m();
+import user_util from './user';
 
 
 const BASEPATH = process.env.LTC_BASEPATH;
@@ -34,9 +35,10 @@ Object.values(PROVIDERS).forEach(provider => {
   });
 
 
-  router.get(`${BASEPATH}/authn/logout`, (req, res) => {
+  router.get(`${BASEPATH}/authn/logout`, async (req, res) => {
     console.log('/authn/logout');
-    req.logout();
+    await user_util.delete_current_user(req);
+    await req.logout();
     res.redirect(`${BASEPATH}/`);
     // possibly also logout from authentication provider (e. g. Liferay)
   });
