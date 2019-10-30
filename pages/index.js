@@ -11,6 +11,7 @@ import PatchMapParams from "../components/PatchMapParams";
 import UserPathParams from "../components/UserPathParams";
 import LayerPathParams from "../components/LayerPathParams";
 import MapPathParams from "../components/MapPathParams";
+import PatchCurrentuserParams from "../components/PatchCurrentuserParams";
 import getConfig from 'next/config'
 const { publicRuntimeConfig } = getConfig();
 
@@ -30,12 +31,13 @@ const toTitleCase = (str) => {
     });
 };
 
-const PUBLICATION_TYPES = ['layer', 'map'];
+const PUBLICATION_TYPES = ['layer', 'map', 'current-user'];
 
 const publicationTypeToDefaultRequest = {
   'layer': 'post-layers',
   'map': 'post-maps',
-}
+  'current-user': 'get-current-user',
+};
 
 const getRequestTitle = (request) => {
   const parts = request.split('-')
@@ -49,6 +51,7 @@ const requestToParamsClass = {
   'patch-layer': PatchLayerParams,
   'post-maps': PostMapsParams,
   'patch-map': PatchMapParams,
+  'patch-current-user': PatchCurrentuserParams,
 }
 
 const requestToResumableParams = {
@@ -64,6 +67,7 @@ const endpointToUrlPartGetter = {
   'map': ({user, mapname}) => `/${user}/maps/${mapname}`,
   'map-file': ({user, mapname}) => `/${user}/maps/${mapname}/file`,
   'map-thumbnail': ({user, mapname}) => `/${user}/maps/${mapname}/thumbnail`,
+  'current-user': () => `/current-user`,
 }
 
 const endpointToPathParams = {
@@ -74,6 +78,7 @@ const endpointToPathParams = {
   'map': ['user', 'name'],
   'map-file': ['user', 'name'],
   'map-thumbnail': ['user', 'name'],
+  'current-user': [],
 }
 
 const endpointToPathParamsClass = {
@@ -85,6 +90,18 @@ const endpointToPathParamsClass = {
   'map-file': MapPathParams,
   'map-thumbnail': MapPathParams,
 }
+
+const requestToQueryParams = {
+  'patch-current-user': ['adjust_username'],
+}
+
+const queryParamValueToString = (request, param_name, param_value) => {
+  const fns = {
+    'patch-current-user.adjust_username': v => v || 'false',
+  };
+  const fn = fns[`${request}.${param_name}`];
+  return fn ? fn(param_value) : param_value;
+};
 
 
 const getEndpointDefaultParamsState = (endpoint, state) => {
@@ -124,6 +141,7 @@ const getEndpointParamsProps = (endpoint, component) => {
     'map': map_props,
     'map-file': map_props,
     'map-thumbnail': map_props,
+    'current-user': {},
   }
   return props[endpoint];
 }
@@ -218,8 +236,15 @@ class IndexPage extends React.PureComponent {
     let resuming = false;
     let files_to_upload = [];
 
+    const queryParamNames = (requestToQueryParams[this.state.request] || []).concat();
+    const formData = new FormData(this.formEl);
+    const queryParams = queryParamNames.reduce((obj, name) => {
+      obj[name] = queryParamValueToString(this.state.request, name, formData.get(name));
+      formData.delete(name);
+      return obj;
+    }, {});
+
     if(method !== 'get') {
-      const formData = new FormData(this.formEl);
       const endpoint = requestToEndpoint(this.state.request);
       const pathParams = (endpointToPathParams[endpoint] || []).concat();
       pathParams.forEach(pathParam => {
@@ -257,7 +282,13 @@ class IndexPage extends React.PureComponent {
       fetchOpts['body'] = formData;
     }
 
-    const url_path = this.getRequestUrlPath() + '?' + (+new Date());
+    queryParams.timestamp = (+new Date());
+    const query_part = Object.keys(queryParams).map(k => {
+      const v = queryParams[k];
+      return encodeURIComponent(k) + "=" + encodeURIComponent(v);
+    }).join('&');
+
+    const url_path = this.getRequestUrlPath() + '?' + query_part;
 
     fetch(url_path, fetchOpts).then((r) => {
       response.status = r.status;
@@ -623,8 +654,57 @@ class IndexPage extends React.PureComponent {
               </Tab.Pane>
           )
         },
-      }
-    ]
+      },
+      {
+        menuItem: 'Current User', render: () => {
+          return (
+              <Tab.Pane>
+                <Table celled>
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.HeaderCell>Endpoint</Table.HeaderCell>
+                      <Table.HeaderCell>URL</Table.HeaderCell>
+                      <Table.HeaderCell>GET</Table.HeaderCell>
+                      <Table.HeaderCell>POST</Table.HeaderCell>
+                      <Table.HeaderCell>PATCH</Table.HeaderCell>
+                      <Table.HeaderCell>DELETE</Table.HeaderCell>
+                    </Table.Row>
+                  </Table.Header>
+
+                  <Table.Body>
+                    <Table.Row>
+                      <Table.Cell>Current User</Table.Cell>
+                      <Table.Cell><code>/rest/current-user</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-current-user'}
+                            onClick={this.setRequest.bind(this, 'get-current-user')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'patch-current-user'}
+                            onClick={this.setRequest.bind(this, 'patch-current-user')}
+                        >PATCH</Button>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'delete-current-user'}
+                            onClick={this.setRequest.bind(this, 'delete-current-user')}
+                        >DELETE</Button>
+                      </Table.Cell>
+                    </Table.Row>
+                  </Table.Body>
+                </Table>
+              </Tab.Pane>
+          )
+        },
+      },
+    ];
 
     const publ_idx = PUBLICATION_TYPES.indexOf(this.state.publication_type);
 
