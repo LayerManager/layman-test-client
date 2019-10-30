@@ -58,8 +58,10 @@ class MyApp extends App {
     if(props.pageProps.authn_error) {
       user.latest_authn_error = props.pageProps.authn_error;
     }
+    const num_authn_providers = props.pageProps.num_authn_providers;
     this.state = {
       user,
+      num_authn_providers,
     };
 
   }
@@ -88,6 +90,7 @@ class MyApp extends App {
 
     const props = {
       ...pageProps,
+      num_authn_providers: this.state.num_authn_providers,
       user: this.state.user,
       handle_authn_failed: this.refresh_user.bind(this),
     };
