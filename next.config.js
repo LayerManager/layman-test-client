@@ -11,11 +11,6 @@ module.exports = {
     REFRESH_USER_INTERVAL: 60,
     ASSET_PREFIX: process.env.LTC_BASEPATH,
   },
-  exportPathMap: function () {
-    return {
-      '/': { page: '/index' },
-    }
-  },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.node = {
