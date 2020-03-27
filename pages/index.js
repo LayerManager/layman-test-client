@@ -63,10 +63,12 @@ const endpointToUrlPartGetter = {
   'layers': ({user}) => `/${user}/layers`,
   'layer': ({user, layername}) => `/${user}/layers/${layername}`,
   'layer-thumbnail': ({user, layername}) => `/${user}/layers/${layername}/thumbnail`,
+  'layer-metadata-comparison': ({user, layername}) => `/${user}/layers/${layername}/metadata-comparison`,
   'maps': ({user}) => `/${user}/maps`,
   'map': ({user, mapname}) => `/${user}/maps/${mapname}`,
   'map-file': ({user, mapname}) => `/${user}/maps/${mapname}/file`,
   'map-thumbnail': ({user, mapname}) => `/${user}/maps/${mapname}/thumbnail`,
+  'map-metadata-comparison': ({user, mapname}) => `/${user}/maps/${mapname}/metadata-comparison`,
   'current-user': () => `/current-user`,
 }
 
@@ -74,10 +76,12 @@ const endpointToPathParams = {
   'layers': ['user'],
   'layer': ['user', 'name'],
   'layer-thumbnail': ['user', 'name'],
+  'layer-metadata-comparison': ['user', 'name'],
   'maps': ['user'],
   'map': ['user', 'name'],
   'map-file': ['user', 'name'],
   'map-thumbnail': ['user', 'name'],
+  'map-metadata-comparison': ['user', 'name'],
   'current-user': [],
 }
 
@@ -85,10 +89,12 @@ const endpointToPathParamsClass = {
   'layers': UserPathParams,
   'layer': LayerPathParams,
   'layer-thumbnail': LayerPathParams,
+  'layer-metadata-comparison': LayerPathParams,
   'maps': UserPathParams,
   'map': MapPathParams,
   'map-file': MapPathParams,
   'map-thumbnail': MapPathParams,
+  'map-metadata-comparison': MapPathParams,
 }
 
 const requestToQueryParams = {
@@ -109,10 +115,12 @@ const getEndpointDefaultParamsState = (endpoint, state) => {
     'layers': () => ({layername: ''}),
     'layer': ({layername}) => ({layername}),
     'layer-thumbnail': ({layername}) => ({layername}),
+    'layer-metadata-comparison': ({layername}) => ({layername}),
     'maps': () => ({mapname: ''}),
     'map': ({mapname}) => ({mapname}),
     'map-file': ({mapname}) => ({mapname}),
     'map-thumbnail': ({mapname}) => ({mapname}),
+    'map-metadata-comparison': ({mapname}) => ({mapname}),
   }
   const getter = getters[endpoint];
   return getter ? getter(state) : {};
@@ -137,10 +145,12 @@ const getEndpointParamsProps = (endpoint, component) => {
     'layers': user_props,
     'layer': layer_props,
     'layer-thumbnail': layer_props,
+    'layer-metadata-comparison': layer_props,
     'maps': user_props,
     'map': map_props,
     'map-file': map_props,
     'map-thumbnail': map_props,
+    'map-metadata-comparison': map_props,
     'current-user': {},
   }
   return props[endpoint];
@@ -552,6 +562,20 @@ class IndexPage extends React.PureComponent {
                       <Table.Cell>x</Table.Cell>
                       <Table.Cell>x</Table.Cell>
                     </Table.Row>
+                    <Table.Row>
+                      <Table.Cell>Layer Metadata Comparison</Table.Cell>
+                      <Table.Cell><code>/rest/&lt;user&gt;/layers/&lt;layername&gt;/metadata-comparison</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-layer-metadata-comparison'}
+                            onClick={this.setRequest.bind(this, 'get-layer-metadata-comparison')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                    </Table.Row>
                   </Table.Body>
                 </Table>
               </Tab.Pane>
@@ -643,6 +667,20 @@ class IndexPage extends React.PureComponent {
                             toggle
                             active={this.state.request === 'get-map-thumbnail'}
                             onClick={this.setRequest.bind(this, 'get-map-thumbnail')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                    </Table.Row>
+                    <Table.Row>
+                      <Table.Cell>Map Metadata Comparison</Table.Cell>
+                      <Table.Cell><code>/rest/&lt;user&gt;/maps/&lt;mapname&gt;/metadata-comparison</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-map-metadata-comparison'}
+                            onClick={this.setRequest.bind(this, 'get-map-metadata-comparison')}
                         >GET</Button>
                       </Table.Cell>
                       <Table.Cell>x</Table.Cell>
