@@ -13,7 +13,7 @@ export default class MyDocument extends Document {
             <html>
                 <Head>
                     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                    <link rel="stylesheet" href={`${publicRuntimeConfig.ASSET_PREFIX}/static/test-client/global.css`} />
+                    <link rel="stylesheet" href={`${publicRuntimeConfig.ASSET_PREFIX}/test-client/global.css`} />
                     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.12/semantic.min.css" />
                 </Head>
                 <body>
