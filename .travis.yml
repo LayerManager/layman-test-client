@@ -1,6 +1,8 @@
 language: node_js
 node_js:
   - "11"
+env:
+  - LTC_BASEPATH=/client
 install: npm ci
 script:
 - npm run build
