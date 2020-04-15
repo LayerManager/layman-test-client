@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "node server.js",
     "build": "next build",
-    "export": "next export && mv -t out/static/test-client/ out/index.html out/_next",
     "start": "NODE_ENV=production node server.js",
     "test": "echo \"Error: no test specified\" && exit 0"
   },
