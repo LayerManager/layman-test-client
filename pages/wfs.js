@@ -66,7 +66,17 @@ const requestToEndpoint = (request) => {
   return request;
 }
 
-class IndexPage extends React.PureComponent {
+const requestToQueryParams = {
+}
+
+const queryParamValueToString = (request, param_name, param_value) => {
+  const fns = {
+  };
+  const fn = fns[`${request}.${param_name}`];
+  return fn ? fn(param_value) : param_value;
+};
+
+class WFSPage extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -102,6 +112,9 @@ class IndexPage extends React.PureComponent {
 
     const response = {};
 
+    console.log('this.state.data',this.state.data)
+    console.log('this.state.user',this.state.user)
+
     const fetchOpts = {
       method: "POST",
       body: this.state.data,
@@ -112,13 +125,14 @@ class IndexPage extends React.PureComponent {
 
     let resuming = false;
 
-    const queryParamNames = [].concat();
+    const queryParamNames = (requestToQueryParams[this.state.request] || []).concat();
     const formData = new FormData(this.formEl);
     const queryParams = queryParamNames.reduce((obj, name) => {
       obj[name] = queryParamValueToString(this.state.request, name, formData.get(name));
       formData.delete(name);
       return obj;
     }, {});
+
 
     const endpoint = requestToEndpoint(this.state.request);
     const pathParams = (endpointToPathParams[endpoint] || []).concat();
@@ -152,7 +166,6 @@ class IndexPage extends React.PureComponent {
         await this.props.handle_authn_failed();
       }
 
-    }).then( () => {
     }).finally(() => {
       this.setState({response});
       const domNode = ReactDOM.findDOMNode(this.respRef.current)
@@ -308,5 +321,5 @@ class IndexPage extends React.PureComponent {
   }
 }
 
-export default IndexPage;
+export default WFSPage;
 

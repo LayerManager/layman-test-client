@@ -1,19 +1,19 @@
 import {Form} from 'semantic-ui-react'
-import UserPathParams from "./UserPathParams";
 
 class PostWFSParams extends React.PureComponent {
 
   render() {
     return (
         <div>
-          <Form.Input
+          <Form>
+            <textarea
               className="mandatory"
               name="data"
-              label='Query XML'
-              placeholder='XML query'
+              label='XML Query'
+              placeholder='XML Query'
               value={this.props.data}
-              rows={50}
               onChange={this.props.handleDataChange}/>
+          </Form>
         </div>
     );
   }
