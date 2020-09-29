@@ -76,7 +76,7 @@ nextjs_app.prepare()
           }
       );
 
-      //Layman proxy
+      //Layman proxy for rest API
       server.use(`${BASEPATH}/rest`,
           authn_util.add_incoming_timestamp,
           authn_util.refresh_authn_info_if_needed,
@@ -86,6 +86,20 @@ nextjs_app.prepare()
             onProxyReq: authn_util.add_authn_headers,
             pathRewrite: {
               [`^${BASEPATH}/rest`]: '/rest',
+            }
+          }),
+      );
+
+      //Layman proxy for WFS proxy
+      server.use(`${BASEPATH}/geoserver`,
+          authn_util.add_incoming_timestamp,
+          authn_util.refresh_authn_info_if_needed,
+          proxy({
+            target: process.env.LTC_LAYMAN_REST_URL,
+            changeOrigin: true,
+            onProxyReq: authn_util.add_authn_headers,
+            pathRewrite: {
+              [`^${BASEPATH}/geoserver`]: '/geoserver',
             }
           }),
       );
