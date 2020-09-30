@@ -13,6 +13,7 @@ import LayerPathParams from "../components/LayerPathParams";
 import MapPathParams from "../components/MapPathParams";
 import PatchCurrentuserParams from "../components/PatchCurrentuserParams";
 import getConfig from 'next/config'
+import xmlFormatter from "xml-formatter";
 const { publicRuntimeConfig } = getConfig();
 
 const ASSET_PREFIX = publicRuntimeConfig.ASSET_PREFIX;
@@ -424,9 +425,14 @@ class IndexPage extends React.PureComponent {
       if(response.image_url) {
         resp_body = <img src={response.image_url} />
       } else {
-        const resp_body_text = response.json ?
-            JSON.stringify(response.json, null, 2) :
-            response.text;
+        let resp_body_text = ""
+        if (response.json) {
+          resp_body_text = JSON.stringify(response.json, null, 2)
+        } else if (response.contentType.includes("/xml")) {
+          resp_body_text = xmlFormatter(response.text)
+        } else {
+          resp_body_text = response.text;
+        }
         resp_body = <code style={{whiteSpace: 'pre'}}>{resp_body_text}</code>
       }
 
