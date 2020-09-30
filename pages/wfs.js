@@ -7,6 +7,7 @@ import scrollIntoView from 'scroll-into-view';
 import UserPathParams from "../components/UserPathParams";
 import getConfig from 'next/config'
 import xmlFormatter from 'xml-formatter'
+import htmlCleaner from 'clean-html'
 const { publicRuntimeConfig } = getConfig();
 
 const ASSET_PREFIX = publicRuntimeConfig.ASSET_PREFIX;
@@ -73,6 +74,12 @@ const requestToQueryParamValues = {
   },
 }
 
+const cleanHtml = async (text) => {
+  return new Promise((resolve, reject) => {
+    const result = htmlCleaner.clean(text, resolve);
+  });
+}
+
 class WFSPage extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -134,16 +141,23 @@ class WFSPage extends React.PureComponent {
       response.contentType = r.headers.get('content-type');
       return r.text();
     }).then( async (text) => {
-        const ctext = text;
-        response.text = ctext;
-        try {
-          response.json = JSON.parse(ctext);
-        } catch (e) {}
       // authentication failed
       if(response.status === 403 && response.json && response.json.code === 32) {
         // await sleep(1000);
         await this.props.handle_authn_failed();
       }
+      let pretty_text = "";
+      if (response.contentType.includes("/json")) {
+        response.json = JSON.parse(text);
+        pretty_text = JSON.stringify(response.json, null, 2);
+      } else if (response.contentType.includes("/xml")) {
+        pretty_text = xmlFormatter(text)
+      } else if (response.contentType.includes("/html")) {
+        pretty_text = await cleanHtml(text);
+      } else {
+        pretty_text = text;
+      }
+      response.pretty_text = pretty_text;
 
     }).finally(() => {
       this.setState({response});
@@ -171,25 +185,7 @@ class WFSPage extends React.PureComponent {
     const {response} = this.state;
     let respEl = null;
     if(response) {
-      let resp_body;
-      if(response.image_url) {
-        resp_body = <img src={response.image_url} />
-      } else {
-        let resp_body_text = "";
-          console.log("response.contentType",response.contentType)
-        if (response.json) {
-          resp_body_text =  JSON.stringify(response.json, null, 2);
-        } else if (response.contentType.includes("/xml")) {
-          resp_body_text = xmlFormatter(response.text)
-        } else if (response.contentType.includes("/html")) {
-          // TODO prettify HTML
-        //   resp_body_text = xmlFormatter(response.text)
-          resp_body_text = response.text;
-        } else {
-          resp_body_text = response.text;
-        }
-        resp_body = <code style={{whiteSpace: 'pre'}}>{resp_body_text}</code>
-      }
+      const resp_body= <code style={{whiteSpace: 'pre'}}>{response.pretty_text}</code>
 
       respEl =
           <div ref={this.respRef}>
