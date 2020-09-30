@@ -428,7 +428,7 @@ class IndexPage extends React.PureComponent {
         let resp_body_text = ""
         if (response.json) {
           resp_body_text = JSON.stringify(response.json, null, 2)
-        } else if (response.contentType.includes("/xml")) {
+        } else if (response.contentType.includes("xml")) {
           resp_body_text = xmlFormatter(response.text)
         } else {
           resp_body_text = response.text;
