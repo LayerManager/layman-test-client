@@ -68,7 +68,7 @@ class WfsPostTransactionParams extends React.PureComponent {
           <Button
               content="Import XML from file"
               onClick={() => this.fileInputRef.current.click()}/>
-          <input inline
+          <input
               ref={this.fileInputRef}
               hidden
               name="xml"
