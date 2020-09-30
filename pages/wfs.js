@@ -147,12 +147,12 @@ class WFSPage extends React.PureComponent {
         await this.props.handle_authn_failed();
       }
       let pretty_text = "";
-      if (response.contentType.includes("/json")) {
+      if (response.contentType && response.contentType.includes("/json")) {
         response.json = JSON.parse(text);
         pretty_text = JSON.stringify(response.json, null, 2);
-      } else if (response.contentType.includes("/xml")) {
+      } else if (response.contentType && response.contentType.includes("/xml")) {
         pretty_text = xmlFormatter(text)
-      } else if (response.contentType.includes("/html")) {
+      } else if (response.contentType && response.contentType.includes("/html")) {
         pretty_text = await cleanHtml(text);
       } else {
         pretty_text = text;
