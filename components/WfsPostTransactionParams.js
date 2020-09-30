@@ -1,6 +1,28 @@
 import {Form, Button} from 'semantic-ui-react'
+import htmlCleaner from "clean-html";
+
+const get_file_content = async (file) => {
+  const fr = new FileReader();
+  return new Promise((resolve, reject) => {
+    fr.onload = (evt) => {
+      resolve(evt.target.result);
+    };
+    fr.onerror = reject;
+    fr.readAsText(file);
+  });
+}
+
+
 
 class WfsPostTransactionParams extends React.PureComponent {
+
+  fileInputRef = React.createRef();
+
+  fileChange = async e => {
+      const file = e.target.files[0];
+      const file_content = await get_file_content(file);
+      this.props.handleDataChange(file_content);
+  };
 
   render() {
     const {user} = this.props;
@@ -40,10 +62,19 @@ class WfsPostTransactionParams extends React.PureComponent {
               name="data"
               label="XML Body"
               placeholder={sampleXML}
+              rows={15}
               value={this.props.data}
               onChange={(event) => {this.props.handleDataChange(event.target.value)}}/>
-          <Button content="Import XML from file" />
-          <Button content="Insert sample XML" onClick={(event) => {this.props.handleDataChange(sampleXML)}}/>
+          <Button
+              content="Import XML from file"
+              onClick={() => this.fileInputRef.current.click()}/>
+          <input inline
+              ref={this.fileInputRef}
+              hidden
+              name="xml"
+              type="file"
+              onChange={this.fileChange}/>
+          <Button content="Insert sample XML (layername=populated_places)" onClick={(event) => {this.props.handleDataChange(sampleXML)}}/>
           <br/>
           <br/>
         </div>
