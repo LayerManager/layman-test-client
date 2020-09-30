@@ -23,7 +23,8 @@ class HeaderMenu extends React.Component {
     let user_label = `${props.user.display_name}`;
     user_label += props.user.authenticated ? `, username: ${props.user.username}` : '';
     const items_def = [
-      {key: 'home', name: 'Home', href: '/'},
+      {key: 'home', name: 'REST API', href: '/'},
+      {key: 'wfs', name: 'WFS', href: '/wfs'},
       {key: 'profile', icon: 'user', name: user_label, href: '/profile'},
     ];
     if (props.show_log) {

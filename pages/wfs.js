@@ -2,10 +2,11 @@ import HeaderMenu from './../components/HeaderMenu'
 import {Container, Form, Button, Header, Table, Ref, Icon, Segment, Message, Progress} from 'semantic-ui-react'
 import fetch from 'unfetch';
 import ReactDOM from 'react-dom';
-import PostWFSParams from "../components/PostWFSParams";
+import WfsPostTransactionParams from "../components/WfsPostTransactionParams";
 import scrollIntoView from 'scroll-into-view';
 import UserPathParams from "../components/UserPathParams";
 import getConfig from 'next/config'
+import xmlFormatter from 'xml-formatter'
 const { publicRuntimeConfig } = getConfig();
 
 const ASSET_PREFIX = publicRuntimeConfig.ASSET_PREFIX;
@@ -30,19 +31,15 @@ const getRequestTitle = (request) => {
 }
 
 const requestToParamsClass = {
-  'wfs': PostWFSParams,
+  'post-transaction': WfsPostTransactionParams,
 }
 
 const endpointToUrlPartGetter = {
-  'wfs': ({user}) => `/${user}/wfs`,
-}
-
-const endpointToPathParams = {
-  'wfs': ['user'],
+  'transaction': ({user}) => `/${user}/wfs`,
 }
 
 const endpointToPathParamsClass = {
-  'wfs': UserPathParams,
+  'transaction': UserPathParams,
 }
 
 const getEndpointDefaultParamsState = (endpoint, state) => {
@@ -54,35 +51,34 @@ const getEndpointDefaultParamsState = (endpoint, state) => {
 const getEndpointParamsProps = (endpoint, component) => {
   const user_props = {
     user: component.state.user,
+    data: component.state.data,
     handleUserChange: component.handleUserChange.bind(component),
+    handleDataChange: component.handleDataChange.bind(component),
   };
   const props = {
-    'wfs': user_props,
+    'transaction': user_props,
   }
   return props[endpoint];
 }
 
 const requestToEndpoint = (request) => {
-  return request;
+  const parts = request.split('-')
+  parts.shift();
+  return parts.join('-');
 }
 
-const requestToQueryParams = {
+const requestToQueryParamValues = {
+  'post-transaction': {
+    'request': 'Transaction',
+  },
 }
-
-const queryParamValueToString = (request, param_name, param_value) => {
-  const fns = {
-  };
-  const fn = fns[`${request}.${param_name}`];
-  return fn ? fn(param_value) : param_value;
-};
 
 class WFSPage extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       user: props.user && props.user.username ? props.user.username : 'browser',
-      request: 'wfs',
-      publication_type: 'wfs',
+      request: 'post-transaction',
       data: '',
       response: null,
     };
@@ -94,8 +90,8 @@ class WFSPage extends React.PureComponent {
     this.setState({user: event.target.value});
   }
 
-  handleDataChange(event) {
-    this.setState({data: event.target.value});
+  handleDataChange(data) {
+    this.setState({data});
   }
 
   setRequest(request) {
@@ -112,9 +108,6 @@ class WFSPage extends React.PureComponent {
 
     const response = {};
 
-    console.log('this.state.data',this.state.data)
-    console.log('this.state.user',this.state.user)
-
     const fetchOpts = {
       method: "POST",
       body: this.state.data,
@@ -123,35 +116,21 @@ class WFSPage extends React.PureComponent {
         "Accept": "text/xml"}
     };
 
-    let resuming = false;
-
-    const queryParamNames = (requestToQueryParams[this.state.request] || []).concat();
-    const formData = new FormData(this.formEl);
-    const queryParams = queryParamNames.reduce((obj, name) => {
-      obj[name] = queryParamValueToString(this.state.request, name, formData.get(name));
-      formData.delete(name);
-      return obj;
-    }, {});
-
-
-    const endpoint = requestToEndpoint(this.state.request);
-    const pathParams = (endpointToPathParams[endpoint] || []).concat();
-    pathParams.forEach(pathParam => {
-      formData.delete(pathParam);
-    });
-    fetchOpts['body'] = formData;
+    const queryParamsOrig = requestToQueryParamValues[this.state.request] || {};
+    // Clone param dictionary, so we do not change it
+    const queryParams = JSON.parse(JSON.stringify(queryParamsOrig));
 
     queryParams.timestamp = (+new Date());
-    const query_part = "request=Transaction";
+    const query_part = Object.keys(queryParams).map(k => {
+      const v = queryParams[k];
+      return encodeURIComponent(k) + "=" + encodeURIComponent(v);
+    }).join('&');
 
     const url_path = this.getRequestUrlPath() + '?' + query_part;
 
     fetch(url_path, fetchOpts).then((r) => {
       response.status = r.status;
       response.ok = r.ok;
-      if(r.ok && resuming) {
-        response.resumable = true;
-      }
       response.contentType = r.headers.get('content-type');
       return r.text();
     }).then( async (text) => {
@@ -196,41 +175,25 @@ class WFSPage extends React.PureComponent {
       if(response.image_url) {
         resp_body = <img src={response.image_url} />
       } else {
-        const resp_body_text = response.json ?
-            JSON.stringify(response.json, null, 2) :
-            response.text;
+        let resp_body_text = "";
+          console.log("response.contentType",response.contentType)
+        if (response.json) {
+          resp_body_text =  JSON.stringify(response.json, null, 2);
+        } else if (response.contentType.includes("/xml")) {
+          resp_body_text = xmlFormatter(response.text)
+        } else if (response.contentType.includes("/html")) {
+          // TODO prettify HTML
+        //   resp_body_text = xmlFormatter(response.text)
+          resp_body_text = response.text;
+        } else {
+          resp_body_text = response.text;
+        }
         resp_body = <code style={{whiteSpace: 'pre'}}>{resp_body_text}</code>
       }
 
-      let resuming_body = null;
-      let resuming_errors = null;
-      if(response.resumable) {
-        const resumable_header = response.resumable_progress < 1 ?
-            <Message.Header><Icon loading name='spinner' />Uploading files</Message.Header>
-            : <Message.Header>Upload finished!</Message.Header>;
-        const positive = response.resumable_progress === 1
-                      && !response.resumable_errors.length;
-        const negative = !!response.resumable_errors.length;
-        resuming_body =
-            <Message positive={positive} negative={negative}>
-              {resumable_header}
-              <Progress percent={Math.ceil(response.resumable_progress*100)}
-                  success={positive} warning={negative}
-              />
-            </Message>
-        resuming_errors = response.resumable_errors.map((err, idx) => (
-            <Message key={idx} negative>
-              <Message.Header>Error during upload</Message.Header>
-              {err.file ? <p>File name: {err.file.file.name}</p> : null}
-              <code>${err.message}</code>
-            </Message>
-        ));
-      }
       respEl =
           <div ref={this.respRef}>
             <Segment>
-              {resuming_body}
-              {resuming_errors}
               <Message positive={response.ok}  negative={!response.ok}>
                 <Message.Header>Response</Message.Header>
                 <p>Status code: {response.status}</p>
@@ -265,7 +228,7 @@ class WFSPage extends React.PureComponent {
             <Table celled>
               <Table.Header>
                 <Table.Row>
-                  <Table.HeaderCell>Endpoint</Table.HeaderCell>
+                  <Table.HeaderCell>Request</Table.HeaderCell>
                   <Table.HeaderCell>URL</Table.HeaderCell>
                   <Table.HeaderCell>GET</Table.HeaderCell>
                   <Table.HeaderCell>POST</Table.HeaderCell>
@@ -276,14 +239,14 @@ class WFSPage extends React.PureComponent {
 
               <Table.Body>
                 <Table.Row>
-                  <Table.Cell>WFS</Table.Cell>
+                  <Table.Cell>Transaction</Table.Cell>
                   <Table.Cell><code>/geoserver/&lt;user&gt;/wfs</code></Table.Cell>
                   <Table.Cell>x</Table.Cell>
                   <Table.Cell>
                     <Button
                         toggle
-                        active={this.state.request === 'wfs'}
-                        onClick={this.setRequest.bind(this, 'wfs')}
+                        active={this.state.request === 'post-transaction'}
+                        onClick={this.setRequest.bind(this, 'post-transaction')}
                     >POST</Button>
                   </Table.Cell>
                   <Table.Cell>x</Table.Cell>
@@ -298,12 +261,12 @@ class WFSPage extends React.PureComponent {
           <HeaderMenu user={this.props.user} show_log={!!this.props.num_authn_providers} />
 
           <Container style={containerStyle}>
-            <Header as='h1'>Test Client of Layman REST API</Header>
+            <Header as='h1'>Test Client of Layman WFS Endpoint</Header>
             <p>
-              <a href="https://github.com/jirik/layman/blob/master/doc/rest.md"
-                 target="_blank">Layman REST API Documentation</a>
+              <a href="https://github.com/jirik/layman/blob/master/doc/endpoints.md#web-feature-service"
+                 target="_blank">Layman WFS Endpoint Documentation</a>
             </p>
-            <Header as='h2'>Endpoints and Actions</Header>
+            <Header as='h2'>Requests and Actions</Header>
             {renderEndpointTable}
             <Header as='h2'>{getRequestTitle(this.state.request)}</Header>
             <Header as='h3'>Parameters</Header>

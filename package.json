@@ -33,7 +33,8 @@
     "request-promise-native": "^1.0.8",
     "resumablejs": "^1.1.0",
     "scroll-into-view": "^1.14.2",
-    "semantic-ui-react": "^0.88.2"
+    "semantic-ui-react": "^0.88.2",
+    "xml-formatter": "^2.3.0"
   },
   "devDependencies": {}
 }
