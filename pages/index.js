@@ -46,6 +46,7 @@ const endpointToUrlPartGetter = {
   'layers': ({user}) => `/${user}/layers`,
   'layer': ({user, layername}) => `/${user}/layers/${layername}`,
   'layer-thumbnail': ({user, layername}) => `/${user}/layers/${layername}/thumbnail`,
+  'layer-style': ({user, layername}) => `/${user}/layers/${layername}/style`,
   'layer-metadata-comparison': ({user, layername}) => `/${user}/layers/${layername}/metadata-comparison`,
   'maps': ({user}) => `/${user}/maps`,
   'map': ({user, mapname}) => `/${user}/maps/${mapname}`,
@@ -59,6 +60,7 @@ const endpointToPathParams = {
   'layers': ['user'],
   'layer': ['user', 'name'],
   'layer-thumbnail': ['user', 'name'],
+  'layer-style': ['user', 'name'],
   'layer-metadata-comparison': ['user', 'name'],
   'maps': ['user'],
   'map': ['user', 'name'],
@@ -72,6 +74,7 @@ const endpointToPathParamsClass = {
   'layers': UserPathParams,
   'layer': LayerPathParams,
   'layer-thumbnail': LayerPathParams,
+  'layer-style': LayerPathParams,
   'layer-metadata-comparison': LayerPathParams,
   'maps': UserPathParams,
   'map': MapPathParams,
@@ -98,6 +101,7 @@ const getEndpointDefaultParamsState = (endpoint, state) => {
     'layers': () => ({layername: ''}),
     'layer': ({layername}) => ({layername}),
     'layer-thumbnail': ({layername}) => ({layername}),
+    'layer-style': ({layername}) => ({layername}),
     'layer-metadata-comparison': ({layername}) => ({layername}),
     'maps': () => ({mapname: ''}),
     'map': ({mapname}) => ({mapname}),
@@ -128,6 +132,7 @@ const getEndpointParamsProps = (endpoint, component) => {
     'layers': user_props,
     'layer': layer_props,
     'layer-thumbnail': layer_props,
+    'layer-style': layer_props,
     'layer-metadata-comparison': layer_props,
     'maps': user_props,
     'map': map_props,
@@ -388,9 +393,14 @@ class IndexPage extends React.PureComponent {
       if(response.image_url) {
         resp_body = <img src={response.image_url} />
       } else {
-        const resp_body_text = response.json ?
-            JSON.stringify(response.json, null, 2) :
-            response.text;
+        let resp_body_text = ""
+        if (response.json) {
+          resp_body_text = JSON.stringify(response.json, null, 2)
+        } else if (response.contentType && response.contentType.includes("xml")) {
+          resp_body_text = xmlFormatter(response.text)
+        } else {
+          resp_body_text = response.text;
+        }
         resp_body = <code style={{whiteSpace: 'pre'}}>{resp_body_text}</code>
       }
 
@@ -525,6 +535,20 @@ class IndexPage extends React.PureComponent {
                             toggle
                             active={this.state.request === 'get-layer-thumbnail'}
                             onClick={this.setRequest.bind(this, 'get-layer-thumbnail')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                    </Table.Row>
+                    <Table.Row>
+                      <Table.Cell>Layer Style</Table.Cell>
+                      <Table.Cell><code>/rest/&lt;user&gt;/layers/&lt;layername&gt;/style</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-layer-style'}
+                            onClick={this.setRequest.bind(this, 'get-layer-style')}
                         >GET</Button>
                       </Table.Cell>
                       <Table.Cell>x</Table.Cell>
