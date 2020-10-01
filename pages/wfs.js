@@ -1,5 +1,5 @@
 import HeaderMenu from './../components/HeaderMenu'
-import {Container, Form, Button, Header, Table, Ref, Icon, Segment, Message, Progress} from 'semantic-ui-react'
+import {Button, Container, Form, Header, Message, Ref, Segment, Table} from 'semantic-ui-react'
 import fetch from 'unfetch';
 import ReactDOM from 'react-dom';
 import WfsPostTransactionParams from "../components/WfsPostTransactionParams";
@@ -7,29 +7,11 @@ import scrollIntoView from 'scroll-into-view';
 import UserPathParams from "../components/UserPathParams";
 import getConfig from 'next/config'
 import xmlFormatter from 'xml-formatter'
-import htmlCleaner from 'clean-html'
+import {cleanHtml, containerStyle, getRequestTitle, requestToEndpoint} from "./_utils";
+
 const { publicRuntimeConfig } = getConfig();
 
 const ASSET_PREFIX = publicRuntimeConfig.ASSET_PREFIX;
-
-const containerStyle = {
-  position: 'absolute',
-  top: '40px',
-  padding: '1em',
-};
-
-const toTitleCase = (str) => {
-    return str.replace(/\w\S*/g, (txt) => {
-        return txt.charAt(0).toUpperCase() + txt.substr(1);
-    });
-};
-
-const getRequestTitle = (request) => {
-  const parts = request.split('-')
-  parts[0] = parts[0].toUpperCase();
-  const title = toTitleCase(parts.join(' '));
-  return title;
-}
 
 const requestToParamsClass = {
   'post-transaction': WfsPostTransactionParams,
@@ -62,22 +44,10 @@ const getEndpointParamsProps = (endpoint, component) => {
   return props[endpoint];
 }
 
-const requestToEndpoint = (request) => {
-  const parts = request.split('-')
-  parts.shift();
-  return parts.join('-');
-}
-
 const requestToQueryParamValues = {
   'post-transaction': {
     'request': 'Transaction',
   },
-}
-
-const cleanHtml = async (text) => {
-  return new Promise((resolve, reject) => {
-    const result = htmlCleaner.clean(text, resolve);
-  });
 }
 
 class WFSPage extends React.PureComponent {

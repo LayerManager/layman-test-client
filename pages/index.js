@@ -1,5 +1,5 @@
 import HeaderMenu from './../components/HeaderMenu'
-import {Container, Form, Button, Header, Table, Ref, Icon, Segment, Message, Progress, Tab} from 'semantic-ui-react'
+import {Button, Container, Form, Header, Icon, Message, Progress, Ref, Segment, Tab, Table} from 'semantic-ui-react'
 import fetch from 'unfetch';
 import ReactDOM from 'react-dom';
 import PostLayersParams from "../components/PostLayersParams";
@@ -13,23 +13,13 @@ import LayerPathParams from "../components/LayerPathParams";
 import MapPathParams from "../components/MapPathParams";
 import PatchCurrentuserParams from "../components/PatchCurrentuserParams";
 import getConfig from 'next/config'
+import {containerStyle, getRequestTitle, isBlob, requestToEndpoint, requestToMethod} from "./_utils";
+
 const { publicRuntimeConfig } = getConfig();
 
 const ASSET_PREFIX = publicRuntimeConfig.ASSET_PREFIX;
 let RESUMABLE_ENABLED = false;
 const PREFER_RESUMABLE_SIZE_LIMIT = 1 * 1024 * 1024;
-
-const containerStyle = {
-  position: 'absolute',
-  top: '40px',
-  padding: '1em',
-};
-
-const toTitleCase = (str) => {
-    return str.replace(/\w\S*/g, (txt) => {
-        return txt.charAt(0).toUpperCase() + txt.substr(1);
-    });
-};
 
 const PUBLICATION_TYPES = ['layer', 'map', 'current-user'];
 
@@ -38,13 +28,6 @@ const publicationTypeToDefaultRequest = {
   'map': 'post-maps',
   'current-user': 'get-current-user',
 };
-
-const getRequestTitle = (request) => {
-  const parts = request.split('-')
-  parts[0] = parts[0].toUpperCase();
-  const title = toTitleCase(parts.join(' '));
-  return title;
-}
 
 const requestToParamsClass = {
   'post-layers': PostLayersParams,
@@ -156,16 +139,6 @@ const getEndpointParamsProps = (endpoint, component) => {
   return props[endpoint];
 }
 
-const requestToEndpoint = (request) => {
-  const parts = request.split('-')
-  parts.shift();
-  return parts.join('-');
-}
-
-const requestToMethod = (request) => {
-  return request.split('-', 1)[0];
-}
-
 const requestResponseToLayername = (request, responseJson) => {
   const getters = {
     'post-layers': responseJson => responseJson[0]['name'],
@@ -182,10 +155,6 @@ const requestResponseToFilesToUpload = (request, responseJson) => {
   }
   const getter = getters[request];
   return getter ? getter(responseJson) : '';
-}
-
-const isBlob = (response) => {
-  return ['image/png'].includes(response.contentType);
 }
 
 
