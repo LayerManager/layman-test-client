@@ -7,7 +7,7 @@ import scrollIntoView from 'scroll-into-view';
 import UserPathParams from "../components/UserPathParams";
 import getConfig from 'next/config'
 import xmlFormatter from 'xml-formatter'
-import {cleanHtml, containerStyle, getRequestTitle, requestToEndpoint} from "./_utils";
+import {cleanHtml, containerStyle, getRequestTitle, requestToEndpoint} from "../src/_utils";
 
 const { publicRuntimeConfig } = getConfig();
 

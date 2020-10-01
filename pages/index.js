@@ -13,7 +13,7 @@ import LayerPathParams from "../components/LayerPathParams";
 import MapPathParams from "../components/MapPathParams";
 import PatchCurrentuserParams from "../components/PatchCurrentuserParams";
 import getConfig from 'next/config'
-import {containerStyle, getRequestTitle, isBlob, requestToEndpoint, requestToMethod} from "./_utils";
+import {containerStyle, getRequestTitle, isBlob, requestToEndpoint, requestToMethod} from "../src/_utils";
 
 const { publicRuntimeConfig } = getConfig();
 
