@@ -13,7 +13,14 @@ import LayerPathParams from "../components/LayerPathParams";
 import MapPathParams from "../components/MapPathParams";
 import PatchCurrentuserParams from "../components/PatchCurrentuserParams";
 import getConfig from 'next/config'
-import {containerStyle, getRequestTitle, isBlob, requestToEndpoint, requestToMethod} from "../src/_utils";
+import {
+  containerStyle,
+  getRequestTitle,
+  isBlob,
+  prettifyResponse,
+  requestToEndpoint,
+  requestToMethod
+} from "../src/utils";
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -288,10 +295,7 @@ class IndexPage extends React.PureComponent {
         response.image_url = window.URL.createObjectURL(blob);
       } else {
         const text = textOrBlob;
-        response.text = text;
-        try {
-          response.json = JSON.parse(text);
-        } catch (e) {}
+        await prettifyResponse(response, text)
       }
       // authentication failed
       if(response.status === 403 && response.json && response.json.code === 32) {
@@ -393,14 +397,7 @@ class IndexPage extends React.PureComponent {
       if(response.image_url) {
         resp_body = <img src={response.image_url} />
       } else {
-        let resp_body_text = ""
-        if (response.json) {
-          resp_body_text = JSON.stringify(response.json, null, 2)
-        } else if (response.contentType && response.contentType.includes("xml")) {
-          resp_body_text = xmlFormatter(response.text)
-        } else {
-          resp_body_text = response.text;
-        }
+        let resp_body_text = response.pretty_text;
         resp_body = <code style={{whiteSpace: 'pre'}}>{resp_body_text}</code>
       }
 

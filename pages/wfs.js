@@ -6,8 +6,7 @@ import WfsPostTransactionParams from "../components/WfsPostTransactionParams";
 import scrollIntoView from 'scroll-into-view';
 import UserPathParams from "../components/UserPathParams";
 import getConfig from 'next/config'
-import xmlFormatter from 'xml-formatter'
-import {cleanHtml, containerStyle, getRequestTitle, requestToEndpoint} from "../src/_utils";
+import {containerStyle, getRequestTitle, requestToEndpoint, prettifyResponse} from "../src/utils";
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -116,18 +115,7 @@ class WFSPage extends React.PureComponent {
         // await sleep(1000);
         await this.props.handle_authn_failed();
       }
-      let pretty_text = "";
-      if (response.contentType && response.contentType.includes("/json")) {
-        response.json = JSON.parse(text);
-        pretty_text = JSON.stringify(response.json, null, 2);
-      } else if (response.contentType && response.contentType.includes("/xml")) {
-        pretty_text = xmlFormatter(text)
-      } else if (response.contentType && response.contentType.includes("/html")) {
-        pretty_text = await cleanHtml(text);
-      } else {
-        pretty_text = text;
-      }
-      response.pretty_text = pretty_text;
+      await prettifyResponse(response, text)
 
     }).finally(() => {
       this.setState({response});

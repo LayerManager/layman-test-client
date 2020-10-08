@@ -1,4 +1,5 @@
 import htmlCleaner from "clean-html";
+import xmlFormatter from "xml-formatter";
 
 export const containerStyle = {
     position: 'absolute',
@@ -31,6 +32,21 @@ export const cleanHtml = async (text) => {
     return new Promise((resolve, reject) => {
         const result = htmlCleaner.clean(text, resolve);
     });
+}
+
+export const prettifyResponse = async (response, text) => {
+  let pretty_text = "";
+  if (response.contentType && response.contentType.includes("/json")) {
+    response.json = JSON.parse(text);
+    pretty_text = JSON.stringify(response.json, null, 2);
+  } else if (response.contentType && response.contentType.includes("/xml")) {
+    pretty_text = xmlFormatter(text)
+  } else if (response.contentType && response.contentType.includes("/html")) {
+    pretty_text = await cleanHtml(text);
+  } else {
+    pretty_text = text;
+  }
+  response.pretty_text = pretty_text;
 }
 
 export default {containerStyle,
