@@ -1,5 +1,5 @@
 import HeaderMenu from './../components/HeaderMenu'
-import {Container, Form, Button, Header, Table, Ref, Icon, Segment, Message, Progress, Tab} from 'semantic-ui-react'
+import {Button, Container, Form, Header, Icon, Message, Progress, Ref, Segment, Tab, Table} from 'semantic-ui-react'
 import fetch from 'unfetch';
 import ReactDOM from 'react-dom';
 import PostLayersParams from "../components/PostLayersParams";
@@ -13,24 +13,20 @@ import LayerPathParams from "../components/LayerPathParams";
 import MapPathParams from "../components/MapPathParams";
 import PatchCurrentuserParams from "../components/PatchCurrentuserParams";
 import getConfig from 'next/config'
-import xmlFormatter from "xml-formatter";
+import {
+  containerStyle,
+  getRequestTitle,
+  isBlob,
+  prettifyResponse,
+  requestToEndpoint,
+  requestToMethod
+} from "../src/utils";
+
 const { publicRuntimeConfig } = getConfig();
 
 const ASSET_PREFIX = publicRuntimeConfig.ASSET_PREFIX;
 let RESUMABLE_ENABLED = false;
 const PREFER_RESUMABLE_SIZE_LIMIT = 1 * 1024 * 1024;
-
-const containerStyle = {
-  position: 'absolute',
-  top: '40px',
-  padding: '1em',
-};
-
-const toTitleCase = (str) => {
-    return str.replace(/\w\S*/g, (txt) => {
-        return txt.charAt(0).toUpperCase() + txt.substr(1);
-    });
-};
 
 const PUBLICATION_TYPES = ['layer', 'map', 'current-user'];
 
@@ -39,13 +35,6 @@ const publicationTypeToDefaultRequest = {
   'map': 'post-maps',
   'current-user': 'get-current-user',
 };
-
-const getRequestTitle = (request) => {
-  const parts = request.split('-')
-  parts[0] = parts[0].toUpperCase();
-  const title = toTitleCase(parts.join(' '));
-  return title;
-}
 
 const requestToParamsClass = {
   'post-layers': PostLayersParams,
@@ -162,16 +151,6 @@ const getEndpointParamsProps = (endpoint, component) => {
   return props[endpoint];
 }
 
-const requestToEndpoint = (request) => {
-  const parts = request.split('-')
-  parts.shift();
-  return parts.join('-');
-}
-
-const requestToMethod = (request) => {
-  return request.split('-', 1)[0];
-}
-
 const requestResponseToLayername = (request, responseJson) => {
   const getters = {
     'post-layers': responseJson => responseJson[0]['name'],
@@ -188,10 +167,6 @@ const requestResponseToFilesToUpload = (request, responseJson) => {
   }
   const getter = getters[request];
   return getter ? getter(responseJson) : '';
-}
-
-const isBlob = (response) => {
-  return ['image/png'].includes(response.contentType);
 }
 
 
@@ -320,10 +295,7 @@ class IndexPage extends React.PureComponent {
         response.image_url = window.URL.createObjectURL(blob);
       } else {
         const text = textOrBlob;
-        response.text = text;
-        try {
-          response.json = JSON.parse(text);
-        } catch (e) {}
+        await prettifyResponse(response, text)
       }
       // authentication failed
       if(response.status === 403 && response.json && response.json.code === 32) {
@@ -425,14 +397,7 @@ class IndexPage extends React.PureComponent {
       if(response.image_url) {
         resp_body = <img src={response.image_url} />
       } else {
-        let resp_body_text = ""
-        if (response.json) {
-          resp_body_text = JSON.stringify(response.json, null, 2)
-        } else if (response.contentType && response.contentType.includes("xml")) {
-          resp_body_text = xmlFormatter(response.text)
-        } else {
-          resp_body_text = response.text;
-        }
+        let resp_body_text = response.pretty_text;
         resp_body = <code style={{whiteSpace: 'pre'}}>{resp_body_text}</code>
       }
 
