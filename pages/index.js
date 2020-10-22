@@ -28,12 +28,12 @@ const ASSET_PREFIX = publicRuntimeConfig.ASSET_PREFIX;
 let RESUMABLE_ENABLED = false;
 const PREFER_RESUMABLE_SIZE_LIMIT = 1 * 1024 * 1024;
 
-const PUBLICATION_TYPES = ['layer', 'map', 'current-user'];
+const PUBLICATION_TYPES = ['layer', 'map', 'users'];
 
 const publicationTypeToDefaultRequest = {
   'layer': 'post-layers',
   'map': 'post-maps',
-  'current-user': 'get-current-user',
+  'users': 'get-users',
 };
 
 const requestToParamsClass = {
@@ -60,6 +60,7 @@ const endpointToUrlPartGetter = {
   'map-file': ({user, mapname}) => `/${user}/maps/${mapname}/file`,
   'map-thumbnail': ({user, mapname}) => `/${user}/maps/${mapname}/thumbnail`,
   'map-metadata-comparison': ({user, mapname}) => `/${user}/maps/${mapname}/metadata-comparison`,
+  'users': () => `/users`,
   'current-user': () => `/current-user`,
 }
 
@@ -74,6 +75,7 @@ const endpointToPathParams = {
   'map-file': ['user', 'name'],
   'map-thumbnail': ['user', 'name'],
   'map-metadata-comparison': ['user', 'name'],
+  'users': [],
   'current-user': [],
 }
 
@@ -146,6 +148,7 @@ const getEndpointParamsProps = (endpoint, component) => {
     'map-file': map_props,
     'map-thumbnail': map_props,
     'map-metadata-comparison': map_props,
+    'users': {},
     'current-user': {},
   }
   return props[endpoint];
@@ -684,7 +687,7 @@ class IndexPage extends React.PureComponent {
         },
       },
       {
-        menuItem: 'Current User', render: () => {
+        menuItem: 'Others', render: () => {
           return (
               <Tab.Pane>
                 <Table celled>
@@ -700,6 +703,21 @@ class IndexPage extends React.PureComponent {
                   </Table.Header>
 
                   <Table.Body>
+                    <Table.Row>
+                      <Table.Cell>Users</Table.Cell>
+                      <Table.Cell><code>/rest/users</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-users'}
+                            onClick={this.setRequest.bind(this, 'get-users')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                    </Table.Row>
+
                     <Table.Row>
                       <Table.Cell>Current User</Table.Cell>
                       <Table.Cell><code>/rest/current-user</code></Table.Cell>
