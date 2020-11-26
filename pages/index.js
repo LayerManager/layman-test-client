@@ -238,12 +238,6 @@ class IndexPage extends React.PureComponent {
       return obj;
     }, {});
 
-    // TODO have to get access rights from form
-    if(method == 'post') {
-      formData.append('access_rights.read', 'EVERYONE')
-      formData.append('access_rights.write', 'EVERYONE')
-    }
-
     if(method !== 'get') {
       const endpoint = requestToEndpoint(this.state.request);
       const pathParams = (endpointToPathParams[endpoint] || []).concat();

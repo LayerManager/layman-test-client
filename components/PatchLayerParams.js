@@ -1,4 +1,5 @@
 import {Form} from 'semantic-ui-react'
+import PublicationAccessRightsParams from "./PublicationAccessRightsParams";
 
 class PatchLayerParams extends React.PureComponent {
 
@@ -27,6 +28,7 @@ class PatchLayerParams extends React.PureComponent {
             <label>SLD style</label>
             <input name="sld" type="file" accept=".sld,.xml"/>
           </Form.Field>
+          <PublicationAccessRightsParams/>
         </div>
     );
   }
