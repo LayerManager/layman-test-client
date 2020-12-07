@@ -499,7 +499,13 @@ class IndexPage extends React.PureComponent {
                         >POST</Button>
                       </Table.Cell>
                       <Table.Cell>x</Table.Cell>
-                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'delete-layers'}
+                            onClick={this.setRequest.bind(this, 'delete-layers')}
+                        >DELETE</Button>
+                      </Table.Cell>
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Layer</Table.Cell>
@@ -610,7 +616,13 @@ class IndexPage extends React.PureComponent {
                         >POST</Button>
                       </Table.Cell>
                       <Table.Cell>x</Table.Cell>
-                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'delete-maps'}
+                            onClick={this.setRequest.bind(this, 'delete-maps')}
+                        >DELETE</Button>
+                      </Table.Cell>
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Map</Table.Cell>
