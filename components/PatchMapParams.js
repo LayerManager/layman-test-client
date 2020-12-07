@@ -1,4 +1,5 @@
 import {Form} from 'semantic-ui-react'
+import PublicationAccessRightsParams from "./PublicationAccessRightsParams";
 
 class PatchMapParams extends React.PureComponent {
 
@@ -18,6 +19,7 @@ class PatchMapParams extends React.PureComponent {
               inline
               name="description" label='Map description'
               placeholder='Map description'/>
+          <PublicationAccessRightsParams/>
         </div>
     );
   }
