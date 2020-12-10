@@ -8,7 +8,7 @@ import PatchLayerParams from "../components/PatchLayerParams";
 import Resumable from "resumablejs";
 import PostMapsParams from "../components/PostMapsParams";
 import PatchMapParams from "../components/PatchMapParams";
-import UserPathParams from "../components/WorkplacePathParams";
+import WorkspacePathParams from "../components/WorkspacePathParams";
 import LayerPathParams from "../components/LayerPathParams";
 import MapPathParams from "../components/MapPathParams";
 import PatchCurrentuserParams from "../components/PatchCurrentuserParams";
@@ -50,42 +50,42 @@ const requestToResumableParams = {
 }
 
 const endpointToUrlPartGetter = {
-  'layers': ({user}) => `/${user}/layers`,
-  'layer': ({user, layername}) => `/${user}/layers/${layername}`,
-  'layer-thumbnail': ({user, layername}) => `/${user}/layers/${layername}/thumbnail`,
-  'layer-style': ({user, layername}) => `/${user}/layers/${layername}/style`,
-  'layer-metadata-comparison': ({user, layername}) => `/${user}/layers/${layername}/metadata-comparison`,
-  'maps': ({user}) => `/${user}/maps`,
-  'map': ({user, mapname}) => `/${user}/maps/${mapname}`,
-  'map-file': ({user, mapname}) => `/${user}/maps/${mapname}/file`,
-  'map-thumbnail': ({user, mapname}) => `/${user}/maps/${mapname}/thumbnail`,
-  'map-metadata-comparison': ({user, mapname}) => `/${user}/maps/${mapname}/metadata-comparison`,
+  'layers': ({workspace}) => `/${workspace}/layers`,
+  'layer': ({workspace, layername}) => `/${workspace}/layers/${layername}`,
+  'layer-thumbnail': ({workspace, layername}) => `/${workspace}/layers/${layername}/thumbnail`,
+  'layer-style': ({workspace, layername}) => `/${workspace}/layers/${layername}/style`,
+  'layer-metadata-comparison': ({workspace, layername}) => `/${workspace}/layers/${layername}/metadata-comparison`,
+  'maps': ({workspace}) => `/${workspace}/maps`,
+  'map': ({workspace, mapname}) => `/${workspace}/maps/${mapname}`,
+  'map-file': ({workspace, mapname}) => `/${workspace}/maps/${mapname}/file`,
+  'map-thumbnail': ({workspace, mapname}) => `/${workspace}/maps/${mapname}/thumbnail`,
+  'map-metadata-comparison': ({workspace, mapname}) => `/${workspace}/maps/${mapname}/metadata-comparison`,
   'users': () => `/users`,
   'current-user': () => `/current-user`,
 }
 
 const endpointToPathParams = {
-  'layers': ['user'],
-  'layer': ['user', 'name'],
-  'layer-thumbnail': ['user', 'name'],
-  'layer-style': ['user', 'name'],
-  'layer-metadata-comparison': ['user', 'name'],
-  'maps': ['user'],
-  'map': ['user', 'name'],
-  'map-file': ['user', 'name'],
-  'map-thumbnail': ['user', 'name'],
-  'map-metadata-comparison': ['user', 'name'],
+  'layers': ['workspace'],
+  'layer': ['workspace', 'name'],
+  'layer-thumbnail': ['workspace', 'name'],
+  'layer-style': ['workspace', 'name'],
+  'layer-metadata-comparison': ['workspace', 'name'],
+  'maps': ['workspace'],
+  'map': ['workspace', 'name'],
+  'map-file': ['workspace', 'name'],
+  'map-thumbnail': ['workspace', 'name'],
+  'map-metadata-comparison': ['workspace', 'name'],
   'users': [],
   'current-user': [],
 }
 
 const endpointToPathParamsClass = {
-  'layers': UserPathParams,
+  'layers': WorkspacePathParams,
   'layer': LayerPathParams,
   'layer-thumbnail': LayerPathParams,
   'layer-style': LayerPathParams,
   'layer-metadata-comparison': LayerPathParams,
-  'maps': UserPathParams,
+  'maps': WorkspacePathParams,
   'map': MapPathParams,
   'map-file': MapPathParams,
   'map-thumbnail': MapPathParams,
@@ -123,27 +123,27 @@ const getEndpointDefaultParamsState = (endpoint, state) => {
 }
 
 const getEndpointParamsProps = (endpoint, component) => {
-  const user_props = {
-    user: component.state.user,
-    handleUserChange: component.handleUserChange.bind(component),
+  const workspace_props = {
+    workspace: component.state.workspace,
+    handleWorkspaceChange: component.handleWorkspaceChange.bind(component),
   };
   const layer_props = {
-    ...user_props,
+    ...workspace_props,
     layername: component.state.layername,
     handleLayernameChange: component.handleLayernameChange.bind(component),
   };
   const map_props = {
-    ...user_props,
+    ...workspace_props,
     mapname: component.state.mapname,
     handleMapnameChange: component.handleMapnameChange.bind(component),
   };
   const props = {
-    'layers': user_props,
+    'layers': workspace_props,
     'layer': layer_props,
     'layer-thumbnail': layer_props,
     'layer-style': layer_props,
     'layer-metadata-comparison': layer_props,
-    'maps': user_props,
+    'maps': workspace_props,
     'map': map_props,
     'map-file': map_props,
     'map-thumbnail': map_props,
@@ -177,7 +177,7 @@ class IndexPage extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      user: props.user && props.user.username ? props.user.username : 'browser',
+      workspace: props.user && props.user.username ? props.user.username : 'browser',
       request: 'post-layers',
       layername: '',
       mapname: '',
@@ -188,8 +188,8 @@ class IndexPage extends React.PureComponent {
     this.respRef = React.createRef();
   }
 
-  handleUserChange(event) {
-    this.setState({user: event.target.value});
+  handleWorkspaceChange(event) {
+    this.setState({workspace: event.target.value});
   }
 
   handleLayernameChange(event) {
@@ -312,7 +312,7 @@ class IndexPage extends React.PureComponent {
             response.json);
         // console.log('create resumable');
         const resumable = new Resumable({
-          target: `${ASSET_PREFIX}/rest/${this.state.user}/layers/${layername}/chunk`,
+          target: `${ASSET_PREFIX}/rest/${this.state.workspace}/layers/${layername}/chunk`,
           query: resumable_file => ({
             'layman_original_parameter': files_to_upload.find(
                 fo => fo.file === resumable_file.file
@@ -483,7 +483,7 @@ class IndexPage extends React.PureComponent {
                   <Table.Body>
                     <Table.Row>
                       <Table.Cell>Layers</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/layers</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/layers</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -509,7 +509,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Layer</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/layers/&lt;layername&gt;</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/layers/&lt;layername&gt;</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -535,7 +535,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Layer Thumbnail</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/layers/&lt;layername&gt;/thumbnail</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/layers/&lt;layername&gt;/thumbnail</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -549,7 +549,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Layer Style</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/layers/&lt;layername&gt;/style</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/layers/&lt;layername&gt;/style</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -563,7 +563,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Layer Metadata Comparison</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/layers/&lt;layername&gt;/metadata-comparison</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/layers/&lt;layername&gt;/metadata-comparison</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -600,7 +600,7 @@ class IndexPage extends React.PureComponent {
                   <Table.Body>
                     <Table.Row>
                       <Table.Cell>Maps</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/maps</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/maps</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -626,7 +626,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Map</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/maps/&lt;mapname&gt;</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/maps/&lt;mapname&gt;</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -652,7 +652,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Map File</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/maps/&lt;mapname&gt;/file</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/maps/&lt;mapname&gt;/file</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -666,7 +666,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Map Thumbnail</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/maps/&lt;mapname&gt;/thumbnail</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/maps/&lt;mapname&gt;/thumbnail</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -680,7 +680,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Map Metadata Comparison</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/maps/&lt;mapname&gt;/metadata-comparison</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/maps/&lt;mapname&gt;/metadata-comparison</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
