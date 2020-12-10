@@ -1,20 +1,20 @@
 import {Form} from 'semantic-ui-react'
 
-class UserPathParams extends React.PureComponent {
+class WorkplacePathParams extends React.PureComponent {
 
   render() {
     return (
         <Form.Input
             inline
             className="mandatory"
-            name="user"
-            label='User name'
-            placeholder='User name'
+            name="workplace"
+            label='Workplace name'
+            placeholder='Workplace name'
             value={this.props.user}
             onChange={this.props.handleUserChange}/>
     );
   }
 }
 
-export default UserPathParams;
+export default WorkplacePathParams;
 

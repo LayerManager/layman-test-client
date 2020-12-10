@@ -4,7 +4,7 @@ import fetch from 'unfetch';
 import ReactDOM from 'react-dom';
 import WfsPostTransactionParams from "../components/WfsPostTransactionParams";
 import scrollIntoView from 'scroll-into-view';
-import UserPathParams from "../components/UserPathParams";
+import UserPathParams from "../components/WorkplacePathParams";
 import getConfig from 'next/config'
 import {containerStyle, getRequestTitle, requestToEndpoint, prettifyResponse} from "../src/utils";
 

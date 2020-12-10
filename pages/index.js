@@ -8,7 +8,7 @@ import PatchLayerParams from "../components/PatchLayerParams";
 import Resumable from "resumablejs";
 import PostMapsParams from "../components/PostMapsParams";
 import PatchMapParams from "../components/PatchMapParams";
-import UserPathParams from "../components/UserPathParams";
+import UserPathParams from "../components/WorkplacePathParams";
 import LayerPathParams from "../components/LayerPathParams";
 import MapPathParams from "../components/MapPathParams";
 import PatchCurrentuserParams from "../components/PatchCurrentuserParams";
@@ -483,7 +483,7 @@ class IndexPage extends React.PureComponent {
                   <Table.Body>
                     <Table.Row>
                       <Table.Cell>Layers</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;user&gt;/layers</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/layers</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -509,7 +509,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Layer</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;user&gt;/layers/&lt;layername&gt;</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/layers/&lt;layername&gt;</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -535,7 +535,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Layer Thumbnail</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;user&gt;/layers/&lt;layername&gt;/thumbnail</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/layers/&lt;layername&gt;/thumbnail</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -549,7 +549,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Layer Style</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;user&gt;/layers/&lt;layername&gt;/style</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/layers/&lt;layername&gt;/style</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -563,7 +563,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Layer Metadata Comparison</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;user&gt;/layers/&lt;layername&gt;/metadata-comparison</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/layers/&lt;layername&gt;/metadata-comparison</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -600,7 +600,7 @@ class IndexPage extends React.PureComponent {
                   <Table.Body>
                     <Table.Row>
                       <Table.Cell>Maps</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;user&gt;/maps</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/maps</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -626,7 +626,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Map</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;user&gt;/maps/&lt;mapname&gt;</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/maps/&lt;mapname&gt;</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -652,7 +652,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Map File</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;user&gt;/maps/&lt;mapname&gt;/file</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/maps/&lt;mapname&gt;/file</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -666,7 +666,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Map Thumbnail</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;user&gt;/maps/&lt;mapname&gt;/thumbnail</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/maps/&lt;mapname&gt;/thumbnail</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -680,7 +680,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Map Metadata Comparison</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;user&gt;/maps/&lt;mapname&gt;/metadata-comparison</code></Table.Cell>
+                      <Table.Cell><code>/rest/&lt;workplace_name&gt;/maps/&lt;mapname&gt;/metadata-comparison</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle

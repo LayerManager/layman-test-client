@@ -1,5 +1,5 @@
 import {Form} from 'semantic-ui-react'
-import UserPathParams from "./UserPathParams";
+import UserPathParams from "./WorkplacePathParams";
 
 class LayerPathParams extends React.PureComponent {
 
