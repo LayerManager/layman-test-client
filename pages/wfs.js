@@ -4,7 +4,7 @@ import fetch from 'unfetch';
 import ReactDOM from 'react-dom';
 import WfsPostTransactionParams from "../components/WfsPostTransactionParams";
 import scrollIntoView from 'scroll-into-view';
-import UserPathParams from "../components/UserPathParams";
+import WorkspacePathParams from "../components/WorkspacePathParams";
 import getConfig from 'next/config'
 import {containerStyle, getRequestTitle, requestToEndpoint, prettifyResponse} from "../src/utils";
 
@@ -17,11 +17,11 @@ const requestToParamsClass = {
 }
 
 const endpointToUrlPartGetter = {
-  'transaction': ({user}) => `/${user}/wfs`,
+  'transaction': ({workspace}) => `/${workspace}/wfs`,
 }
 
 const endpointToPathParamsClass = {
-  'transaction': UserPathParams,
+  'transaction': WorkspacePathParams,
 }
 
 const getEndpointDefaultParamsState = (endpoint, state) => {
@@ -31,14 +31,14 @@ const getEndpointDefaultParamsState = (endpoint, state) => {
 }
 
 const getEndpointParamsProps = (endpoint, component) => {
-  const user_props = {
-    user: component.state.user,
+  const workspace_props = {
+    workspace: component.state.workspace,
     data: component.state.data,
-    handleUserChange: component.handleUserChange.bind(component),
+    handleWorkspaceChange: component.handleWorkspaceChange.bind(component),
     handleDataChange: component.handleDataChange.bind(component),
   };
   const props = {
-    'transaction': user_props,
+    'transaction': workspace_props,
   }
   return props[endpoint];
 }
@@ -53,7 +53,7 @@ class WFSPage extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      user: props.user && props.user.username ? props.user.username : 'browser',
+      workspace: props.user && props.user.username ? props.user.username : 'browser',
       request: 'post-transaction',
       data: '',
       response: null,
@@ -62,8 +62,8 @@ class WFSPage extends React.PureComponent {
     this.respRef = React.createRef();
   }
 
-  handleUserChange(event) {
-    this.setState({user: event.target.value});
+  handleWorkspaceChange(event) {
+    this.setState({workspace: event.target.value});
   }
 
   handleDataChange(data) {
@@ -194,7 +194,7 @@ class WFSPage extends React.PureComponent {
               <Table.Body>
                 <Table.Row>
                   <Table.Cell>Transaction</Table.Cell>
-                  <Table.Cell><code>/geoserver/&lt;user&gt;/wfs</code></Table.Cell>
+                  <Table.Cell><code>/geoserver/&lt;workspace_name&gt;/wfs</code></Table.Cell>
                   <Table.Cell>x</Table.Cell>
                   <Table.Cell>
                     <Button

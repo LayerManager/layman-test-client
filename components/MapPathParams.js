@@ -1,12 +1,12 @@
 import {Form} from 'semantic-ui-react'
-import UserPathParams from "./UserPathParams";
+import WorkspacePathParams from "./WorkspacePathParams";
 
 class MapPathParams extends React.PureComponent {
 
   render() {
     return (
         <div>
-          <UserPathParams user={this.props.user} handleUserChange={this.props.handleUserChange}/>
+          <WorkspacePathParams workspace={this.props.workspace} handleWorkspaceChange={this.props.handleWorkspaceChange}/>
           <Form.Input
               inline
               className="mandatory"

@@ -25,12 +25,12 @@ class WfsPostTransactionParams extends React.PureComponent {
   };
 
   render() {
-    const {user} = this.props;
+    const {workspace} = this.props;
     const sampleXML = `<?xml version="1.0"?>
 <wfs:Transaction
    version="2.0.0"
    service="WFS"
-   xmlns:username="http://${user}"
+   xmlns:workspace="http://${workspace}"
    xmlns:fes="http://www.opengis.net/fes/2.0"
    xmlns:gml="http://www.opengis.net/gml/3.2"
    xmlns:wfs="http://www.opengis.net/wfs/2.0"
@@ -40,8 +40,8 @@ class WfsPostTransactionParams extends React.PureComponent {
                        http://www.opengis.net/gml/3.2
                        http://schemas.opengis.net/gml/3.2.1/gml.xsd">
    <wfs:Insert>
-       <username:populated_places>
-           <username:wkb_geometry>
+       <workspace:populated_places>
+           <workspace:wkb_geometry>
                <gml:MultiCurve srsName="urn:ogc:def:crs:EPSG::3857" srsDimension="2">
                    <gml:curveMember>
                        <gml:LineString>
@@ -51,8 +51,8 @@ class WfsPostTransactionParams extends React.PureComponent {
                        </gml:LineString>
                    </gml:curveMember>
                </gml:MultiCurve>
-           </username:wkb_geometry>
-       </username:populated_places>
+           </workspace:wkb_geometry>
+       </workspace:populated_places>
    </wfs:Insert>
 </wfs:Transaction>`
     return (
