@@ -14,14 +14,7 @@ jobs:
           node-version: '11.x'
 
       - run: npm install
-        env:
-          CI: true
       - run: npm run build
-        env:
-          CI: true
-      - run: npm test
-        env:
-          CI: true
 
       - name: Release zip
         run: |
