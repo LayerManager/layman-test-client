@@ -19,15 +19,3 @@ jobs:
           npm run build
         env:
           LTC_BASEPATH: '/client'
-
-      - name: Release zip
-        run: |
-          rm -rf release.tar.gz
-          touch release.tar.gz
-          tar --exclude=release.tar.gz -zcf release.tar.gz * .env.sample
-
-      - name: Store release.tar.gz
-        uses: actions/upload-artifact@v2
-        with:
-          name: release.tar.gz
-          path: release.tar.gz
