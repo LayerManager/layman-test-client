@@ -61,6 +61,7 @@ const endpointToUrlPartGetter = {
   'map-thumbnail': ({workspace, mapname}) => `/${workspace}/maps/${mapname}/thumbnail`,
   'map-metadata-comparison': ({workspace, mapname}) => `/${workspace}/maps/${mapname}/metadata-comparison`,
   'users': () => `/users`,
+  'version': () => `/about/version`,
   'current-user': () => `/current-user`,
 }
 
@@ -76,6 +77,7 @@ const endpointToPathParams = {
   'map-thumbnail': ['workspace', 'name'],
   'map-metadata-comparison': ['workspace', 'name'],
   'users': [],
+  'version': [],
   'current-user': [],
 }
 
@@ -149,6 +151,7 @@ const getEndpointParamsProps = (endpoint, component) => {
     'map-thumbnail': map_props,
     'map-metadata-comparison': map_props,
     'users': {},
+    'version': {},
     'current-user': {},
   }
   return props[endpoint];
@@ -756,6 +759,22 @@ class IndexPage extends React.PureComponent {
                         >DELETE</Button>
                       </Table.Cell>
                     </Table.Row>
+
+                    <Table.Row>
+                      <Table.Cell>Version</Table.Cell>
+                      <Table.Cell><code>/rest/about/version</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-version'}
+                            onClick={this.setRequest.bind(this, 'get-version')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                    </Table.Row>
+
                   </Table.Body>
                 </Table>
               </Tab.Pane>
