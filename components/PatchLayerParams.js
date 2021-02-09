@@ -25,8 +25,8 @@ class PatchLayerParams extends React.PureComponent {
               label='CRS'
               placeholder='CRS'/>
           <Form.Field inline>
-            <label>SLD style</label>
-            <input name="sld" type="file" accept=".sld,.xml"/>
+            <label>Style file</label>
+            <input name="style" type="file" accept=".sld,.xml,.qgis"/>
           </Form.Field>
           <PublicationAccessRightsParams/>
         </div>
