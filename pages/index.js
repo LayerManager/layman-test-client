@@ -50,16 +50,16 @@ const requestToResumableParams = {
 }
 
 const endpointToUrlPartGetter = {
-  'layers': ({workspace}) => `/${workspace}/layers`,
-  'layer': ({workspace, layername}) => `/${workspace}/layers/${layername}`,
-  'layer-thumbnail': ({workspace, layername}) => `/${workspace}/layers/${layername}/thumbnail`,
-  'layer-style': ({workspace, layername}) => `/${workspace}/layers/${layername}/style`,
-  'layer-metadata-comparison': ({workspace, layername}) => `/${workspace}/layers/${layername}/metadata-comparison`,
-  'maps': ({workspace}) => `/${workspace}/maps`,
-  'map': ({workspace, mapname}) => `/${workspace}/maps/${mapname}`,
-  'map-file': ({workspace, mapname}) => `/${workspace}/maps/${mapname}/file`,
-  'map-thumbnail': ({workspace, mapname}) => `/${workspace}/maps/${mapname}/thumbnail`,
-  'map-metadata-comparison': ({workspace, mapname}) => `/${workspace}/maps/${mapname}/metadata-comparison`,
+  'layers': ({workspace}) => `/workspaces/${workspace}/layers`,
+  'layer': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}`,
+  'layer-thumbnail': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/thumbnail`,
+  'layer-style': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/style`,
+  'layer-metadata-comparison': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/metadata-comparison`,
+  'maps': ({workspace}) => `/workspaces/${workspace}/maps`,
+  'map': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}`,
+  'map-file': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/file`,
+  'map-thumbnail': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/thumbnail`,
+  'map-metadata-comparison': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/metadata-comparison`,
   'users': () => `/users`,
   'version': () => `/about/version`,
   'current-user': () => `/current-user`,
@@ -315,7 +315,7 @@ class IndexPage extends React.PureComponent {
             response.json);
         // console.log('create resumable');
         const resumable = new Resumable({
-          target: `${ASSET_PREFIX}/rest/${this.state.workspace}/layers/${layername}/chunk`,
+          target: `${ASSET_PREFIX}/rest/workspaces/${this.state.workspace}/layers/${layername}/chunk`,
           query: resumable_file => ({
             'layman_original_parameter': files_to_upload.find(
                 fo => fo.file === resumable_file.file
@@ -486,7 +486,7 @@ class IndexPage extends React.PureComponent {
                   <Table.Body>
                     <Table.Row>
                       <Table.Cell>Layers</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/layers</code></Table.Cell>
+                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/layers</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -512,7 +512,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Layer</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/layers/&lt;layername&gt;</code></Table.Cell>
+                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/layers/&lt;layername&gt;</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -538,7 +538,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Layer Thumbnail</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/layers/&lt;layername&gt;/thumbnail</code></Table.Cell>
+                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/layers/&lt;layername&gt;/thumbnail</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -552,7 +552,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Layer Style</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/layers/&lt;layername&gt;/style</code></Table.Cell>
+                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/layers/&lt;layername&gt;/style</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -566,7 +566,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Layer Metadata Comparison</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/layers/&lt;layername&gt;/metadata-comparison</code></Table.Cell>
+                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/layers/&lt;layername&gt;/metadata-comparison</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -603,7 +603,7 @@ class IndexPage extends React.PureComponent {
                   <Table.Body>
                     <Table.Row>
                       <Table.Cell>Maps</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/maps</code></Table.Cell>
+                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/maps</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -629,7 +629,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Map</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/maps/&lt;mapname&gt;</code></Table.Cell>
+                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/maps/&lt;mapname&gt;</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -655,7 +655,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Map File</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/maps/&lt;mapname&gt;/file</code></Table.Cell>
+                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/maps/&lt;mapname&gt;/file</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -669,7 +669,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Map Thumbnail</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/maps/&lt;mapname&gt;/thumbnail</code></Table.Cell>
+                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/maps/&lt;mapname&gt;/thumbnail</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
@@ -683,7 +683,7 @@ class IndexPage extends React.PureComponent {
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Map Metadata Comparison</Table.Cell>
-                      <Table.Cell><code>/rest/&lt;workspace_name&gt;/maps/&lt;mapname&gt;/metadata-comparison</code></Table.Cell>
+                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/maps/&lt;mapname&gt;/metadata-comparison</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
