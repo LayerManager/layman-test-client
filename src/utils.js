@@ -39,7 +39,7 @@ export const prettifyResponse = async (response, text) => {
   if (response.contentType && response.contentType.includes("/json")) {
     response.json = JSON.parse(text);
     pretty_text = JSON.stringify(response.json, null, 2);
-  } else if (response.contentType && response.contentType.includes("/xml")) {
+  } else if (response.contentType && (response.contentType.includes("/xml") || response.contentType.includes("/x-qgis-layer-settings"))) {
     pretty_text = xmlFormatter(text)
   } else if (response.contentType && response.contentType.includes("/html")) {
     pretty_text = await cleanHtml(text);
