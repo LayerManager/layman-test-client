@@ -33,7 +33,7 @@ class PostLayersParams extends React.PureComponent {
               placeholder='CRS'/>
           <Form.Field inline>
             <label>Style file</label>
-            <input name="style" type="file" accept=".sld,.xml,.qgis"/>
+            <input name="style" type="file" accept=".sld,.xml,.qml"/>
           </Form.Field>
           <PublicationAccessRightsParams/>
         </div>
