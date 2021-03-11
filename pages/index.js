@@ -31,30 +31,30 @@ const PREFER_RESUMABLE_SIZE_LIMIT = 1 * 1024 * 1024;
 const PUBLICATION_TYPES = ['layer', 'map', 'users'];
 
 const publicationTypeToDefaultRequest = {
-  'layer': 'post-layers',
+  'layer': 'post-workspace-layers',
   'map': 'post-maps',
   'users': 'get-users',
 };
 
 const requestToParamsClass = {
-  'post-layers': PostWorkspaceLayersParams,
-  'patch-layer': PatchWorkspaceLayerParams,
+  'post-workspace-layers': PostWorkspaceLayersParams,
+  'patch-workspace-layer': PatchWorkspaceLayerParams,
   'post-maps': PostWorkspaceMapsParams,
   'patch-map': PatchWorkspaceMapParams,
   'patch-current-user': PatchCurrentuserParams,
 }
 
 const requestToResumableParams = {
-  'post-layers': ['file'],
-  'patch-layer': ['file'],
+  'post-workspace-layers': ['file'],
+  'patch-workspace-layer': ['file'],
 }
 
 const endpointToUrlPartGetter = {
-  'layers': ({workspace}) => `/workspaces/${workspace}/layers`,
-  'layer': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}`,
-  'layer-thumbnail': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/thumbnail`,
-  'layer-style': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/style`,
-  'layer-metadata-comparison': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/metadata-comparison`,
+  'workspace-layers': ({workspace}) => `/workspaces/${workspace}/layers`,
+  'workspace-layer': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}`,
+  'workspace-layer-thumbnail': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/thumbnail`,
+  'workspace-layer-style': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/style`,
+  'workspace-layer-metadata-comparison': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/metadata-comparison`,
   'maps': ({workspace}) => `/workspaces/${workspace}/maps`,
   'map': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}`,
   'map-file': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/file`,
@@ -66,11 +66,11 @@ const endpointToUrlPartGetter = {
 }
 
 const endpointToPathParams = {
-  'layers': ['workspace'],
-  'layer': ['workspace', 'name'],
-  'layer-thumbnail': ['workspace', 'name'],
-  'layer-style': ['workspace', 'name'],
-  'layer-metadata-comparison': ['workspace', 'name'],
+  'workspace-layers': ['workspace'],
+  'workspace-layer': ['workspace', 'name'],
+  'workspace-layer-thumbnail': ['workspace', 'name'],
+  'workspace-layer-style': ['workspace', 'name'],
+  'workspace-layer-metadata-comparison': ['workspace', 'name'],
   'maps': ['workspace'],
   'map': ['workspace', 'name'],
   'map-file': ['workspace', 'name'],
@@ -82,11 +82,11 @@ const endpointToPathParams = {
 }
 
 const endpointToPathParamsClass = {
-  'layers': WorkspacePathParams,
-  'layer': WorkspaceLayerPathParams,
-  'layer-thumbnail': WorkspaceLayerPathParams,
-  'layer-style': WorkspaceLayerPathParams,
-  'layer-metadata-comparison': WorkspaceLayerPathParams,
+  'workspace-layers': WorkspacePathParams,
+  'workspace-layer': WorkspaceLayerPathParams,
+  'workspace-layer-thumbnail': WorkspaceLayerPathParams,
+  'workspace-layer-style': WorkspaceLayerPathParams,
+  'workspace-layer-metadata-comparison': WorkspaceLayerPathParams,
   'maps': WorkspacePathParams,
   'map': WorkspaceMapPathParams,
   'map-file': WorkspaceMapPathParams,
@@ -109,11 +109,11 @@ const queryParamValueToString = (request, param_name, param_value) => {
 
 const getEndpointDefaultParamsState = (endpoint, state) => {
   const getters = {
-    'layers': () => ({layername: ''}),
-    'layer': ({layername}) => ({layername}),
-    'layer-thumbnail': ({layername}) => ({layername}),
-    'layer-style': ({layername}) => ({layername}),
-    'layer-metadata-comparison': ({layername}) => ({layername}),
+    'workspace-layers': () => ({layername: ''}),
+    'workspace-layer': ({layername}) => ({layername}),
+    'workspace-layer-thumbnail': ({layername}) => ({layername}),
+    'workspace-layer-style': ({layername}) => ({layername}),
+    'workspace-layer-metadata-comparison': ({layername}) => ({layername}),
     'maps': () => ({mapname: ''}),
     'map': ({mapname}) => ({mapname}),
     'map-file': ({mapname}) => ({mapname}),
@@ -140,11 +140,11 @@ const getEndpointParamsProps = (endpoint, component) => {
     handleMapnameChange: component.handleMapnameChange.bind(component),
   };
   const props = {
-    'layers': workspace_props,
-    'layer': layer_props,
-    'layer-thumbnail': layer_props,
-    'layer-style': layer_props,
-    'layer-metadata-comparison': layer_props,
+    'workspace-layers': workspace_props,
+    'workspace-layer': layer_props,
+    'workspace-layer-thumbnail': layer_props,
+    'workspace-layer-style': layer_props,
+    'workspace-layer-metadata-comparison': layer_props,
     'maps': workspace_props,
     'map': map_props,
     'map-file': map_props,
@@ -159,8 +159,8 @@ const getEndpointParamsProps = (endpoint, component) => {
 
 const requestResponseToLayername = (request, responseJson) => {
   const getters = {
-    'post-layers': responseJson => responseJson[0]['name'],
-    'patch-layer': responseJson => responseJson['name'],
+    'post-workspace-layers': responseJson => responseJson[0]['name'],
+    'patch-workspace-layer': responseJson => responseJson['name'],
   }
   const getter = getters[request];
   return getter ? getter(responseJson) : '';
@@ -168,8 +168,8 @@ const requestResponseToLayername = (request, responseJson) => {
 
 const requestResponseToFilesToUpload = (request, responseJson) => {
   const getters = {
-    'post-layers': responseJson => responseJson[0]['files_to_upload'],
-    'patch-layer': responseJson => responseJson['files_to_upload'],
+    'post-workspace-layers': responseJson => responseJson[0]['files_to_upload'],
+    'patch-workspace-layer': responseJson => responseJson['files_to_upload'],
   }
   const getter = getters[request];
   return getter ? getter(responseJson) : '';
@@ -181,7 +181,7 @@ class IndexPage extends React.PureComponent {
     super(props);
     this.state = {
       workspace: props.user && props.user.username ? props.user.username : 'browser',
-      request: 'post-layers',
+      request: 'post-workspace-layers',
       layername: '',
       mapname: '',
       publication_type: 'layer',
@@ -485,65 +485,65 @@ class IndexPage extends React.PureComponent {
 
                   <Table.Body>
                     <Table.Row>
-                      <Table.Cell>Layers</Table.Cell>
+                      <Table.Cell>Workspace Layers</Table.Cell>
                       <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/layers</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'get-layers'}
-                            onClick={this.setRequest.bind(this, 'get-layers')}
+                            active={this.state.request === 'get-workspace-layers'}
+                            onClick={this.setRequest.bind(this, 'get-workspace-layers')}
                         >GET</Button>
                       </Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'post-layers'}
-                            onClick={this.setRequest.bind(this, 'post-layers')}
+                            active={this.state.request === 'post-workspace-layers'}
+                            onClick={this.setRequest.bind(this, 'post-workspace-layers')}
                         >POST</Button>
                       </Table.Cell>
                       <Table.Cell>x</Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'delete-layers'}
-                            onClick={this.setRequest.bind(this, 'delete-layers')}
+                            active={this.state.request === 'delete-workspace-layers'}
+                            onClick={this.setRequest.bind(this, 'delete-workspace-layers')}
                         >DELETE</Button>
                       </Table.Cell>
                     </Table.Row>
                     <Table.Row>
-                      <Table.Cell>Layer</Table.Cell>
+                      <Table.Cell>Workspace Layer</Table.Cell>
                       <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/layers/&lt;layername&gt;</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'get-layer'}
-                            onClick={this.setRequest.bind(this, 'get-layer')}
+                            active={this.state.request === 'get-workspace-layer'}
+                            onClick={this.setRequest.bind(this, 'get-workspace-layer')}
                         >GET</Button>
                       </Table.Cell>
                       <Table.Cell>x</Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'patch-layer'}
-                            onClick={this.setRequest.bind(this, 'patch-layer')}
+                            active={this.state.request === 'patch-workspace-layer'}
+                            onClick={this.setRequest.bind(this, 'patch-workspace-layer')}
                         >PATCH</Button>
                       </Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'delete-layer'}
-                            onClick={this.setRequest.bind(this, 'delete-layer')}
+                            active={this.state.request === 'delete-workspace-layer'}
+                            onClick={this.setRequest.bind(this, 'delete-workspace-layer')}
                         >DELETE</Button>
                       </Table.Cell>
                     </Table.Row>
                     <Table.Row>
-                      <Table.Cell>Layer Thumbnail</Table.Cell>
+                      <Table.Cell>Workspace Layer Thumbnail</Table.Cell>
                       <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/layers/&lt;layername&gt;/thumbnail</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'get-layer-thumbnail'}
-                            onClick={this.setRequest.bind(this, 'get-layer-thumbnail')}
+                            active={this.state.request === 'get-workspace-layer-thumbnail'}
+                            onClick={this.setRequest.bind(this, 'get-workspace-layer-thumbnail')}
                         >GET</Button>
                       </Table.Cell>
                       <Table.Cell>x</Table.Cell>
@@ -551,13 +551,13 @@ class IndexPage extends React.PureComponent {
                       <Table.Cell>x</Table.Cell>
                     </Table.Row>
                     <Table.Row>
-                      <Table.Cell>Layer Style</Table.Cell>
+                      <Table.Cell>Workspace Layer Style</Table.Cell>
                       <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/layers/&lt;layername&gt;/style</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'get-layer-style'}
-                            onClick={this.setRequest.bind(this, 'get-layer-style')}
+                            active={this.state.request === 'get-workspace-layer-style'}
+                            onClick={this.setRequest.bind(this, 'get-workspace-layer-style')}
                         >GET</Button>
                       </Table.Cell>
                       <Table.Cell>x</Table.Cell>
@@ -565,13 +565,13 @@ class IndexPage extends React.PureComponent {
                       <Table.Cell>x</Table.Cell>
                     </Table.Row>
                     <Table.Row>
-                      <Table.Cell>Layer Metadata Comparison</Table.Cell>
+                      <Table.Cell>Workspace Layer Metadata Comparison</Table.Cell>
                       <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/layers/&lt;layername&gt;/metadata-comparison</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'get-layer-metadata-comparison'}
-                            onClick={this.setRequest.bind(this, 'get-layer-metadata-comparison')}
+                            active={this.state.request === 'get-workspace-layer-metadata-comparison'}
+                            onClick={this.setRequest.bind(this, 'get-workspace-layer-metadata-comparison')}
                         >GET</Button>
                       </Table.Cell>
                       <Table.Cell>x</Table.Cell>
