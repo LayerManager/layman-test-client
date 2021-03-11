@@ -187,7 +187,7 @@ class IndexPage extends React.PureComponent {
     super(props);
     this.state = {
       workspace: props.user && props.user.username ? props.user.username : 'browser',
-      request: 'post-workspace-layers',
+      request: 'get-layers',
       layername: '',
       mapname: '',
       publication_type: 'layer',
