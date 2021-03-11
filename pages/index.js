@@ -31,8 +31,8 @@ const PREFER_RESUMABLE_SIZE_LIMIT = 1 * 1024 * 1024;
 const PUBLICATION_TYPES = ['layer', 'map', 'users'];
 
 const publicationTypeToDefaultRequest = {
-  'layer': 'post-workspace-layers',
-  'map': 'post-workspace-maps',
+  'layer': 'get-layers',
+  'map': 'get-maps',
   'users': 'get-users',
 };
 
