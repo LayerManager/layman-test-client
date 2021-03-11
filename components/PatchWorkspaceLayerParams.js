@@ -1,22 +1,15 @@
 import {Form} from 'semantic-ui-react'
 import PublicationAccessRightsParams from "./PublicationAccessRightsParams";
 
-class PostLayersParams extends React.PureComponent {
+class PatchWorkspaceLayerParams extends React.PureComponent {
 
   render() {
     return (
         <div>
-          <Form.Field inline className="mandatory">
+          <Form.Field inline>
             <label>Vector data file</label>
             <input name="file" type="file" multiple/>
           </Form.Field>
-          <Form.Input
-              inline
-              name="name"
-              label='Layer name'
-              placeholder='Layer name'
-              value={this.props.layername}
-              onChange={this.props.handleLayernameChange}/>
           <Form.Input
               inline
               name="title"
@@ -41,5 +34,5 @@ class PostLayersParams extends React.PureComponent {
   }
 }
 
-export default PostLayersParams;
+export default PatchWorkspaceLayerParams;
 
