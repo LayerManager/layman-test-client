@@ -1,7 +1,7 @@
 import {Form} from 'semantic-ui-react'
 import WorkspacePathParams from "./WorkspacePathParams";
 
-class LayerPathParams extends React.PureComponent {
+class WorkspaceLayerPathParams extends React.PureComponent {
 
   render() {
     return (
@@ -20,5 +20,5 @@ class LayerPathParams extends React.PureComponent {
   }
 }
 
-export default LayerPathParams;
+export default WorkspaceLayerPathParams;
 

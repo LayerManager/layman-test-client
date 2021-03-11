@@ -1,7 +1,7 @@
 import {Form} from 'semantic-ui-react'
 import PublicationAccessRightsParams from "./PublicationAccessRightsParams";
 
-class PostMapsParams extends React.PureComponent {
+class PostWorkspaceMapsParams extends React.PureComponent {
 
   render() {
     return (
@@ -32,5 +32,5 @@ class PostMapsParams extends React.PureComponent {
   }
 }
 
-export default PostMapsParams;
+export default PostWorkspaceMapsParams;
 

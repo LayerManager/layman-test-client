@@ -2,15 +2,15 @@ import HeaderMenu from './../components/HeaderMenu'
 import {Button, Container, Form, Header, Icon, Message, Progress, Ref, Segment, Tab, Table} from 'semantic-ui-react'
 import fetch from 'unfetch';
 import ReactDOM from 'react-dom';
-import PostLayersParams from "../components/PostLayersParams";
+import PostWorkspaceLayersParams from "../components/PostWorkspaceLayersParams";
 import scrollIntoView from 'scroll-into-view';
-import PatchLayerParams from "../components/PatchLayerParams";
+import PatchWorkspaceLayerParams from "../components/PatchWorkspaceLayerParams";
 import Resumable from "resumablejs";
-import PostMapsParams from "../components/PostMapsParams";
-import PatchMapParams from "../components/PatchMapParams";
+import PostWorkspaceMapsParams from "../components/PostWorkspaceMapsParams";
+import PatchWorkspaceMapParams from "../components/PatchWorkspaceMapParams";
 import WorkspacePathParams from "../components/WorkspacePathParams";
-import LayerPathParams from "../components/LayerPathParams";
-import MapPathParams from "../components/MapPathParams";
+import WorkspaceLayerPathParams from "../components/WorkspaceLayerPathParams";
+import WorkspaceMapPathParams from "../components/WorkspaceMapPathParams";
 import PatchCurrentuserParams from "../components/PatchCurrentuserParams";
 import getConfig from 'next/config'
 import {
@@ -37,10 +37,10 @@ const publicationTypeToDefaultRequest = {
 };
 
 const requestToParamsClass = {
-  'post-layers': PostLayersParams,
-  'patch-layer': PatchLayerParams,
-  'post-maps': PostMapsParams,
-  'patch-map': PatchMapParams,
+  'post-layers': PostWorkspaceLayersParams,
+  'patch-layer': PatchWorkspaceLayerParams,
+  'post-maps': PostWorkspaceMapsParams,
+  'patch-map': PatchWorkspaceMapParams,
   'patch-current-user': PatchCurrentuserParams,
 }
 
@@ -83,15 +83,15 @@ const endpointToPathParams = {
 
 const endpointToPathParamsClass = {
   'layers': WorkspacePathParams,
-  'layer': LayerPathParams,
-  'layer-thumbnail': LayerPathParams,
-  'layer-style': LayerPathParams,
-  'layer-metadata-comparison': LayerPathParams,
+  'layer': WorkspaceLayerPathParams,
+  'layer-thumbnail': WorkspaceLayerPathParams,
+  'layer-style': WorkspaceLayerPathParams,
+  'layer-metadata-comparison': WorkspaceLayerPathParams,
   'maps': WorkspacePathParams,
-  'map': MapPathParams,
-  'map-file': MapPathParams,
-  'map-thumbnail': MapPathParams,
-  'map-metadata-comparison': MapPathParams,
+  'map': WorkspaceMapPathParams,
+  'map-file': WorkspaceMapPathParams,
+  'map-thumbnail': WorkspaceMapPathParams,
+  'map-metadata-comparison': WorkspaceMapPathParams,
 }
 
 const requestToQueryParams = {
