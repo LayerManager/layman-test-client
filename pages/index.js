@@ -32,15 +32,15 @@ const PUBLICATION_TYPES = ['layer', 'map', 'users'];
 
 const publicationTypeToDefaultRequest = {
   'layer': 'post-workspace-layers',
-  'map': 'post-maps',
+  'map': 'post-workspace-maps',
   'users': 'get-users',
 };
 
 const requestToParamsClass = {
   'post-workspace-layers': PostWorkspaceLayersParams,
   'patch-workspace-layer': PatchWorkspaceLayerParams,
-  'post-maps': PostWorkspaceMapsParams,
-  'patch-map': PatchWorkspaceMapParams,
+  'post-workspace-maps': PostWorkspaceMapsParams,
+  'patch-workspace-map': PatchWorkspaceMapParams,
   'patch-current-user': PatchCurrentuserParams,
 }
 
@@ -55,11 +55,11 @@ const endpointToUrlPartGetter = {
   'workspace-layer-thumbnail': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/thumbnail`,
   'workspace-layer-style': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/style`,
   'workspace-layer-metadata-comparison': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/metadata-comparison`,
-  'maps': ({workspace}) => `/workspaces/${workspace}/maps`,
-  'map': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}`,
-  'map-file': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/file`,
-  'map-thumbnail': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/thumbnail`,
-  'map-metadata-comparison': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/metadata-comparison`,
+  'workspace-maps': ({workspace}) => `/workspaces/${workspace}/maps`,
+  'workspace-map': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}`,
+  'workspace-map-file': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/file`,
+  'workspace-map-thumbnail': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/thumbnail`,
+  'workspace-map-metadata-comparison': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/metadata-comparison`,
   'users': () => `/users`,
   'version': () => `/about/version`,
   'current-user': () => `/current-user`,
@@ -71,11 +71,11 @@ const endpointToPathParams = {
   'workspace-layer-thumbnail': ['workspace', 'name'],
   'workspace-layer-style': ['workspace', 'name'],
   'workspace-layer-metadata-comparison': ['workspace', 'name'],
-  'maps': ['workspace'],
-  'map': ['workspace', 'name'],
-  'map-file': ['workspace', 'name'],
-  'map-thumbnail': ['workspace', 'name'],
-  'map-metadata-comparison': ['workspace', 'name'],
+  'workspace-maps': ['workspace'],
+  'workspace-map': ['workspace', 'name'],
+  'workspace-map-file': ['workspace', 'name'],
+  'workspace-map-thumbnail': ['workspace', 'name'],
+  'workspace-map-metadata-comparison': ['workspace', 'name'],
   'users': [],
   'version': [],
   'current-user': [],
@@ -87,11 +87,11 @@ const endpointToPathParamsClass = {
   'workspace-layer-thumbnail': WorkspaceLayerPathParams,
   'workspace-layer-style': WorkspaceLayerPathParams,
   'workspace-layer-metadata-comparison': WorkspaceLayerPathParams,
-  'maps': WorkspacePathParams,
-  'map': WorkspaceMapPathParams,
-  'map-file': WorkspaceMapPathParams,
-  'map-thumbnail': WorkspaceMapPathParams,
-  'map-metadata-comparison': WorkspaceMapPathParams,
+  'workspace-maps': WorkspacePathParams,
+  'workspace-map': WorkspaceMapPathParams,
+  'workspace-map-file': WorkspaceMapPathParams,
+  'workspace-map-thumbnail': WorkspaceMapPathParams,
+  'workspace-map-metadata-comparison': WorkspaceMapPathParams,
 }
 
 const requestToQueryParams = {
@@ -114,11 +114,11 @@ const getEndpointDefaultParamsState = (endpoint, state) => {
     'workspace-layer-thumbnail': ({layername}) => ({layername}),
     'workspace-layer-style': ({layername}) => ({layername}),
     'workspace-layer-metadata-comparison': ({layername}) => ({layername}),
-    'maps': () => ({mapname: ''}),
-    'map': ({mapname}) => ({mapname}),
-    'map-file': ({mapname}) => ({mapname}),
-    'map-thumbnail': ({mapname}) => ({mapname}),
-    'map-metadata-comparison': ({mapname}) => ({mapname}),
+    'workspace-maps': () => ({mapname: ''}),
+    'workspace-map': ({mapname}) => ({mapname}),
+    'workspace-map-file': ({mapname}) => ({mapname}),
+    'workspace-map-thumbnail': ({mapname}) => ({mapname}),
+    'workspace-map-metadata-comparison': ({mapname}) => ({mapname}),
   }
   const getter = getters[endpoint];
   return getter ? getter(state) : {};
@@ -145,11 +145,11 @@ const getEndpointParamsProps = (endpoint, component) => {
     'workspace-layer-thumbnail': layer_props,
     'workspace-layer-style': layer_props,
     'workspace-layer-metadata-comparison': layer_props,
-    'maps': workspace_props,
-    'map': map_props,
-    'map-file': map_props,
-    'map-thumbnail': map_props,
-    'map-metadata-comparison': map_props,
+    'workspace-maps': workspace_props,
+    'workspace-map': map_props,
+    'workspace-map-file': map_props,
+    'workspace-map-thumbnail': map_props,
+    'workspace-map-metadata-comparison': map_props,
     'users': {},
     'version': {},
     'current-user': {},
@@ -602,65 +602,65 @@ class IndexPage extends React.PureComponent {
 
                   <Table.Body>
                     <Table.Row>
-                      <Table.Cell>Maps</Table.Cell>
+                      <Table.Cell>Workspace Maps</Table.Cell>
                       <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/maps</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'get-maps'}
-                            onClick={this.setRequest.bind(this, 'get-maps')}
+                            active={this.state.request === 'get-workspace-maps'}
+                            onClick={this.setRequest.bind(this, 'get-workspace-maps')}
                         >GET</Button>
                       </Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'post-maps'}
-                            onClick={this.setRequest.bind(this, 'post-maps')}
+                            active={this.state.request === 'post-workspace-maps'}
+                            onClick={this.setRequest.bind(this, 'post-workspace-maps')}
                         >POST</Button>
                       </Table.Cell>
                       <Table.Cell>x</Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'delete-maps'}
-                            onClick={this.setRequest.bind(this, 'delete-maps')}
+                            active={this.state.request === 'delete-workspace-maps'}
+                            onClick={this.setRequest.bind(this, 'delete-workspace-maps')}
                         >DELETE</Button>
                       </Table.Cell>
                     </Table.Row>
                     <Table.Row>
-                      <Table.Cell>Map</Table.Cell>
+                      <Table.Cell>Workspace Map</Table.Cell>
                       <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/maps/&lt;mapname&gt;</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'get-map'}
-                            onClick={this.setRequest.bind(this, 'get-map')}
+                            active={this.state.request === 'get-workspace-map'}
+                            onClick={this.setRequest.bind(this, 'get-workspace-map')}
                         >GET</Button>
                       </Table.Cell>
                       <Table.Cell>x</Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'patch-map'}
-                            onClick={this.setRequest.bind(this, 'patch-map')}
+                            active={this.state.request === 'patch-workspace-map'}
+                            onClick={this.setRequest.bind(this, 'patch-workspace-map')}
                         >PATCH</Button>
                       </Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'delete-map'}
-                            onClick={this.setRequest.bind(this, 'delete-map')}
+                            active={this.state.request === 'delete-workspace-map'}
+                            onClick={this.setRequest.bind(this, 'delete-workspace-map')}
                         >DELETE</Button>
                       </Table.Cell>
                     </Table.Row>
                     <Table.Row>
-                      <Table.Cell>Map File</Table.Cell>
+                      <Table.Cell>Workspace Map File</Table.Cell>
                       <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/maps/&lt;mapname&gt;/file</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'get-map-file'}
-                            onClick={this.setRequest.bind(this, 'get-map-file')}
+                            active={this.state.request === 'get-workspace-map-file'}
+                            onClick={this.setRequest.bind(this, 'get-workspace-map-file')}
                         >GET</Button>
                       </Table.Cell>
                       <Table.Cell>x</Table.Cell>
@@ -668,13 +668,13 @@ class IndexPage extends React.PureComponent {
                       <Table.Cell>x</Table.Cell>
                     </Table.Row>
                     <Table.Row>
-                      <Table.Cell>Map Thumbnail</Table.Cell>
+                      <Table.Cell>Workspace Map Thumbnail</Table.Cell>
                       <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/maps/&lt;mapname&gt;/thumbnail</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'get-map-thumbnail'}
-                            onClick={this.setRequest.bind(this, 'get-map-thumbnail')}
+                            active={this.state.request === 'get-workspace-map-thumbnail'}
+                            onClick={this.setRequest.bind(this, 'get-workspace-map-thumbnail')}
                         >GET</Button>
                       </Table.Cell>
                       <Table.Cell>x</Table.Cell>
@@ -682,13 +682,13 @@ class IndexPage extends React.PureComponent {
                       <Table.Cell>x</Table.Cell>
                     </Table.Row>
                     <Table.Row>
-                      <Table.Cell>Map Metadata Comparison</Table.Cell>
+                      <Table.Cell>Workspace Map Metadata Comparison</Table.Cell>
                       <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/maps/&lt;mapname&gt;/metadata-comparison</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'get-map-metadata-comparison'}
-                            onClick={this.setRequest.bind(this, 'get-map-metadata-comparison')}
+                            active={this.state.request === 'get-workspace-map-metadata-comparison'}
+                            onClick={this.setRequest.bind(this, 'get-workspace-map-metadata-comparison')}
                         >GET</Button>
                       </Table.Cell>
                       <Table.Cell>x</Table.Cell>
