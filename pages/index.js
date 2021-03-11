@@ -50,11 +50,13 @@ const requestToResumableParams = {
 }
 
 const endpointToUrlPartGetter = {
+  'layers': () => `/layers`,
   'workspace-layers': ({workspace}) => `/workspaces/${workspace}/layers`,
   'workspace-layer': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}`,
   'workspace-layer-thumbnail': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/thumbnail`,
   'workspace-layer-style': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/style`,
   'workspace-layer-metadata-comparison': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/metadata-comparison`,
+  'maps': () => `/maps`,
   'workspace-maps': ({workspace}) => `/workspaces/${workspace}/maps`,
   'workspace-map': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}`,
   'workspace-map-file': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/file`,
@@ -66,11 +68,13 @@ const endpointToUrlPartGetter = {
 }
 
 const endpointToPathParams = {
+  'layers': [],
   'workspace-layers': ['workspace'],
   'workspace-layer': ['workspace', 'name'],
   'workspace-layer-thumbnail': ['workspace', 'name'],
   'workspace-layer-style': ['workspace', 'name'],
   'workspace-layer-metadata-comparison': ['workspace', 'name'],
+  'maps': [],
   'workspace-maps': ['workspace'],
   'workspace-map': ['workspace', 'name'],
   'workspace-map-file': ['workspace', 'name'],
@@ -140,11 +144,13 @@ const getEndpointParamsProps = (endpoint, component) => {
     handleMapnameChange: component.handleMapnameChange.bind(component),
   };
   const props = {
+    'layers': {},
     'workspace-layers': workspace_props,
     'workspace-layer': layer_props,
     'workspace-layer-thumbnail': layer_props,
     'workspace-layer-style': layer_props,
     'workspace-layer-metadata-comparison': layer_props,
+    'maps': {},
     'workspace-maps': workspace_props,
     'workspace-map': map_props,
     'workspace-map-file': map_props,
@@ -485,6 +491,20 @@ class IndexPage extends React.PureComponent {
 
                   <Table.Body>
                     <Table.Row>
+                      <Table.Cell>Layers</Table.Cell>
+                      <Table.Cell><code>/rest/layers</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-layers'}
+                            onClick={this.setRequest.bind(this, 'get-layers')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                    </Table.Row>
+                    <Table.Row>
                       <Table.Cell>Workspace Layers</Table.Cell>
                       <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/layers</code></Table.Cell>
                       <Table.Cell>
@@ -601,6 +621,20 @@ class IndexPage extends React.PureComponent {
                   </Table.Header>
 
                   <Table.Body>
+                    <Table.Row>
+                      <Table.Cell>Maps</Table.Cell>
+                      <Table.Cell><code>/rest/maps</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-maps'}
+                            onClick={this.setRequest.bind(this, 'get-maps')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                    </Table.Row>
                     <Table.Row>
                       <Table.Cell>Workspace Maps</Table.Cell>
                       <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/maps</code></Table.Cell>
