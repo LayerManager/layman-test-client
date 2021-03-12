@@ -12,6 +12,7 @@ import WorkspacePathParams from "../components/WorkspacePathParams";
 import WorkspaceLayerPathParams from "../components/WorkspaceLayerPathParams";
 import WorkspaceMapPathParams from "../components/WorkspaceMapPathParams";
 import PatchCurrentuserParams from "../components/PatchCurrentuserParams";
+import GetPublicationsParams from "../components/GetPublicationsParams";
 import getConfig from 'next/config'
 import {
   containerStyle,
@@ -37,8 +38,10 @@ const publicationTypeToDefaultRequest = {
 };
 
 const requestToParamsClass = {
+  'get-layers': GetPublicationsParams,
   'post-workspace-layers': PostWorkspaceLayersParams,
   'patch-workspace-layer': PatchWorkspaceLayerParams,
+  'get-maps': GetPublicationsParams,
   'post-workspace-maps': PostWorkspaceMapsParams,
   'patch-workspace-map': PatchWorkspaceMapParams,
   'patch-current-user': PatchCurrentuserParams,
@@ -99,6 +102,8 @@ const endpointToPathParamsClass = {
 }
 
 const requestToQueryParams = {
+  'get-layers': ['full_text_filter'],
+  'get-maps': ['full_text_filter'],
   'patch-current-user': ['adjust_username'],
 }
 
