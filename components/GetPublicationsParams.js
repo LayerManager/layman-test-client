@@ -15,6 +15,7 @@ class GetPublicationsParams extends React.PureComponent {
                 {key: 1, text: 'No value', value: ''},
                 {key: 2, text: 'Full-text', value: 'full_text'},
                 {key: 3, text: 'Title', value: 'title'},
+                {key: 4, text: 'Datetime of last change', value: 'last_change'},
               ]}
               placeholder='Choose how to order publications'
               label='Order by'
