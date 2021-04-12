@@ -9,7 +9,15 @@ class GetPublicationsParams extends React.PureComponent {
           <Form.Input
               inline
               name="full_text_filter" label='Full-text filter'
-              placeholder='Full-text filter'/>
+              placeholder='Full-text filter'
+              style={{'width': '30em'}}
+          />
+          <Form.Input
+              inline
+              name="bbox_filter" label='Bounding box filter'
+              placeholder='mix,miny,maxx,maxy'
+              style={{'width': '45em'}}
+          />
           <FormDropdown
               options={[
                 {key: 1, text: 'No value', value: ''},
