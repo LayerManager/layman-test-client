@@ -24,11 +24,18 @@ class GetPublicationsParams extends React.PureComponent {
                 {key: 2, text: 'Full-text', value: 'full_text'},
                 {key: 3, text: 'Title', value: 'title'},
                 {key: 4, text: 'Datetime of last change', value: 'last_change'},
+                {key: 5, text: 'Bounding box', value: 'bbox'},
               ]}
               placeholder='Choose how to order publications'
               label='Order by'
               additionLabel='Custom value: '
               name="order_by"
+          />
+          <Form.Input
+              inline
+              name="ordering_bbox" label='Ordering bounding box'
+              placeholder='mix,miny,maxx,maxy'
+              style={{'width': '45em'}}
           />
         </div>
     );
