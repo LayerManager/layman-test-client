@@ -102,8 +102,8 @@ const endpointToPathParamsClass = {
 }
 
 const requestToQueryParams = {
-  'get-layers': ['full_text_filter', 'bbox_filter', 'order_by', 'ordering_bbox'],
-  'get-maps': ['full_text_filter', 'bbox_filter', 'order_by', 'ordering_bbox'],
+  'get-layers': ['full_text_filter', 'bbox_filter', 'order_by', 'ordering_bbox', 'limit', 'offset', ],
+  'get-maps': ['full_text_filter', 'bbox_filter', 'order_by', 'ordering_bbox', 'limit', 'offset', ],
   'patch-current-user': ['adjust_username'],
 }
 

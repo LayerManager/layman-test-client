@@ -37,6 +37,18 @@ class GetPublicationsParams extends React.PureComponent {
               placeholder='mix,miny,maxx,maxy'
               style={{'width': '45em'}}
           />
+          <Form.Input
+              inline
+              name="limit" label='Limit'
+              placeholder='No more publications than this number will be returned'
+              style={{'width': '30em'}}
+          />
+          <Form.Input
+              inline
+              name="offset" label='Offset'
+              placeholder='Says to skip that many publications before beginning to return publications'
+              style={{'width': '30em'}}
+          />
         </div>
     );
   }
