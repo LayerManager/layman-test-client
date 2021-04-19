@@ -31,6 +31,8 @@ const PREFER_RESUMABLE_SIZE_LIMIT = 1 * 1024 * 1024;
 
 const PUBLICATION_TYPES = ['layer', 'map', 'users'];
 
+const HEADERS_TO_SHOW = ['Content-Type', 'X-Total-Count', 'Content-Range', 'Deprecation', 'Link'];
+
 const publicationTypeToDefaultRequest = {
   'layer': 'get-layers',
   'map': 'get-maps',
@@ -309,6 +311,14 @@ class IndexPage extends React.PureComponent {
         response.resumable = true;
       }
       response.contentType = r.headers.get('content-type');
+
+      response.headers = {};
+      for (const header of HEADERS_TO_SHOW) {
+        if(r.headers.get(header) !== null) {
+          response.headers[header] = r.headers.get(header);
+        }
+      }
+
       return isBlob(response) ? r.blob() : r.text();
     }).then( async (textOrBlob) => {
       if(isBlob(response)) {
@@ -446,6 +456,9 @@ class IndexPage extends React.PureComponent {
             </Message>
         ));
       }
+      const headers = Object.entries(response.headers).map(([key, value]) => {
+        return <p key={key}>{key}: {value}</p>
+      })
       respEl =
           <div ref={this.respRef}>
             <Segment>
@@ -454,7 +467,7 @@ class IndexPage extends React.PureComponent {
               <Message positive={response.ok}  negative={!response.ok}>
                 <Message.Header>Response</Message.Header>
                 <p>Status code: {response.status}</p>
-                <p>Content-Type: {response.contentType}</p>
+                {headers}
                 {resp_body}
               </Message>
             </Segment>
