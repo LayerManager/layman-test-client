@@ -39,9 +39,11 @@ const publicationTypeToDefaultRequest = {
 
 const requestToParamsClass = {
   'get-layers': GetPublicationsParams,
+  'get-workspace-layers': GetPublicationsParams,
   'post-workspace-layers': PostWorkspaceLayersParams,
   'patch-workspace-layer': PatchWorkspaceLayerParams,
   'get-maps': GetPublicationsParams,
+  'get-workspace-maps': GetPublicationsParams,
   'post-workspace-maps': PostWorkspaceMapsParams,
   'patch-workspace-map': PatchWorkspaceMapParams,
   'patch-current-user': PatchCurrentuserParams,
@@ -103,7 +105,9 @@ const endpointToPathParamsClass = {
 
 const requestToQueryParams = {
   'get-layers': ['full_text_filter', 'bbox_filter', 'order_by', 'ordering_bbox', 'limit', 'offset', ],
+  'get-workspace-layers': ['full_text_filter', 'bbox_filter', 'order_by', 'ordering_bbox', 'limit', 'offset', ],
   'get-maps': ['full_text_filter', 'bbox_filter', 'order_by', 'ordering_bbox', 'limit', 'offset', ],
+  'get-workspace-maps': ['full_text_filter', 'bbox_filter', 'order_by', 'ordering_bbox', 'limit', 'offset', ],
   'patch-current-user': ['adjust_username'],
 }
 
