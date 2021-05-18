@@ -217,7 +217,7 @@ class WFSPage extends React.PureComponent {
           <Container style={containerStyle}>
             <Header as='h1'>Test Client of Layman WFS Endpoint</Header>
             <p>
-              <a href="https://github.com/jirik/layman/blob/master/doc/endpoints.md#web-feature-service"
+              <a href="https://github.com/LayerManager/layman/blob/master/doc/endpoints.md#web-feature-service"
                  target="_blank">Layman WFS Endpoint Documentation</a>
             </p>
             <Header as='h2'>Requests and Actions</Header>
