@@ -7,7 +7,7 @@ class PatchWorkspaceLayerParams extends React.PureComponent {
     return (
         <div>
           <Form.Field inline>
-            <label>Vector data file</label>
+            <label>Data file</label>
             <input name="file" type="file" multiple/>
           </Form.Field>
           <Form.Input

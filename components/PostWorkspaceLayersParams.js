@@ -7,7 +7,7 @@ class PostWorkspaceLayersParams extends React.PureComponent {
     return (
         <div>
           <Form.Field inline className="mandatory">
-            <label>Vector data file</label>
+            <label>Data file</label>
             <input name="file" type="file" multiple/>
           </Form.Field>
           <Form.Input
