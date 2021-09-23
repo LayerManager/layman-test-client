@@ -13,6 +13,7 @@ import WorkspaceLayerPathParams from "../components/WorkspaceLayerPathParams";
 import WorkspaceMapPathParams from "../components/WorkspaceMapPathParams";
 import PatchCurrentuserParams from "../components/PatchCurrentuserParams";
 import GetPublicationsParams from "../components/GetPublicationsParams";
+import PostStyleInfoParams from "../components/PostStyleInfoParams";
 import getConfig from 'next/config'
 import {
   containerStyle,
@@ -49,6 +50,7 @@ const requestToParamsClass = {
   'post-workspace-maps': PostWorkspaceMapsParams,
   'patch-workspace-map': PatchWorkspaceMapParams,
   'patch-current-user': PatchCurrentuserParams,
+  'post-style-info': PostStyleInfoParams,
 }
 
 const requestToResumableParams = {
@@ -72,6 +74,7 @@ const endpointToUrlPartGetter = {
   'users': () => `/users`,
   'version': () => `/about/version`,
   'current-user': () => `/current-user`,
+  'style-info': () => `/tools/style-info`,
 }
 
 const endpointToPathParams = {
@@ -814,6 +817,21 @@ class IndexPage extends React.PureComponent {
                             onClick={this.setRequest.bind(this, 'delete-current-user')}
                         >DELETE</Button>
                       </Table.Cell>
+                    </Table.Row>
+
+                    <Table.Row>
+                      <Table.Cell>Style Info</Table.Cell>
+                      <Table.Cell><code>/rest/tools/style-info</code></Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'post-style-info'}
+                            onClick={this.setRequest.bind(this, 'post-style-info')}
+                        >POST</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
                     </Table.Row>
 
                     <Table.Row>
