@@ -29,14 +29,14 @@ const ASSET_PREFIX = publicRuntimeConfig.ASSET_PREFIX;
 let RESUMABLE_ENABLED = false;
 const PREFER_RESUMABLE_SIZE_LIMIT = 1 * 1024 * 1024;
 
-const PUBLICATION_TYPES = ['layer', 'map', 'users'];
+const TABS = ['layer', 'map', 'others'];
 
 const HEADERS_TO_SHOW = ['Content-Type', 'X-Total-Count', 'Content-Range', 'Deprecation', 'Link'];
 
-const publicationTypeToDefaultRequest = {
+const tabToDefaultRequest = {
   'layer': 'get-layers',
   'map': 'get-maps',
-  'users': 'get-users',
+  'others': 'get-users',
 };
 
 const requestToParamsClass = {
@@ -201,7 +201,7 @@ class IndexPage extends React.PureComponent {
       request: 'get-layers',
       layername: '',
       mapname: '',
-      publication_type: 'layer',
+      tab: 'layer',
       response: null,
     };
     this.formEl;
@@ -220,11 +220,11 @@ class IndexPage extends React.PureComponent {
     this.setState({mapname: event.target.value});
   }
 
-  handlePublicationTypeChange(event, {activeIndex}) {
-    const ptype = PUBLICATION_TYPES[activeIndex];
+  handleTabChange(event, {activeIndex}) {
+    const tab = TABS[activeIndex];
     this.setState({
-      publication_type: ptype,
-      request: publicationTypeToDefaultRequest[ptype],
+      tab,
+      request: tabToDefaultRequest[tab],
     });
   }
 
@@ -839,7 +839,7 @@ class IndexPage extends React.PureComponent {
       },
     ];
 
-    const publ_idx = PUBLICATION_TYPES.indexOf(this.state.publication_type);
+    const tab_idx = TABS.indexOf(this.state.tab);
 
     return (
         <div>
@@ -852,7 +852,7 @@ class IndexPage extends React.PureComponent {
                  target="_blank">Layman REST API Documentation</a>
             </p>
             <Header as='h2'>Endpoints and Actions</Header>
-            <Tab panes={panes} activeIndex={publ_idx} onTabChange={this.handlePublicationTypeChange.bind(this)} />
+            <Tab panes={panes} activeIndex={tab_idx} onTabChange={this.handleTabChange.bind(this)} />
             <Header as='h2'>{getRequestTitle(this.state.request)}</Header>
             <Header as='h3'>Parameters</Header>
             <Ref innerRef={this.handleFormRef.bind(this)}>
