@@ -68,11 +68,11 @@ class PostWorkspaceLayersParams extends React.PureComponent {
       style_ui = <>
         <strong>External style images</strong>
         <ul>
-          {this.state.external_files.map((external_file, idx) => {
+          {this.state.external_files.map((file_path, idx) => {
             return <li key={idx}>
               <Form.Field inline>
-                <AutoWidthInput name={`style__path__${idx}`} defaultValue={external_file} style={{margin: 0}}/>:&nbsp;&nbsp;
-                <input name={`style__path__${idx}`} type="file"/>
+                <AutoWidthInput name={`style__path__${idx}`} defaultValue={file_path} style={{margin: 0}}/>:&nbsp;&nbsp;
+                <input name={`style__path__${idx}`} type="file" accept={`${file_path.substr(file_path.lastIndexOf('.'))}`} />
               </Form.Field>
             </li>
           })}
