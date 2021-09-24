@@ -34,12 +34,14 @@ class PostWorkspaceLayersParams extends React.PureComponent {
         body: form_data,
       };
       const response = await fetch(`${this.props.url_prefix}/rest/tools/style-info`, fetch_opts);
-      const resp_text = await response.text();
       if (response.ok) {
+        const resp_json = await response.json();
         this.setState({
           style: STYLE_CHOSEN_AND_LOADED,
+          external_files: resp_json['external_files'] || [],
         });
       } else {
+        const resp_text = await response.text();
         this.setState({
           style: STYLE_CHOSEN_AND_ERROR,
           style_http_code: response.status,
@@ -61,6 +63,20 @@ class PostWorkspaceLayersParams extends React.PureComponent {
         <p>Status code: {this.state.style_http_code}</p>
         <code style={{whiteSpace: 'pre'}}>{this.state.style_text}</code>
       </Message>);
+    } else if (style_state === STYLE_CHOSEN_AND_LOADED) {
+      style_ui = <>
+        <strong>External style images</strong>
+        <ul>
+          {this.state.external_files.map((external_file, idx) => {
+            return <li key={idx}>
+              <Form.Field inline>
+                <input name={`style__path__${idx}`} type="text" defaultValue={external_file} style={{margin: 0}}/>:&nbsp;&nbsp;
+                <input name={`style__path__${idx}`} type="file"/>
+              </Form.Field>
+            </li>
+          })}
+        </ul>
+      </>;
     }
     return (
         <div>
