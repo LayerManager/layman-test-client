@@ -1,6 +1,7 @@
 import assert from 'assert';
-import {Form} from 'semantic-ui-react'
+import {Form, Message} from 'semantic-ui-react'
 import PublicationAccessRightsParams from "./PublicationAccessRightsParams";
+import fetch from "unfetch";
 
 const NO_STYLE_CHOSEN = 'no_style_chosen';
 const STYLE_CHOSEN_AND_PENDING = 'style_chosen_and_pending';
@@ -19,12 +20,48 @@ class PostWorkspaceLayersParams extends React.PureComponent {
     this.state = {
       style: NO_STYLE_CHOSEN,
     };
+    this.handleStyleFileSelected = this.handleStyleFileSelected.bind(this);
+  }
+
+  async handleStyleFileSelected(event) {
+    let file = event.target.files[0];
+    if (file) {
+      this.setState({style: STYLE_CHOSEN_AND_PENDING});
+      const form_data = new FormData();
+      form_data.append('style', file);
+      const fetch_opts = {
+        method: 'POST',
+        body: form_data,
+      };
+      const response = await fetch(`${this.props.url_prefix}/rest/tools/style-info`, fetch_opts);
+      const resp_text = await response.text();
+      if (response.ok) {
+        this.setState({
+          style: STYLE_CHOSEN_AND_LOADED,
+        });
+      } else {
+        this.setState({
+          style: STYLE_CHOSEN_AND_ERROR,
+          style_http_code: response.status,
+          style_text: resp_text,
+        });
+      }
+    } else {
+      this.setState({style: NO_STYLE_CHOSEN});
+    }
   }
 
   render() {
     const style_state = this.state.style;
     assert(STYLE_STATES.includes(style_state));
     let style_ui = null;
+    if (style_state === STYLE_CHOSEN_AND_ERROR) {
+      style_ui = (<Message negative>
+        <Message.Header>Error when parsing style file</Message.Header>
+        <p>Status code: {this.state.style_http_code}</p>
+        <code style={{whiteSpace: 'pre'}}>{this.state.style_text}</code>
+      </Message>);
+    }
     return (
         <div>
           <Form.Field inline className="mandatory">
@@ -54,7 +91,7 @@ class PostWorkspaceLayersParams extends React.PureComponent {
               placeholder='CRS'/>
           <Form.Field inline>
             <label>Style file</label>
-            <input name="style" type="file" accept=".sld,.xml,.qml"/>
+            <input name="style" type="file" accept=".sld,.xml,.qml" onChange={this.handleStyleFileSelected}/>
           </Form.Field>
           {style_ui}
           <PublicationAccessRightsParams/>
