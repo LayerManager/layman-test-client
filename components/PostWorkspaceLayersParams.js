@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {Form, Message} from 'semantic-ui-react'
+import {Form, Message, Loader} from 'semantic-ui-react'
 import PublicationAccessRightsParams from "./PublicationAccessRightsParams";
 import fetch from "unfetch";
 
@@ -92,6 +92,7 @@ class PostWorkspaceLayersParams extends React.PureComponent {
           <Form.Field inline>
             <label>Style file</label>
             <input name="style" type="file" accept=".sld,.xml,.qml" onChange={this.handleStyleFileSelected}/>
+            {style_state === STYLE_CHOSEN_AND_PENDING ? <> <Loader active inline /> Parsing style file</> : null}
           </Form.Field>
           {style_ui}
           <PublicationAccessRightsParams/>
