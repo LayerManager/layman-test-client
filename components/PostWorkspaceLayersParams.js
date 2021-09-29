@@ -84,7 +84,7 @@ class PostWorkspaceLayersParams extends React.PureComponent {
                   </div>
                 </Table.Cell>
                 <Table.Cell>
-                    <input style={{minWidth: '20em'}} name={`style__path__${idx}`} type="file"
+                    <input style={{minWidth: '20em'}} name={`style__file__${idx}`} type="file"
                            accept={`${file_path.substr(file_path.lastIndexOf('.'))}`}/>
                 </Table.Cell>
               </Table.Row>
