@@ -264,6 +264,29 @@ class IndexPage extends React.PureComponent {
       return obj;
     }, {});
 
+    // add additional files to parameter using <parameter name>__(file|path)__<zero-based index> inputs
+    for (const key of formData.keys()) {
+      const m = key.match(/^(?<param_name>\w+)__file__0$/);
+      const main_param_name = m && m.groups.param_name;
+      if(main_param_name && formData.has(main_param_name)) {
+        let file_idx = 0;
+        const file_path_param_name = `${main_param_name}__path__${file_idx}`;
+        const file_param_name = `${main_param_name}__file__${file_idx}`;
+        while(formData.has(file_path_param_name) || formData.has(file_param_name)) {
+          const file_path = formData.get(file_path_param_name);
+          const file = formData.get(file_param_name);
+          const file_was_chosen = file.size > 0 || !!file.name;
+          if(file_path && file_was_chosen) {
+            const named_file = new File([file], file_path, {type: file.type, lastModified: file.lastModified});
+            formData.append(main_param_name, named_file);
+          }
+          formData.delete(file_path_param_name);
+          formData.delete(file_param_name);
+          file_idx++;
+        }
+      }
+    }
+
     if(method !== 'get') {
       const endpoint = requestToEndpoint(this.state.request);
       const pathParams = (endpointToPathParams[endpoint] || []).concat();
