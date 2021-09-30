@@ -163,7 +163,10 @@ const getEndpointParamsProps = (endpoint, component) => {
       ...workspace_props,
       url_prefix: ASSET_PREFIX,
     },
-    'workspace-layer': layer_props,
+    'workspace-layer': {
+      ...layer_props,
+      url_prefix: ASSET_PREFIX,
+    },
     'workspace-layer-thumbnail': layer_props,
     'workspace-layer-style': layer_props,
     'workspace-layer-metadata-comparison': layer_props,

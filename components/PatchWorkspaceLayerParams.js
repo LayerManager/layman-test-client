@@ -1,5 +1,6 @@
 import {Form} from 'semantic-ui-react'
 import PublicationAccessRightsParams from "./PublicationAccessRightsParams";
+import StyleParams from "./StyleParams";
 
 class PatchWorkspaceLayerParams extends React.PureComponent {
 
@@ -24,10 +25,7 @@ class PatchWorkspaceLayerParams extends React.PureComponent {
               name="crs"
               label='CRS'
               placeholder='CRS'/>
-          <Form.Field inline>
-            <label>Style file</label>
-            <input name="style" type="file" accept=".sld,.xml,.qml"/>
-          </Form.Field>
+          <StyleParams url_prefix = {this.props.url_prefix} />
           <PublicationAccessRightsParams/>
         </div>
     );
