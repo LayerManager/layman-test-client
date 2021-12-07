@@ -26,12 +26,15 @@ export default () => {
       return oauth2.user_profile(iss, access_token, done);
     };
 
+    const options = {}
+    if('OAUTH2_LIFERAY_SCOPE' in process.env) {
+      options.scope = process.env.OAUTH2_LIFERAY_SCOPE.split(',')
+    }
+
     providers[iss_id] = {
       id: iss_id,
       name: 'Liferay',
-      options: {
-        scope: ['liferay-json-web-services.everything.read.userprofile']
-      },
+      options: options,
       Strategy: Strtg,
       strategy_options: {
         clientID: process.env.OAUTH2_LIFERAY_CLIENT_ID,
