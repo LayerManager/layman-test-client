@@ -18,6 +18,12 @@ class GetPublicationsParams extends React.PureComponent {
               placeholder='mix,miny,maxx,maxy'
               style={{'width': '45em'}}
           />
+          <Form.Input
+              inline
+              name="bbox_filter_crs" label='CRS of bounding box filter'
+              placeholder='<authority>:<code>, e.g. EPSG:3857'
+              style={{'width': '25em'}}
+          />
           <FormDropdown
               options={[
                 {key: 1, text: 'No value', value: ''},
@@ -36,6 +42,12 @@ class GetPublicationsParams extends React.PureComponent {
               name="ordering_bbox" label='Ordering bounding box'
               placeholder='mix,miny,maxx,maxy'
               style={{'width': '45em'}}
+          />
+          <Form.Input
+              inline
+              name="ordering_bbox_crs" label='CRS of ordering bounding box'
+              placeholder='<authority>:<code>, e.g. EPSG:3857'
+              style={{'width': '25em'}}
           />
           <Form.Input
               inline
