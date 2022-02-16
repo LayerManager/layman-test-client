@@ -106,10 +106,10 @@ const endpointToPathParamsClass = {
 }
 
 const requestToQueryParams = {
-  'get-layers': ['full_text_filter', 'bbox_filter', 'order_by', 'ordering_bbox', 'limit', 'offset', ],
-  'get-workspace-layers': ['full_text_filter', 'bbox_filter', 'order_by', 'ordering_bbox', 'limit', 'offset', ],
-  'get-maps': ['full_text_filter', 'bbox_filter', 'order_by', 'ordering_bbox', 'limit', 'offset', ],
-  'get-workspace-maps': ['full_text_filter', 'bbox_filter', 'order_by', 'ordering_bbox', 'limit', 'offset', ],
+  'get-layers': ['full_text_filter', 'bbox_filter', 'bbox_filter_crs', 'order_by', 'ordering_bbox', 'ordering_bbox_crs', 'limit', 'offset', ],
+  'get-workspace-layers': ['full_text_filter', 'bbox_filter', 'bbox_filter_crs', 'order_by', 'ordering_bbox', 'ordering_bbox_crs', 'limit', 'offset', ],
+  'get-maps': ['full_text_filter', 'bbox_filter', 'bbox_filter_crs', 'order_by', 'ordering_bbox', 'ordering_bbox_crs', 'limit', 'offset', ],
+  'get-workspace-maps': ['full_text_filter', 'bbox_filter', 'bbox_filter_crs', 'order_by', 'ordering_bbox', 'ordering_bbox_crs', 'limit', 'offset', ],
   'patch-current-user': ['adjust_username'],
 }
 
