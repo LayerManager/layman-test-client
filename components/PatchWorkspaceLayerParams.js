@@ -1,5 +1,6 @@
 import {Form} from 'semantic-ui-react'
 import PublicationAccessRightsParams from "./PublicationAccessRightsParams";
+import FormDropdown from "./FormDropdown";
 
 class PatchWorkspaceLayerParams extends React.PureComponent {
 
@@ -29,6 +30,25 @@ class PatchWorkspaceLayerParams extends React.PureComponent {
             <input name="style" type="file" accept=".sld,.xml,.qml"/>
           </Form.Field>
           <PublicationAccessRightsParams/>
+          <FormDropdown
+              options={[
+                {key: 1, text: 'No value', value: ''},
+                {key: 2, text: 'nearest', value: 'nearest'},
+                {key: 3, text: 'average', value: 'average'},
+                {key: 4, text: 'rms', value: 'rms'},
+                {key: 5, text: 'bilinear', value: 'bilinear'},
+                {key: 6, text: 'gauss', value: 'gauss'},
+                {key: 7, text: 'cubic', value: 'cubic'},
+                {key: 8, text: 'cubicspline', value: 'cubicspline'},
+                {key: 9, text: 'lanczos', value: 'lanczos'},
+                {key: 10, text: 'average_magphase', value: 'average_magphase'},
+                {key: 11, text: 'mode', value: 'mode'},
+              ]}
+              placeholder='Choose resampling method'
+              label='Overview resampling'
+              additionLabel='Custom value: '
+              name="overview_resampling"
+          />
         </div>
     );
   }
