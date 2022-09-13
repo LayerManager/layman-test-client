@@ -56,6 +56,10 @@ class PostWorkspaceLayersParams extends React.PureComponent {
               additionLabel='Custom value: '
               name="overview_resampling"
           />
+          <Form.Input
+              inline
+              name="time_regex" label='Timeseries time regex'
+              placeholder='Timeseries layer time regex'/>
         </div>
     );
   }
