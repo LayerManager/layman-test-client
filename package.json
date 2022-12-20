@@ -25,7 +25,7 @@
     "http-proxy-middleware": "^0.21.0",
     "isomorphic-unfetch": "^2.1.1",
     "next": "^9.3.2",
-    "passport": "^0.4.1",
+    "passport": "^0.6.0",
     "passport-oauth2": "^1.6.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
