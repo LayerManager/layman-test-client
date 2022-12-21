@@ -1,7 +1,7 @@
+import fetch from 'isomorphic-unfetch';
 import dotenv from 'dotenv';
 dotenv.config();
 
-import rp from 'request-promise-native';
 import authn_providers_m from "./providers";
 const AUTHN_PROVIDERS = authn_providers_m();
 
@@ -52,12 +52,9 @@ const check_current_user = async (req) => {
     const provider = AUTHN_PROVIDERS[user.authn.iss_id];
     let profile;
     try {
-      const rp_opts = {
-        uri: process.env.LTC_LAYMAN_USER_PROFILE_URL,
+      profile = await fetch(process.env.LTC_LAYMAN_USER_PROFILE_URL, {
         headers: provider.get_authn_headers(user),
-        json: true
-      };
-      profile = await rp(rp_opts);
+      }).then( r => r.json());
       authenticated = profile.authenticated;
     } catch (e) {
       console.log('AUTOMATICALLY LOGGING OUT, because of error when communicating with Layman\'s Current User endpoint.');
@@ -91,13 +88,10 @@ const delete_current_user = async (req) => {
     const user = req.session.passport.user;
     const provider = AUTHN_PROVIDERS[user.authn.iss_id];
     try {
-      const rp_opts = {
+      await fetch(process.env.LTC_LAYMAN_USER_PROFILE_URL, {
         method: 'DELETE',
-        uri: process.env.LTC_LAYMAN_USER_PROFILE_URL,
         headers: provider.get_authn_headers(user),
-        json: true,
-      };
-      await rp(rp_opts);
+      }).then( r => r.json());
     } catch (e) {
       console.log('Error during DELETE Current User', e);
     }
