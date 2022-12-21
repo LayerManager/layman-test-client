@@ -1,5 +1,4 @@
 import {Form, Button} from 'semantic-ui-react'
-import htmlCleaner from "clean-html";
 
 const get_file_content = async (file) => {
   const fr = new FileReader();
