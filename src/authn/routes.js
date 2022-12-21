@@ -38,9 +38,13 @@ Object.values(PROVIDERS).forEach(provider => {
   router.get(`${BASEPATH}/authn/logout`, async (req, res) => {
     console.log('/authn/logout');
     await user_util.delete_current_user(req);
-    await req.logout();
-    res.redirect(`${BASEPATH}/`);
-    // possibly also logout from authentication provider (e. g. Liferay)
+    req.logout((err) => {
+      if(err) {
+        console.error(err);
+      }
+      res.redirect(`${BASEPATH}/`);
+      // possibly also logout from authentication provider (e. g. Liferay)
+    });
   });
 
 });
