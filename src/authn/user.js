@@ -62,15 +62,23 @@ const check_current_user = async (req) => {
     } catch (e) {
       console.log('AUTOMATICALLY LOGGING OUT, because of error when communicating with Layman\'s Current User endpoint.');
       await delete_current_user(req);
-      await req.logout();
-      throw e;
+      req.logout((err) => {
+        if(err) {
+          console.error(err);
+        }
+        throw e;
+      });
     }
     if(authenticated) {
       return profile;
     } else {
       console.log('AUTOMATICALLY LOGGING OUT, because Layman claimed the user is not authenticated anymore');
       await delete_current_user(req);
-      await req.logout();
+      req.logout((err) => {
+        if(err) {
+          console.error(err);
+        }
+      });
     }
   }
   return null;
