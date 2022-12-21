@@ -15,7 +15,7 @@ require('dotenv').config();
 
 const express = require('express');
 const next = require('next');
-const proxy = require('http-proxy-middleware');
+const {createProxyMiddleware} = require('http-proxy-middleware');
 const AUTHN_ROUTES = require("./src/authn/routes").default;
 const user_util = require("./src/authn/user").default;
 const authn_util = require("./src/authn/util").default;
@@ -80,7 +80,7 @@ nextjs_app.prepare()
       server.use(`${BASEPATH}/rest`,
           authn_util.add_incoming_timestamp,
           authn_util.refresh_authn_info_if_needed,
-          proxy({
+          createProxyMiddleware({
             target: process.env.LTC_LAYMAN_REST_URL,
             changeOrigin: true,
             onProxyReq: authn_util.add_authn_headers,
@@ -94,7 +94,7 @@ nextjs_app.prepare()
       server.use(`${BASEPATH}/geoserver`,
           authn_util.add_incoming_timestamp,
           authn_util.refresh_authn_info_if_needed,
-          proxy({
+          createProxyMiddleware({
             target: process.env.LTC_LAYMAN_REST_URL,
             changeOrigin: true,
             onProxyReq: authn_util.add_authn_headers,
