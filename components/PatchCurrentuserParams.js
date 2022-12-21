@@ -1,3 +1,4 @@
+import React from 'react'
 import {Form, Checkbox} from 'semantic-ui-react'
 
 class PatchCurrentUserParams extends React.PureComponent {

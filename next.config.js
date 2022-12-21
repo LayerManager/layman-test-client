@@ -11,13 +11,11 @@ module.exports = {
     REFRESH_USER_INTERVAL: 60,
     ASSET_PREFIX: process.env.LTC_BASEPATH,
   },
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.node = {
-        fs: 'empty',
-        net: 'empty',
-        tls: 'empty',
-      }
+  webpack: (config) => {
+    config.resolve.fallback = {
+      fs: false,
+      net: false,
+      tls: false,
     }
 
     return config

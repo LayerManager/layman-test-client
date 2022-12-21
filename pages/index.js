@@ -1,3 +1,4 @@
+import React from 'react'
 import HeaderMenu from './../components/HeaderMenu'
 import {Button, Container, Form, Header, Icon, Message, Progress, Ref, Segment, Tab, Table} from 'semantic-ui-react'
 import fetch from 'unfetch';
@@ -460,7 +461,7 @@ class IndexPage extends React.PureComponent {
         return <p key={key}>{key}: {value}</p>
       })
       respEl =
-          <div ref={this.respRef}>
+          <div>
             <Segment>
               {resuming_body}
               {resuming_errors}
@@ -862,7 +863,9 @@ class IndexPage extends React.PureComponent {
                 <Button primary type='submit' onClick={this.handleSubmitClick.bind(this)}>Submit</Button>
               </Form>
             </Ref>
+            <div ref={this.respRef}>
             {respEl}
+            </div>
           </Container>
         </div>
     );
