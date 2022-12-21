@@ -1,3 +1,4 @@
+import React from 'react'
 import {Form, Button} from 'semantic-ui-react'
 
 const get_file_content = async (file) => {

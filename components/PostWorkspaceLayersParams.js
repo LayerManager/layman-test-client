@@ -1,3 +1,4 @@
+import React from 'react'
 import {Form} from 'semantic-ui-react'
 import PublicationAccessRightsParams from "./PublicationAccessRightsParams";
 import FormDropdown from "./FormDropdown";

@@ -43,7 +43,7 @@ class HeaderMenu extends React.Component {
       return item_def.simple_link
           ? <Menu.Item key={item_def.key} as="a" href={`${ASSET_PREFIX}${item_def.href}`}>{item_def.name}</Menu.Item>
           : <Link key={item_def.key} href={item_def.href} as={`${ASSET_PREFIX}${item_def.href}`} passHref>
-            <Menu.Item as="a">{item_def.icon ? <Icon name={item_def.icon} /> : null}{item_def.name}</Menu.Item>
+            <Menu.Item as="div">{item_def.icon ? <Icon name={item_def.icon} /> : null}{item_def.name}</Menu.Item>
           </Link>;
     });
 
