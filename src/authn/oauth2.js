@@ -1,39 +1,30 @@
+import fetch from 'isomorphic-unfetch';
 import dotenv from 'dotenv';
 dotenv.config();
 
-import rp from 'request-promise-native';
-
 
 const user_profile = (iss, access_token, done) => {
-  const options = {
-    uri: process.env.LTC_LAYMAN_USER_PROFILE_URL,
+  fetch(process.env.LTC_LAYMAN_USER_PROFILE_URL, {
     headers: {
       'AuthorizationIssUrl': iss,
       'Authorization': `Bearer ${access_token}`,
     },
-    json: true,
-  };
-
-  rp(options)
-      .then((profile) => {
+  }).then( r => r.json() ).then(profile => {
         // console.log('userProfile callback', profile);
         done(null, profile);
-      });
+  })
 };
 
 
 const ensure_username = async (iss, access_token, profile) => {
   if (!profile['username']) {
-    var options = {
+    profile = await fetch(`${process.env.LTC_LAYMAN_USER_PROFILE_URL}?adjust_username=true`, {
       method: 'PATCH',
-      uri: `${process.env.LTC_LAYMAN_USER_PROFILE_URL}?adjust_username=true`,
       headers: {
         'AuthorizationIssUrl': iss,
         'Authorization': `Bearer ${access_token}`,
       },
-      json: true,
-    };
-    profile = await rp(options);
+    }).then( r => r.json());
   }
   return profile;
 };
@@ -77,17 +68,18 @@ const refresh_authn_info = async (oauth2_token_url, client_id, client_secret, re
   // https://issues.liferay.com/browse/OAUTH2-167
   let new_info;
   try {
-    new_info = await rp({
-      uri: oauth2_token_url,
+    new_info = await fetch(oauth2_token_url, {
       method: 'POST',
-      form: {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
         grant_type: 'refresh_token',
         client_id,
         client_secret,
         refresh_token: user.authn.refresh_token,
-      },
-      json: true
-    });
+      })
+    }).then( r => r.json());
   } catch(e) {
     console.log(e);
     console.log('AUTOMATICALLY LOGGING OUT, because of error when refreshing authn info');
