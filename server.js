@@ -34,7 +34,7 @@ const passport = require("passport");
 const BASEPATH = process.env.LTC_BASEPATH;
 
 nextjs_app.prepare()
-    .then(() => {
+    .then(async () => {
 
       if(BASEPATH) {
         server.get('/', (req, res) => res.redirect(`${BASEPATH}/`));
@@ -56,7 +56,8 @@ nextjs_app.prepare()
       );
 
       // setup express session for passport.js
-      server.use(session_util.create_express_session());
+      const express_session = await session_util.create_express_session();
+      server.use(express_session);
 
       // initialize passport.js and authn routes
       authn_util.config_passport(passport);
