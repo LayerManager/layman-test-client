@@ -14,9 +14,9 @@ class PatchWorkspaceLayerParams extends React.PureComponent {
           </Form.Field>
           <Form.Input
               inline
-              name="db_connection"
-              label='External DB connection'
-              placeholder='External DB connection'/>
+              name="external_table_uri"
+              label='External table connection URI'
+              placeholder='External table connection URI'/>
           <Form.Input
               inline
               name="title"
