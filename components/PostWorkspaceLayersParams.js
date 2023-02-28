@@ -8,7 +8,7 @@ class PostWorkspaceLayersParams extends React.PureComponent {
   render() {
     return (
         <div>
-          <Form.Field inline className="mandatory">
+          <Form.Field inline>
             <label>Data file</label>
             <input name="file" type="file" multiple/>
           </Form.Field>
