@@ -49,7 +49,7 @@ const user_profile_to_client_page_props = (profile) => {
 const refresh_authn_info = async (oauth2_token_url, client_id, client_secret, req, user) => {
   // console.log('oauth2 refresh_authn_info');
   if (user.authn.refreshing) {
-    // console.log('ALREADY REFRESHING');
+    console.log(`Already refreshing user ${user}`);
     let i = 0;
     const timer = setTimeout(() => {
       user = req.session.passport && req.session.passport.user;
@@ -93,7 +93,7 @@ const refresh_authn_info = async (oauth2_token_url, client_id, client_secret, re
     });
     return;
   }
-  // console.log('refresh_authn_info', seconds, new_info);
+  console.log('refresh_authn_info response', JSON.stringify(new_info, null, 2));
   if(typeof seconds !== "number") {
     throw Error(`seconds is not number, but ${seconds}`);
   }
