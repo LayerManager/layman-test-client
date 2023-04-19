@@ -11,7 +11,7 @@ export default () => {
 
   const LIFERAY_PROVIDER_KEY = 'oauth2-liferay';
   if (process.env.OAUTH2_CLIENT_ID
-      && process.env.OAUTH2_SECRET
+      && process.env.OAUTH2_CLIENT_SECRET
       && process.env.OAUTH2_AUTH_URL
       && process.env.OAUTH2_TOKEN_URL
       && process.env.OAUTH2_CALLBACK_URL
@@ -38,7 +38,7 @@ export default () => {
       Strategy: Strtg,
       strategy_options: {
         clientID: process.env.OAUTH2_CLIENT_ID,
-        clientSecret: process.env.OAUTH2_SECRET,
+        clientSecret: process.env.OAUTH2_CLIENT_SECRET,
         authorizationURL: process.env.OAUTH2_AUTH_URL,
         tokenURL: process.env.OAUTH2_TOKEN_URL,
         callbackURL: process.env.OAUTH2_CALLBACK_URL
@@ -76,7 +76,7 @@ export default () => {
         return await oauth2.refresh_authn_info(
             process.env.OAUTH2_TOKEN_URL,
             process.env.OAUTH2_CLIENT_ID,
-            process.env.OAUTH2_SECRET,
+            process.env.OAUTH2_CLIENT_SECRET,
             user
         );
       },
@@ -84,7 +84,7 @@ export default () => {
         return await oauth2.refresh_authn_info_if_needed(
             process.env.OAUTH2_TOKEN_URL,
             process.env.OAUTH2_CLIENT_ID,
-            process.env.OAUTH2_SECRET,
+            process.env.OAUTH2_CLIENT_SECRET,
             req
         );
       },
