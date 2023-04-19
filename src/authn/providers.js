@@ -10,14 +10,14 @@ const providers = {};
 export default () => {
 
   const LIFERAY_PROVIDER_KEY = 'oauth2-liferay';
-  if (process.env.OAUTH2_LIFERAY_CLIENT_ID
-      && process.env.OAUTH2_LIFERAY_SECRET
-      && process.env.OAUTH2_LIFERAY_AUTH_URL
-      && process.env.OAUTH2_LIFERAY_TOKEN_URL
-      && process.env.OAUTH2_LIFERAY_CALLBACK_URL
+  if (process.env.OAUTH2_CLIENT_ID
+      && process.env.OAUTH2_SECRET
+      && process.env.OAUTH2_AUTH_URL
+      && process.env.OAUTH2_TOKEN_URL
+      && process.env.OAUTH2_CALLBACK_URL
       && !providers[LIFERAY_PROVIDER_KEY]) {
     const iss_id = LIFERAY_PROVIDER_KEY;
-    const iss = process.env.OAUTH2_LIFERAY_AUTH_URL;
+    const iss = process.env.OAUTH2_AUTH_URL;
 
     const Strtg = require('passport-oauth2').Strategy;
 
@@ -27,8 +27,8 @@ export default () => {
     };
 
     const options = {}
-    if('OAUTH2_LIFERAY_SCOPE' in process.env) {
-      options.scope = process.env.OAUTH2_LIFERAY_SCOPE.split(',')
+    if('OAUTH2_SCOPE' in process.env) {
+      options.scope = process.env.OAUTH2_SCOPE.split(',')
     }
 
     providers[iss_id] = {
@@ -37,11 +37,11 @@ export default () => {
       options: options,
       Strategy: Strtg,
       strategy_options: {
-        clientID: process.env.OAUTH2_LIFERAY_CLIENT_ID,
-        clientSecret: process.env.OAUTH2_LIFERAY_SECRET,
-        authorizationURL: process.env.OAUTH2_LIFERAY_AUTH_URL,
-        tokenURL: process.env.OAUTH2_LIFERAY_TOKEN_URL,
-        callbackURL: process.env.OAUTH2_LIFERAY_CALLBACK_URL
+        clientID: process.env.OAUTH2_CLIENT_ID,
+        clientSecret: process.env.OAUTH2_SECRET,
+        authorizationURL: process.env.OAUTH2_AUTH_URL,
+        tokenURL: process.env.OAUTH2_TOKEN_URL,
+        callbackURL: process.env.OAUTH2_CALLBACK_URL
       },
       strategy_callback: async (req, accessToken, refreshToken, extraParams, profile, done) => {
         profile = await oauth2.ensure_username(iss, accessToken, profile);
@@ -74,17 +74,17 @@ export default () => {
       user_profile_to_client_page_props: oauth2.user_profile_to_client_page_props,
       refresh_authn_info: async (user) => {
         return await oauth2.refresh_authn_info(
-            process.env.OAUTH2_LIFERAY_TOKEN_URL,
-            process.env.OAUTH2_LIFERAY_CLIENT_ID,
-            process.env.OAUTH2_LIFERAY_SECRET,
+            process.env.OAUTH2_TOKEN_URL,
+            process.env.OAUTH2_CLIENT_ID,
+            process.env.OAUTH2_SECRET,
             user
         );
       },
       refresh_authn_info_if_needed: async (req) => {
         return await oauth2.refresh_authn_info_if_needed(
-            process.env.OAUTH2_LIFERAY_TOKEN_URL,
-            process.env.OAUTH2_LIFERAY_CLIENT_ID,
-            process.env.OAUTH2_LIFERAY_SECRET,
+            process.env.OAUTH2_TOKEN_URL,
+            process.env.OAUTH2_CLIENT_ID,
+            process.env.OAUTH2_SECRET,
             req
         );
       },
