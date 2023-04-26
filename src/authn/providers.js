@@ -17,13 +17,12 @@ export default () => {
       && process.env.OAUTH2_CALLBACK_URL
       && !providers[LIFERAY_PROVIDER_KEY]) {
     const iss_id = LIFERAY_PROVIDER_KEY;
-    const iss = process.env.OAUTH2_AUTH_URL;
 
     const Strtg = require('passport-oauth2').Strategy;
 
     //read user profile
     Strtg.prototype.userProfile = (access_token, done) => {
-      return oauth2.user_profile(iss, access_token, done);
+      return oauth2.user_profile(access_token, done);
     };
 
     const options = {}
@@ -44,7 +43,7 @@ export default () => {
         callbackURL: process.env.OAUTH2_CALLBACK_URL
       },
       strategy_callback: async (req, accessToken, refreshToken, extraParams, profile, done) => {
-        profile = await oauth2.ensure_username(iss, accessToken, profile);
+        profile = await oauth2.ensure_username(accessToken, profile);
         // console.log('strategy_callback', accessToken, refreshToken, extraParams, profile);
 
 
@@ -61,7 +60,6 @@ export default () => {
           ...oauth2.user_profile_to_client_page_props(profile),
           authn: {
             iss_id: iss_id,
-            iss: iss,
             sub: profile.claims.sub,
             access_token: accessToken,
             iat: req.incoming_timestamp, // it's not precise, but should be safe enough
