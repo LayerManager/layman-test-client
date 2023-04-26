@@ -3,10 +3,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 
-const user_profile = (iss, access_token, done) => {
+const user_profile = (access_token, done) => {
   fetch(process.env.LTC_LAYMAN_USER_PROFILE_URL, {
     headers: {
-      'AuthorizationIssUrl': iss,
       'Authorization': `Bearer ${access_token}`,
     },
   }).then( r => r.json() ).then(profile => {
@@ -16,12 +15,11 @@ const user_profile = (iss, access_token, done) => {
 };
 
 
-const ensure_username = async (iss, access_token, profile) => {
+const ensure_username = async (access_token, profile) => {
   if (!profile['username']) {
     profile = await fetch(`${process.env.LTC_LAYMAN_USER_PROFILE_URL}?adjust_username=true`, {
       method: 'PATCH',
       headers: {
-        'AuthorizationIssUrl': iss,
         'Authorization': `Bearer ${access_token}`,
       },
     }).then( r => r.json());
@@ -32,7 +30,6 @@ const ensure_username = async (iss, access_token, profile) => {
 
 const get_authn_headers = (user) => {
   return {
-    AuthorizationIssUrl: user.authn.iss,
     Authorization: `Bearer ${user.authn.access_token}`,
   }
 };
