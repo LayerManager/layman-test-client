@@ -43,7 +43,7 @@ Object.values(PROVIDERS).forEach(provider => {
         console.error(err);
       }
       res.redirect(`${BASEPATH}/`);
-      // possibly also logout from authentication provider (e. g. Liferay)
+      // possibly also logout from authentication provider (e.g. Wagtail)
     });
   });
 

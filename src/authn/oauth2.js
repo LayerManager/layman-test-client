@@ -62,7 +62,6 @@ const refresh_authn_info = async (oauth2_token_url, client_id, client_secret, re
   const d = new Date();
   const seconds = Math.round(d.getTime() / 1000);
   user.authn.refreshing = true;
-  // https://issues.liferay.com/browse/OAUTH2-167
   let new_info;
   try {
     new_info = await fetch(oauth2_token_url, {
