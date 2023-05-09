@@ -9,14 +9,14 @@ const providers = {};
 
 export default () => {
 
-  const LIFERAY_PROVIDER_KEY = 'oauth2-liferay';
+  const OAUTH2_PROVIDER_KEY = 'oauth2-provider';
   if (process.env.OAUTH2_CLIENT_ID
       && process.env.OAUTH2_CLIENT_SECRET
       && process.env.OAUTH2_AUTH_URL
       && process.env.OAUTH2_TOKEN_URL
       && process.env.OAUTH2_CALLBACK_URL
-      && !providers[LIFERAY_PROVIDER_KEY]) {
-    const iss_id = LIFERAY_PROVIDER_KEY;
+      && !providers[OAUTH2_PROVIDER_KEY]) {
+    const iss_id = OAUTH2_PROVIDER_KEY;
 
     const Strtg = require('passport-oauth2').Strategy;
 
@@ -32,7 +32,7 @@ export default () => {
 
     providers[iss_id] = {
       id: iss_id,
-      name: 'Liferay',
+      name: 'OAuth2 Provider',
       options: options,
       Strategy: Strtg,
       strategy_options: {
