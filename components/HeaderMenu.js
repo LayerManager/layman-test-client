@@ -34,7 +34,7 @@ class HeaderMenu extends React.Component {
         ])
       } else {
         items_def.push(...[
-          {key: 'login', name: 'Log In', href: '/authn/oauth2-liferay/login', simple_link: true},
+          {key: 'login', name: 'Log In', href: '/authn/oauth2-provider/login', simple_link: true},
         ])
       }
     }
