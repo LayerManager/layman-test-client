@@ -66,6 +66,10 @@ class PostWorkspaceLayersParams extends React.PureComponent {
               inline
               name="time_regex" label='Timeseries time regex'
               placeholder='Timeseries layer time regex'/>
+          <Form.Input
+              inline
+              name="time_regex_format" label='Timeseries time regex format'
+              placeholder='Timeseries layer time regex format'/>
         </div>
     );
   }
