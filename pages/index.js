@@ -30,17 +30,19 @@ const ASSET_PREFIX = publicRuntimeConfig.ASSET_PREFIX;
 let RESUMABLE_ENABLED = false;
 const PREFER_RESUMABLE_SIZE_LIMIT = 1 * 1024 * 1024;
 
-const PUBLICATION_TYPES = ['layer', 'map', 'users'];
+const PUBLICATION_TYPES = ['publication', 'layer', 'map', 'users'];
 
 const HEADERS_TO_SHOW = ['Content-Type', 'X-Total-Count', 'Content-Range', 'Deprecation', 'Link'];
 
 const publicationTypeToDefaultRequest = {
+  'publication': 'get-publications',
   'layer': 'get-layers',
   'map': 'get-maps',
   'users': 'get-users',
 };
 
 const requestToParamsClass = {
+  'get-publications': GetPublicationsParams,
   'get-layers': GetPublicationsParams,
   'get-workspace-layers': GetPublicationsParams,
   'post-workspace-layers': PostWorkspaceLayersParams,
@@ -58,6 +60,7 @@ const requestToResumableParams = {
 }
 
 const endpointToUrlPartGetter = {
+  'publications': () => `/publications`,
   'layers': () => `/layers`,
   'workspace-layers': ({workspace}) => `/workspaces/${workspace}/layers`,
   'workspace-layer': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}`,
@@ -76,6 +79,7 @@ const endpointToUrlPartGetter = {
 }
 
 const endpointToPathParams = {
+  'publications': [],
   'layers': [],
   'workspace-layers': ['workspace'],
   'workspace-layer': ['workspace', 'name'],
@@ -107,6 +111,7 @@ const endpointToPathParamsClass = {
 }
 
 const requestToQueryParams = {
+  'get-publications': ['full_text_filter', 'bbox_filter', 'bbox_filter_crs', 'order_by', 'ordering_bbox', 'ordering_bbox_crs', 'limit', 'offset', ],
   'get-layers': ['full_text_filter', 'bbox_filter', 'bbox_filter_crs', 'order_by', 'ordering_bbox', 'ordering_bbox_crs', 'limit', 'offset', ],
   'get-workspace-layers': ['full_text_filter', 'bbox_filter', 'bbox_filter_crs', 'order_by', 'ordering_bbox', 'ordering_bbox_crs', 'limit', 'offset', ],
   'get-maps': ['full_text_filter', 'bbox_filter', 'bbox_filter_crs', 'order_by', 'ordering_bbox', 'ordering_bbox_crs', 'limit', 'offset', ],
@@ -156,6 +161,7 @@ const getEndpointParamsProps = (endpoint, component) => {
     handleMapnameChange: component.handleMapnameChange.bind(component),
   };
   const props = {
+    'publications': {},
     'layers': {},
     'workspace-layers': workspace_props,
     'workspace-layer': layer_props,
@@ -496,6 +502,43 @@ class IndexPage extends React.PureComponent {
     }
 
     const panes = [
+      {
+        menuItem: 'Publication', render: () => {
+          return (
+              <Tab.Pane>
+                <Table celled>
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.HeaderCell>Endpoint</Table.HeaderCell>
+                      <Table.HeaderCell>URL</Table.HeaderCell>
+                      <Table.HeaderCell>GET</Table.HeaderCell>
+                      <Table.HeaderCell>POST</Table.HeaderCell>
+                      <Table.HeaderCell>PATCH</Table.HeaderCell>
+                      <Table.HeaderCell>DELETE</Table.HeaderCell>
+                    </Table.Row>
+                  </Table.Header>
+
+                  <Table.Body>
+                    <Table.Row>
+                      <Table.Cell>Publications</Table.Cell>
+                      <Table.Cell><code>/rest/publications</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-publications'}
+                            onClick={this.setRequest.bind(this, 'get-publications')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                    </Table.Row>
+                  </Table.Body>
+                </Table>
+              </Tab.Pane>
+          );
+        },
+      },
       {
         menuItem: 'Layer', render: () => {
           return (
