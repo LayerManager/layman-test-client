@@ -43,8 +43,9 @@ export default () => {
         callbackURL: process.env.OAUTH2_CALLBACK_URL
       },
       strategy_callback: async (req, accessToken, refreshToken, extraParams, profile, done) => {
+        console.log('strategy_callback', accessToken, refreshToken, extraParams, profile);
         profile = await oauth2.ensure_username(accessToken, profile);
-        // console.log('strategy_callback', accessToken, refreshToken, extraParams, profile);
+        console.log('strategy_callback 2', accessToken, refreshToken, extraParams, profile);
 
 
         // TODO probably rename /rest/<username>/* to /rest/users/<username>/* (breaking change !!!)

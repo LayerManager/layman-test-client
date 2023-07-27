@@ -9,13 +9,14 @@ const user_profile = (access_token, done) => {
       'Authorization': `Bearer ${access_token}`,
     },
   }).then( r => r.json() ).then(profile => {
-        // console.log('userProfile callback', profile);
+        console.log('user_profile callback', profile);
         done(null, profile);
   })
 };
 
 
 const ensure_username = async (access_token, profile) => {
+  console.log('ensure_username profile 1', profile);
   if (!profile['username']) {
     profile = await fetch(`${process.env.LTC_LAYMAN_USER_PROFILE_URL}?adjust_username=true`, {
       method: 'PATCH',
@@ -23,6 +24,7 @@ const ensure_username = async (access_token, profile) => {
         'Authorization': `Bearer ${access_token}`,
       },
     }).then( r => r.json());
+    console.log('ensure_username profile 2', profile);
   }
   return profile;
 };
