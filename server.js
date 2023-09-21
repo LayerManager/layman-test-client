@@ -33,6 +33,13 @@ const passport = require("passport");
 
 const BASEPATH = process.env.LTC_BASEPATH;
 
+const add_layman_proxy_headers = (proxyReq, req, res) => {
+  authn_util.add_authn_headers(proxyReq, req, res);
+  proxyReq.setHeader('X-Forwarded-Proto', req.protocol);
+  proxyReq.setHeader('X-Forwarded-Host', req.get('host'));
+  proxyReq.setHeader('X-Forwarded-Prefix', BASEPATH);
+}
+
 nextjs_app.prepare()
     .then(async () => {
 
@@ -84,7 +91,7 @@ nextjs_app.prepare()
           createProxyMiddleware({
             target: process.env.LTC_LAYMAN_REST_URL,
             changeOrigin: true,
-            onProxyReq: authn_util.add_authn_headers,
+            onProxyReq: add_layman_proxy_headers,
             pathRewrite: {
               [`^${BASEPATH}/rest`]: '/rest',
             }
@@ -98,7 +105,7 @@ nextjs_app.prepare()
           createProxyMiddleware({
             target: process.env.LTC_LAYMAN_REST_URL,
             changeOrigin: true,
-            onProxyReq: authn_util.add_authn_headers,
+            onProxyReq: add_layman_proxy_headers,
             pathRewrite: {
               [`^${BASEPATH}/geoserver`]: '/geoserver',
             }
