@@ -35,7 +35,8 @@ const BASEPATH = process.env.LTC_BASEPATH;
 
 const add_layman_proxy_headers = (proxyReq, req, res) => {
   authn_util.add_authn_headers(proxyReq, req, res);
-  proxyReq.setHeader('X-Forwarded-Proto', req.protocol);
+  const protoFromEnv = process.env.OAUTH2_CALLBACK_URL ? new URL(process.env.OAUTH2_CALLBACK_URL).protocol.slice(0, -1) : null;
+  proxyReq.setHeader('X-Forwarded-Proto', protoFromEnv || req.protocol);
   proxyReq.setHeader('X-Forwarded-Host', req.get('host'));
   proxyReq.setHeader('X-Forwarded-Prefix', BASEPATH);
 }
