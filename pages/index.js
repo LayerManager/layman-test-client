@@ -76,6 +76,7 @@ const endpointToUrlPartGetter = {
   'users': () => `/users`,
   'version': () => `/about/version`,
   'current-user': () => `/current-user`,
+  'roles': () => `/roles`,
 }
 
 const endpointToPathParams = {
@@ -95,6 +96,7 @@ const endpointToPathParams = {
   'users': [],
   'version': [],
   'current-user': [],
+  'roles': [],
 }
 
 const endpointToPathParamsClass = {
@@ -177,6 +179,7 @@ const getEndpointParamsProps = (endpoint, component) => {
     'users': {},
     'version': {},
     'current-user': {},
+    'roles': {},
   }
   return props[endpoint];
 }
@@ -858,6 +861,21 @@ class IndexPage extends React.PureComponent {
                             onClick={this.setRequest.bind(this, 'delete-current-user')}
                         >DELETE</Button>
                       </Table.Cell>
+                    </Table.Row>
+
+                    <Table.Row>
+                      <Table.Cell>Roles</Table.Cell>
+                      <Table.Cell><code>/rest/roles</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-roles'}
+                            onClick={this.setRequest.bind(this, 'get-roles')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
                     </Table.Row>
 
                     <Table.Row>
