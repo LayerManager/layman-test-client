@@ -26,7 +26,11 @@ const server = express();
 
 const dev = process.env.NODE_ENV !== 'production';
 const nextjs_app = next({ dev });
-const nextjs_handle = nextjs_app.getRequestHandler();
+const nextjs_handle_original = nextjs_app.getRequestHandler();
+const nextjs_handle = (req, res) => {
+  // not sure, why is this redefinition of nextjs_handle needed
+  nextjs_handle_original(req, res)
+}
 
 // https://auth0.com/blog/next-js-authentication-tutorial/
 const passport = require("passport");
