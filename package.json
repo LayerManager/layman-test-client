@@ -23,11 +23,11 @@
     "express-session": "^1.17.3",
     "http-proxy-middleware": "^2.0.6",
     "isomorphic-unfetch": "^3.1.0",
-    "next": "^13.5.4",
+    "next": "^14.2.20",
     "passport": "^0.6.0",
     "passport-oauth2": "^1.6.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "redis": "^4.5.1",
     "resumablejs": "^1.1.0",
     "scroll-into-view": "^1.16.2",
@@ -36,6 +36,6 @@
   },
   "devDependencies": {
     "eslint": "8.30.0",
-    "eslint-config-next": "13.0.7"
+    "eslint-config-next": "^14.2.20"
   }
 }

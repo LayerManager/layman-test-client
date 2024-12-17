@@ -1,5 +1,6 @@
 import React from "react";
-import App, {Container as NextContainer} from "next/app";
+import App from "next/app";
+import Head from 'next/head'
 import getConfig from 'next/config'
 import fetch from 'isomorphic-unfetch';
 const { publicRuntimeConfig } = getConfig();
@@ -22,7 +23,7 @@ class MyApp extends App {
       const num_authn_providers = Object.keys(providers).length;
       pageProps.num_authn_providers = num_authn_providers;
     }
-    if (ctx.req && ctx.req.session.passport && ctx.req.session.passport.user) {
+    if (ctx.req && ctx.req.session && ctx.req.session.passport && ctx.req.session.passport.user) {
       const user_util = require('../src/authn/user').default;
       const authn_util = require('../src/authn/util').default;
       await authn_util.refresh_authn_info_if_needed(ctx.req);
@@ -96,8 +97,14 @@ class MyApp extends App {
     };
 
     return (
-        <Component {...props} />
-    );
+        <>
+          <Head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+          </Head>
+          <Component {...props} />
+        </>
+  )
+    ;
   }
 }
 
