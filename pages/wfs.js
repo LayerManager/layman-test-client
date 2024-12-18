@@ -1,6 +1,6 @@
 import React from 'react'
 import HeaderMenu from './../components/HeaderMenu'
-import {Button, Container, Form, Header, Message, Ref, Segment, Table} from 'semantic-ui-react'
+import {Button, Container, Form, Header, Message, Segment, Table} from 'semantic-ui-react'
 import fetch from 'unfetch';
 import ReactDOM from 'react-dom';
 import WfsPostTransactionParams from "../components/WfsPostTransactionParams";
@@ -59,7 +59,7 @@ class WFSPage extends React.PureComponent {
       data: '',
       response: null,
     };
-    this.formEl;
+    this.formElRef = React.createRef();
     this.respRef = React.createRef();
   }
 
@@ -120,16 +120,12 @@ class WFSPage extends React.PureComponent {
 
     }).finally(() => {
       this.setState({response});
-      const domNode = ReactDOM.findDOMNode(this.respRef.current)
+      const domNode = this.respRef.current
       if(domNode) {
         scrollIntoView(domNode);
       }
     });
 
-  }
-
-  handleFormRef(formElement) {
-    this.formEl = formElement;
   }
 
   getRequestUrlPath() {
@@ -225,13 +221,11 @@ class WFSPage extends React.PureComponent {
             {renderEndpointTable}
             <Header as='h2'>{getRequestTitle(this.state.request)}</Header>
             <Header as='h3'>Parameters</Header>
-            <Ref innerRef={this.handleFormRef.bind(this)}>
-              <Form>
-                {pathParams}
-                {params}
-                <Button primary type='submit' onClick={this.handleSubmitClick.bind(this)}>Submit</Button>
-              </Form>
-            </Ref>
+            <Form ref={this.formElRef}>
+              {pathParams}
+              {params}
+              <Button primary type='submit' onClick={this.handleSubmitClick.bind(this)}>Submit</Button>
+            </Form>
             {respEl}
           </Container>
         </div>

@@ -1,8 +1,7 @@
 import React from 'react'
 import HeaderMenu from './../components/HeaderMenu'
-import {Button, Container, Form, Header, Icon, Message, Progress, Ref, Segment, Tab, Table} from 'semantic-ui-react'
+import {Button, Container, Form, Header, Icon, Message, Progress, Segment, Tab, Table} from 'semantic-ui-react'
 import fetch from 'unfetch';
-import ReactDOM from 'react-dom';
 import PostWorkspaceLayersParams from "../components/PostWorkspaceLayersParams";
 import scrollIntoView from 'scroll-into-view';
 import PatchWorkspaceLayerParams from "../components/PatchWorkspaceLayerParams";
@@ -214,7 +213,7 @@ class IndexPage extends React.PureComponent {
       publication_type: 'layer',
       response: null,
     };
-    this.formEl;
+    this.formElRef = React.createRef();
     this.respRef = React.createRef();
   }
 
@@ -261,7 +260,7 @@ class IndexPage extends React.PureComponent {
     let files_to_upload = [];
 
     const queryParamNames = (requestToQueryParams[this.state.request] || []).concat();
-    const formData = new FormData(this.formEl);
+    const formData = new FormData(this.formElRef.current);
     const queryParams = queryParamNames.reduce((obj, name) => {
       obj[name] = queryParamValueToString(this.state.request, name, formData.get(name));
       formData.delete(name);
@@ -398,16 +397,12 @@ class IndexPage extends React.PureComponent {
       }
     }).finally(() => {
       this.setState({response});
-      const domNode = ReactDOM.findDOMNode(this.respRef.current)
+      const domNode = this.respRef.current
       if(domNode) {
         scrollIntoView(domNode);
       }
     });
 
-  }
-
-  handleFormRef(formElement) {
-    this.formEl = formElement;
   }
 
   getRequestUrlPath() {
@@ -917,13 +912,11 @@ class IndexPage extends React.PureComponent {
             <Tab panes={panes} activeIndex={publ_idx} onTabChange={this.handlePublicationTypeChange.bind(this)} />
             <Header as='h2'>{getRequestTitle(this.state.request)}</Header>
             <Header as='h3'>Parameters</Header>
-            <Ref innerRef={this.handleFormRef.bind(this)}>
-              <Form>
-                {pathParams}
-                {params}
-                <Button primary type='submit' onClick={this.handleSubmitClick.bind(this)}>Submit</Button>
-              </Form>
-            </Ref>
+            <Form ref={this.formElRef}>
+              {pathParams}
+              {params}
+              <Button primary type='submit' onClick={this.handleSubmitClick.bind(this)}>Submit</Button>
+            </Form>
             <div ref={this.respRef}>
             {respEl}
             </div>
