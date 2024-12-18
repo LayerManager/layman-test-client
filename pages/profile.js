@@ -1,5 +1,5 @@
 import HeaderMenu from "../components/HeaderMenu";
-import {List, Container, Form, Header, Ref, Tab} from "semantic-ui-react";
+import {List, Container, Header} from "semantic-ui-react";
 
 const containerStyle = {
   position: 'absolute',
