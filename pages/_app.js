@@ -23,7 +23,7 @@ class MyApp extends App {
       const num_authn_providers = Object.keys(providers).length;
       pageProps.num_authn_providers = num_authn_providers;
     }
-    if (ctx.req && ctx.req.session && ctx.req.session.passport && ctx.req.session.passport.user) {
+    if (ctx?.req?.session?.passport?.user) {
       const user_util = require('../src/authn/user').default;
       const authn_util = require('../src/authn/util').default;
       await authn_util.refresh_authn_info_if_needed(ctx.req);
