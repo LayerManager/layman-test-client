@@ -36,6 +36,7 @@ const get_authn_headers = (user) => {
 
 
 const user_profile_to_client_page_props = (profile) => {
+  console.assert(!!profile.claims, 'User is not authenticated. Check you OAuth2 provider settings, for example Layman environment variable LAYMAN_AUTHN_MODULES should have OAuth2 module enabled.')
   return {
     username: profile.username,
     display_name: profile.claims.email,
