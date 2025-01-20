@@ -8,6 +8,11 @@ class PostWorkspaceLayersParams extends React.PureComponent {
   render() {
     return (
         <div>
+          <Form.Input
+              inline
+              name="uuid"
+              label='Layer uuid'
+              placeholder='Layer uuid'/>
           <Form.Field inline>
             <label>Data file</label>
             <input name="file" type="file" multiple/>

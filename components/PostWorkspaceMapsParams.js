@@ -7,6 +7,11 @@ class PostWorkspaceMapsParams extends React.PureComponent {
   render() {
     return (
         <div>
+          <Form.Input
+              inline
+              name="uuid"
+              label='Map uuid'
+              placeholder='Map uuid'/>
           <Form.Field inline className="mandatory">
             <label>Map file</label>
             <input name="file" type="file" accept=".json"/>
