@@ -13,6 +13,7 @@ import WorkspaceLayerPathParams from "../components/WorkspaceLayerPathParams";
 import WorkspaceMapPathParams from "../components/WorkspaceMapPathParams";
 import PatchCurrentuserParams from "../components/PatchCurrentuserParams";
 import GetPublicationsParams from "../components/GetPublicationsParams";
+import DeleteUserParams from "../components/DeleteUserParams";
 import getConfig from 'next/config'
 import {
   containerStyle,
@@ -51,6 +52,7 @@ const requestToParamsClass = {
   'post-workspace-maps': PostWorkspaceMapsParams,
   'patch-workspace-map': PatchWorkspaceMapParams,
   'patch-current-user': PatchCurrentuserParams,
+  'delete-user': DeleteUserParams,
 }
 
 const requestToResumableParams = {
@@ -73,6 +75,7 @@ const endpointToUrlPartGetter = {
   'workspace-map-thumbnail': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/thumbnail`,
   'workspace-map-metadata-comparison': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/metadata-comparison`,
   'users': () => `/users`,
+  'user': ({username}) => `/users/${username}`,
   'version': () => `/about/version`,
   'current-user': () => `/current-user`,
   'roles': () => `/roles`,
@@ -93,6 +96,7 @@ const endpointToPathParams = {
   'workspace-map-thumbnail': ['workspace', 'name'],
   'workspace-map-metadata-comparison': ['workspace', 'name'],
   'users': [],
+  'user': ['username'],
   'version': [],
   'current-user': [],
   'roles': [],
@@ -161,6 +165,10 @@ const getEndpointParamsProps = (endpoint, component) => {
     mapname: component.state.mapname,
     handleMapnameChange: component.handleMapnameChange.bind(component),
   };
+  const user_props = {
+    username: component.state.username,
+    handleUsernameChange: component.handleUsernameChange.bind(component),
+  };
   const props = {
     'publications': {},
     'layers': {},
@@ -176,6 +184,7 @@ const getEndpointParamsProps = (endpoint, component) => {
     'workspace-map-thumbnail': map_props,
     'workspace-map-metadata-comparison': map_props,
     'users': {},
+    'user': user_props,
     'version': {},
     'current-user': {},
     'roles': {},
@@ -210,6 +219,7 @@ class IndexPage extends React.PureComponent {
       request: 'get-layers',
       layername: '',
       mapname: '',
+      username: '',
       publication_type: 'layer',
       response: null,
     };
@@ -227,6 +237,9 @@ class IndexPage extends React.PureComponent {
 
   handleMapnameChange(event) {
     this.setState({mapname: event.target.value});
+  }
+  handleUsernameChange(event) {
+    this.setState({username: event.target.value});
   }
 
   handlePublicationTypeChange(event, {activeIndex}) {
@@ -829,6 +842,20 @@ class IndexPage extends React.PureComponent {
                       <Table.Cell>x</Table.Cell>
                       <Table.Cell>x</Table.Cell>
                       <Table.Cell>x</Table.Cell>
+                    </Table.Row>
+
+                    <Table.Row>
+                      <Table.Cell>User</Table.Cell>
+                      <Table.Cell><code>/rest/users/&lt;username&gt;</code></Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>
+                      <Button
+                            toggle
+                            active={this.state.request === 'delete-user'}
+                            onClick={this.setRequest.bind(this, 'delete-user')}
+                        >DELETE</Button></Table.Cell>
                     </Table.Row>
 
                     <Table.Row>
