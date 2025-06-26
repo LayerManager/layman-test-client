@@ -11,6 +11,7 @@ import PatchWorkspaceMapParams from "../components/PatchWorkspaceMapParams";
 import WorkspacePathParams from "../components/WorkspacePathParams";
 import WorkspaceLayerPathParams from "../components/WorkspaceLayerPathParams";
 import WorkspaceMapPathParams from "../components/WorkspaceMapPathParams";
+import UuidParams from "../components/UuidParams";
 import PatchCurrentuserParams from "../components/PatchCurrentuserParams";
 import GetPublicationsParams from "../components/GetPublicationsParams";
 import DeleteUserParams from "../components/DeleteUserParams";
@@ -72,7 +73,7 @@ const endpointToUrlPartGetter = {
   'workspace-maps': ({workspace}) => `/workspaces/${workspace}/maps`,
   'workspace-map': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}`,
   'workspace-map-file': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/file`,
-  'workspace-map-thumbnail': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/thumbnail`,
+  'map-thumbnail': ({uuid}) => `/maps/${uuid}/thumbnail`,
   'workspace-map-metadata-comparison': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/metadata-comparison`,
   'users': () => `/users`,
   'user': ({username}) => `/users/${username}`,
@@ -93,7 +94,7 @@ const endpointToPathParams = {
   'workspace-maps': ['workspace'],
   'workspace-map': ['workspace', 'name'],
   'workspace-map-file': ['workspace', 'name'],
-  'workspace-map-thumbnail': ['workspace', 'name'],
+  'workspace-map-thumbnail': ['uuid'],
   'workspace-map-metadata-comparison': ['workspace', 'name'],
   'users': [],
   'user': ['username'],
@@ -111,7 +112,7 @@ const endpointToPathParamsClass = {
   'workspace-maps': WorkspacePathParams,
   'workspace-map': WorkspaceMapPathParams,
   'workspace-map-file': WorkspaceMapPathParams,
-  'workspace-map-thumbnail': WorkspaceMapPathParams,
+  'map-thumbnail': UuidParams,
   'workspace-map-metadata-comparison': WorkspaceMapPathParams,
 }
 
@@ -143,7 +144,7 @@ const getEndpointDefaultParamsState = (endpoint, state) => {
     'workspace-maps': () => ({mapname: ''}),
     'workspace-map': ({mapname}) => ({mapname}),
     'workspace-map-file': ({mapname}) => ({mapname}),
-    'workspace-map-thumbnail': ({mapname}) => ({mapname}),
+    'map-thumbnail': ({uuid}) => ({uuid}),
     'workspace-map-metadata-comparison': ({mapname}) => ({mapname}),
   }
   const getter = getters[endpoint];
@@ -165,6 +166,10 @@ const getEndpointParamsProps = (endpoint, component) => {
     mapname: component.state.mapname,
     handleMapnameChange: component.handleMapnameChange.bind(component),
   };
+  const uuid_props = {
+    uuid: component.state.uuid,
+    handleUuidChange: component.handleUuidChange.bind(component),
+  };
   const user_props = {
     username: component.state.username,
     handleUsernameChange: component.handleUsernameChange.bind(component),
@@ -181,7 +186,7 @@ const getEndpointParamsProps = (endpoint, component) => {
     'workspace-maps': workspace_props,
     'workspace-map': map_props,
     'workspace-map-file': map_props,
-    'workspace-map-thumbnail': map_props,
+    'map-thumbnail': uuid_props,
     'workspace-map-metadata-comparison': map_props,
     'users': {},
     'user': user_props,
@@ -219,6 +224,7 @@ class IndexPage extends React.PureComponent {
       request: 'get-layers',
       layername: '',
       mapname: '',
+      uuid: '',
       username: '',
       publication_type: 'layer',
       response: null,
@@ -237,6 +243,9 @@ class IndexPage extends React.PureComponent {
 
   handleMapnameChange(event) {
     this.setState({mapname: event.target.value});
+  }
+  handleUuidChange(event) {
+    this.setState({uuid: event.target.value});
   }
   handleUsernameChange(event) {
     this.setState({username: event.target.value});
@@ -713,6 +722,20 @@ class IndexPage extends React.PureComponent {
                       <Table.Cell>x</Table.Cell>
                     </Table.Row>
                     <Table.Row>
+                      <Table.Cell>Map Thumbnail</Table.Cell>
+                      <Table.Cell><code>/rest/maps/&lt;uuid&gt;/thumbnail</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-map-thumbnail'}
+                            onClick={this.setRequest.bind(this, 'get-map-thumbnail')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                    </Table.Row>
+                    <Table.Row>
                       <Table.Cell>Workspace Maps</Table.Cell>
                       <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/maps</code></Table.Cell>
                       <Table.Cell>
@@ -772,20 +795,6 @@ class IndexPage extends React.PureComponent {
                             toggle
                             active={this.state.request === 'get-workspace-map-file'}
                             onClick={this.setRequest.bind(this, 'get-workspace-map-file')}
-                        >GET</Button>
-                      </Table.Cell>
-                      <Table.Cell>x</Table.Cell>
-                      <Table.Cell>x</Table.Cell>
-                      <Table.Cell>x</Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell>Workspace Map Thumbnail</Table.Cell>
-                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/maps/&lt;mapname&gt;/thumbnail</code></Table.Cell>
-                      <Table.Cell>
-                        <Button
-                            toggle
-                            active={this.state.request === 'get-workspace-map-thumbnail'}
-                            onClick={this.setRequest.bind(this, 'get-workspace-map-thumbnail')}
                         >GET</Button>
                       </Table.Cell>
                       <Table.Cell>x</Table.Cell>
