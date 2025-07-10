@@ -10,8 +10,8 @@ class UuidParams extends React.PureComponent {
               inline
               className="mandatory"
               name="uuid"
-              label='Map uuid'
-              placeholder='Map uuid'
+              label={this.props.label}
+              placeholder={this.props.placeholder}
               value={this.props.uuid}
               onChange={this.props.handleUuidChange}/>
         </div>
