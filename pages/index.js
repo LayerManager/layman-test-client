@@ -66,7 +66,7 @@ const endpointToUrlPartGetter = {
   'layers': () => `/layers`,
   'workspace-layers': ({workspace}) => `/workspaces/${workspace}/layers`,
   'workspace-layer': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}`,
-  'workspace-layer-thumbnail': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/thumbnail`,
+  'layer-thumbnail': ({uuid}) => `/layers/${uuid}/thumbnail`,
   'workspace-layer-style': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/style`,
   'workspace-layer-metadata-comparison': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/metadata-comparison`,
   'maps': () => `/maps`,
@@ -87,14 +87,14 @@ const endpointToPathParams = {
   'layers': [],
   'workspace-layers': ['workspace'],
   'workspace-layer': ['workspace', 'name'],
-  'workspace-layer-thumbnail': ['workspace', 'name'],
+  'layer-thumbnail': ['uuid'],
   'workspace-layer-style': ['workspace', 'name'],
   'workspace-layer-metadata-comparison': ['workspace', 'name'],
   'maps': [],
   'workspace-maps': ['workspace'],
   'workspace-map': ['workspace', 'name'],
   'workspace-map-file': ['workspace', 'name'],
-  'workspace-map-thumbnail': ['uuid'],
+  'map-thumbnail': ['uuid'],
   'workspace-map-metadata-comparison': ['workspace', 'name'],
   'users': [],
   'user': ['username'],
@@ -106,7 +106,7 @@ const endpointToPathParams = {
 const endpointToPathParamsClass = {
   'workspace-layers': WorkspacePathParams,
   'workspace-layer': WorkspaceLayerPathParams,
-  'workspace-layer-thumbnail': WorkspaceLayerPathParams,
+  'layer-thumbnail': UuidParams,
   'workspace-layer-style': WorkspaceLayerPathParams,
   'workspace-layer-metadata-comparison': WorkspaceLayerPathParams,
   'workspace-maps': WorkspacePathParams,
@@ -138,7 +138,7 @@ const getEndpointDefaultParamsState = (endpoint, state) => {
   const getters = {
     'workspace-layers': () => ({layername: ''}),
     'workspace-layer': ({layername}) => ({layername}),
-    'workspace-layer-thumbnail': ({layername}) => ({layername}),
+    'layer-thumbnail': ({uuid}) => ({uuid}),
     'workspace-layer-style': ({layername}) => ({layername}),
     'workspace-layer-metadata-comparison': ({layername}) => ({layername}),
     'workspace-maps': () => ({mapname: ''}),
@@ -166,9 +166,17 @@ const getEndpointParamsProps = (endpoint, component) => {
     mapname: component.state.mapname,
     handleMapnameChange: component.handleMapnameChange.bind(component),
   };
-  const uuid_props = {
+  const layer_uuid_props = {
     uuid: component.state.uuid,
     handleUuidChange: component.handleUuidChange.bind(component),
+    label: 'Layer uuid',
+    placeholder: 'Layer uuid',
+  };
+  const map_uuid_props = {
+    uuid: component.state.uuid,
+    handleUuidChange: component.handleUuidChange.bind(component),
+    label: 'Map uuid',
+    placeholder: 'Map uuid',
   };
   const user_props = {
     username: component.state.username,
@@ -179,14 +187,14 @@ const getEndpointParamsProps = (endpoint, component) => {
     'layers': {},
     'workspace-layers': workspace_props,
     'workspace-layer': layer_props,
-    'workspace-layer-thumbnail': layer_props,
+    'layer-thumbnail': layer_uuid_props,
     'workspace-layer-style': layer_props,
     'workspace-layer-metadata-comparison': layer_props,
     'maps': {},
     'workspace-maps': workspace_props,
     'workspace-map': map_props,
     'workspace-map-file': map_props,
-    'map-thumbnail': uuid_props,
+    'map-thumbnail': map_uuid_props,
     'workspace-map-metadata-comparison': map_props,
     'users': {},
     'user': user_props,
@@ -591,6 +599,20 @@ class IndexPage extends React.PureComponent {
                       <Table.Cell>x</Table.Cell>
                     </Table.Row>
                     <Table.Row>
+                      <Table.Cell>Layer Thumbnail</Table.Cell>
+                      <Table.Cell><code>/rest/layers/&lt;uuid&gt;/thumbnail</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-layer-thumbnail'}
+                            onClick={this.setRequest.bind(this, 'get-layer-thumbnail')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                    </Table.Row>
+                    <Table.Row>
                       <Table.Cell>Workspace Layers</Table.Cell>
                       <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/layers</code></Table.Cell>
                       <Table.Cell>
@@ -641,20 +663,6 @@ class IndexPage extends React.PureComponent {
                             onClick={this.setRequest.bind(this, 'delete-workspace-layer')}
                         >DELETE</Button>
                       </Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell>Workspace Layer Thumbnail</Table.Cell>
-                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/layers/&lt;layername&gt;/thumbnail</code></Table.Cell>
-                      <Table.Cell>
-                        <Button
-                            toggle
-                            active={this.state.request === 'get-workspace-layer-thumbnail'}
-                            onClick={this.setRequest.bind(this, 'get-workspace-layer-thumbnail')}
-                        >GET</Button>
-                      </Table.Cell>
-                      <Table.Cell>x</Table.Cell>
-                      <Table.Cell>x</Table.Cell>
-                      <Table.Cell>x</Table.Cell>
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Workspace Layer Style</Table.Cell>
