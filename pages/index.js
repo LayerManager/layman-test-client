@@ -72,7 +72,7 @@ const endpointToUrlPartGetter = {
   'maps': () => `/maps`,
   'workspace-maps': ({workspace}) => `/workspaces/${workspace}/maps`,
   'workspace-map': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}`,
-  'workspace-map-file': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/file`,
+  'map-file': ({uuid}) => `/maps/${uuid}/file`,
   'map-thumbnail': ({uuid}) => `/maps/${uuid}/thumbnail`,
   'workspace-map-metadata-comparison': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/metadata-comparison`,
   'users': () => `/users`,
@@ -93,7 +93,7 @@ const endpointToPathParams = {
   'maps': [],
   'workspace-maps': ['workspace'],
   'workspace-map': ['workspace', 'name'],
-  'workspace-map-file': ['workspace', 'name'],
+  'map-file': ['uuid'],
   'map-thumbnail': ['uuid'],
   'workspace-map-metadata-comparison': ['workspace', 'name'],
   'users': [],
@@ -111,7 +111,7 @@ const endpointToPathParamsClass = {
   'workspace-layer-metadata-comparison': WorkspaceLayerPathParams,
   'workspace-maps': WorkspacePathParams,
   'workspace-map': WorkspaceMapPathParams,
-  'workspace-map-file': WorkspaceMapPathParams,
+  'map-file': UuidParams,
   'map-thumbnail': UuidParams,
   'workspace-map-metadata-comparison': WorkspaceMapPathParams,
 }
@@ -143,7 +143,7 @@ const getEndpointDefaultParamsState = (endpoint, state) => {
     'workspace-layer-metadata-comparison': ({layername}) => ({layername}),
     'workspace-maps': () => ({mapname: ''}),
     'workspace-map': ({mapname}) => ({mapname}),
-    'workspace-map-file': ({mapname}) => ({mapname}),
+    'map-file': ({uuid}) => ({uuid}),
     'map-thumbnail': ({uuid}) => ({uuid}),
     'workspace-map-metadata-comparison': ({mapname}) => ({mapname}),
   }
@@ -193,7 +193,7 @@ const getEndpointParamsProps = (endpoint, component) => {
     'maps': {},
     'workspace-maps': workspace_props,
     'workspace-map': map_props,
-    'workspace-map-file': map_props,
+    'map-file': map_uuid_props,
     'map-thumbnail': map_uuid_props,
     'workspace-map-metadata-comparison': map_props,
     'users': {},
@@ -744,6 +744,20 @@ class IndexPage extends React.PureComponent {
                       <Table.Cell>x</Table.Cell>
                     </Table.Row>
                     <Table.Row>
+                      <Table.Cell>Map File</Table.Cell>
+                      <Table.Cell><code>/rest/maps/&lt;uuid&gt;/file</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-map-file'}
+                            onClick={this.setRequest.bind(this, 'get-map-file')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                    </Table.Row>
+                    <Table.Row>
                       <Table.Cell>Workspace Maps</Table.Cell>
                       <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/maps</code></Table.Cell>
                       <Table.Cell>
@@ -794,20 +808,6 @@ class IndexPage extends React.PureComponent {
                             onClick={this.setRequest.bind(this, 'delete-workspace-map')}
                         >DELETE</Button>
                       </Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell>Workspace Map File</Table.Cell>
-                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/maps/&lt;mapname&gt;/file</code></Table.Cell>
-                      <Table.Cell>
-                        <Button
-                            toggle
-                            active={this.state.request === 'get-workspace-map-file'}
-                            onClick={this.setRequest.bind(this, 'get-workspace-map-file')}
-                        >GET</Button>
-                      </Table.Cell>
-                      <Table.Cell>x</Table.Cell>
-                      <Table.Cell>x</Table.Cell>
-                      <Table.Cell>x</Table.Cell>
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Workspace Map Metadata Comparison</Table.Cell>
