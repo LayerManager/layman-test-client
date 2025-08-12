@@ -67,7 +67,7 @@ const endpointToUrlPartGetter = {
   'workspace-layers': ({workspace}) => `/workspaces/${workspace}/layers`,
   'workspace-layer': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}`,
   'layer-thumbnail': ({uuid}) => `/layers/${uuid}/thumbnail`,
-  'workspace-layer-style': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/style`,
+  'layer-style': ({uuid}) => `/layers/${uuid}/style`,
   'workspace-layer-metadata-comparison': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/metadata-comparison`,
   'maps': () => `/maps`,
   'workspace-maps': ({workspace}) => `/workspaces/${workspace}/maps`,
@@ -88,7 +88,7 @@ const endpointToPathParams = {
   'workspace-layers': ['workspace'],
   'workspace-layer': ['workspace', 'name'],
   'layer-thumbnail': ['uuid'],
-  'workspace-layer-style': ['workspace', 'name'],
+  'layer-style': ['uuid'],
   'workspace-layer-metadata-comparison': ['workspace', 'name'],
   'maps': [],
   'workspace-maps': ['workspace'],
@@ -107,7 +107,7 @@ const endpointToPathParamsClass = {
   'workspace-layers': WorkspacePathParams,
   'workspace-layer': WorkspaceLayerPathParams,
   'layer-thumbnail': UuidParams,
-  'workspace-layer-style': WorkspaceLayerPathParams,
+  'layer-style': UuidParams,
   'workspace-layer-metadata-comparison': WorkspaceLayerPathParams,
   'workspace-maps': WorkspacePathParams,
   'workspace-map': WorkspaceMapPathParams,
@@ -139,7 +139,7 @@ const getEndpointDefaultParamsState = (endpoint, state) => {
     'workspace-layers': () => ({layername: ''}),
     'workspace-layer': ({layername}) => ({layername}),
     'layer-thumbnail': ({uuid}) => ({uuid}),
-    'workspace-layer-style': ({layername}) => ({layername}),
+    'layer-style': ({uuid}) => ({uuid}),
     'workspace-layer-metadata-comparison': ({layername}) => ({layername}),
     'workspace-maps': () => ({mapname: ''}),
     'workspace-map': ({mapname}) => ({mapname}),
@@ -188,7 +188,7 @@ const getEndpointParamsProps = (endpoint, component) => {
     'workspace-layers': workspace_props,
     'workspace-layer': layer_props,
     'layer-thumbnail': layer_uuid_props,
-    'workspace-layer-style': layer_props,
+    'layer-style': layer_uuid_props,
     'workspace-layer-metadata-comparison': layer_props,
     'maps': {},
     'workspace-maps': workspace_props,
@@ -613,6 +613,20 @@ class IndexPage extends React.PureComponent {
                       <Table.Cell>x</Table.Cell>
                     </Table.Row>
                     <Table.Row>
+                      <Table.Cell>Layer Style</Table.Cell>
+                      <Table.Cell><code>/rest/layers/&lt;uuid&gt;/style</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-layer-style'}
+                            onClick={this.setRequest.bind(this, 'get-layer-style')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                    </Table.Row>
+                    <Table.Row>
                       <Table.Cell>Workspace Layers</Table.Cell>
                       <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/layers</code></Table.Cell>
                       <Table.Cell>
@@ -663,20 +677,6 @@ class IndexPage extends React.PureComponent {
                             onClick={this.setRequest.bind(this, 'delete-workspace-layer')}
                         >DELETE</Button>
                       </Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell>Workspace Layer Style</Table.Cell>
-                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/layers/&lt;layername&gt;/style</code></Table.Cell>
-                      <Table.Cell>
-                        <Button
-                            toggle
-                            active={this.state.request === 'get-workspace-layer-style'}
-                            onClick={this.setRequest.bind(this, 'get-workspace-layer-style')}
-                        >GET</Button>
-                      </Table.Cell>
-                      <Table.Cell>x</Table.Cell>
-                      <Table.Cell>x</Table.Cell>
-                      <Table.Cell>x</Table.Cell>
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Workspace Layer Metadata Comparison</Table.Cell>
