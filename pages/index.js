@@ -7,7 +7,7 @@ import scrollIntoView from 'scroll-into-view';
 import PatchWorkspaceLayerParams from "../components/PatchWorkspaceLayerParams";
 import Resumable from "resumablejs";
 import PostWorkspaceMapsParams from "../components/PostWorkspaceMapsParams";
-import PatchWorkspaceMapParams from "../components/PatchWorkspaceMapParams";
+import PatchMapParams from "../components/PatchMapParams";
 import WorkspacePathParams from "../components/WorkspacePathParams";
 import WorkspaceLayerPathParams from "../components/WorkspaceLayerPathParams";
 import WorkspaceMapPathParams from "../components/WorkspaceMapPathParams";
@@ -51,7 +51,7 @@ const requestToParamsClass = {
   'get-maps': GetPublicationsParams,
   'get-workspace-maps': GetPublicationsParams,
   'post-workspace-maps': PostWorkspaceMapsParams,
-  'patch-workspace-map': PatchWorkspaceMapParams,
+  'patch-map': PatchMapParams,
   'patch-current-user': PatchCurrentuserParams,
   'delete-user': DeleteUserParams,
 }
@@ -71,7 +71,7 @@ const endpointToUrlPartGetter = {
   'workspace-layer-metadata-comparison': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/metadata-comparison`,
   'maps': () => `/maps`,
   'workspace-maps': ({workspace}) => `/workspaces/${workspace}/maps`,
-  'workspace-map': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}`,
+  'map': ({uuid}) => `/maps/${uuid}`,
   'map-file': ({uuid}) => `/maps/${uuid}/file`,
   'map-thumbnail': ({uuid}) => `/maps/${uuid}/thumbnail`,
   'workspace-map-metadata-comparison': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/metadata-comparison`,
@@ -92,7 +92,7 @@ const endpointToPathParams = {
   'workspace-layer-metadata-comparison': ['workspace', 'name'],
   'maps': [],
   'workspace-maps': ['workspace'],
-  'workspace-map': ['workspace', 'name'],
+  'map': ['uuid'],
   'map-file': ['uuid'],
   'map-thumbnail': ['uuid'],
   'workspace-map-metadata-comparison': ['workspace', 'name'],
@@ -110,7 +110,7 @@ const endpointToPathParamsClass = {
   'layer-style': UuidParams,
   'workspace-layer-metadata-comparison': WorkspaceLayerPathParams,
   'workspace-maps': WorkspacePathParams,
-  'workspace-map': WorkspaceMapPathParams,
+  'map': UuidParams,
   'map-file': UuidParams,
   'map-thumbnail': UuidParams,
   'workspace-map-metadata-comparison': WorkspaceMapPathParams,
@@ -142,7 +142,7 @@ const getEndpointDefaultParamsState = (endpoint, state) => {
     'layer-style': ({uuid}) => ({uuid}),
     'workspace-layer-metadata-comparison': ({layername}) => ({layername}),
     'workspace-maps': () => ({mapname: ''}),
-    'workspace-map': ({mapname}) => ({mapname}),
+    'map': ({uuid}) => ({uuid}),
     'map-file': ({uuid}) => ({uuid}),
     'map-thumbnail': ({uuid}) => ({uuid}),
     'workspace-map-metadata-comparison': ({mapname}) => ({mapname}),
@@ -192,7 +192,7 @@ const getEndpointParamsProps = (endpoint, component) => {
     'workspace-layer-metadata-comparison': layer_props,
     'maps': {},
     'workspace-maps': workspace_props,
-    'workspace-map': map_props,
+    'map': map_uuid_props,
     'map-file': map_uuid_props,
     'map-thumbnail': map_uuid_props,
     'workspace-map-metadata-comparison': map_props,
@@ -730,6 +730,32 @@ class IndexPage extends React.PureComponent {
                       <Table.Cell>x</Table.Cell>
                     </Table.Row>
                     <Table.Row>
+                      <Table.Cell>Map</Table.Cell>
+                      <Table.Cell><code>/rest/maps/&lt;uuid&gt;</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-map'}
+                            onClick={this.setRequest.bind(this, 'get-map')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'patch-map'}
+                            onClick={this.setRequest.bind(this, 'patch-map')}
+                        >PATCH</Button>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'delete-map'}
+                            onClick={this.setRequest.bind(this, 'delete-map')}
+                        >DELETE</Button>
+                      </Table.Cell>
+                    </Table.Row>
+                    <Table.Row>
                       <Table.Cell>Map Thumbnail</Table.Cell>
                       <Table.Cell><code>/rest/maps/&lt;uuid&gt;/thumbnail</code></Table.Cell>
                       <Table.Cell>
@@ -780,32 +806,6 @@ class IndexPage extends React.PureComponent {
                             toggle
                             active={this.state.request === 'delete-workspace-maps'}
                             onClick={this.setRequest.bind(this, 'delete-workspace-maps')}
-                        >DELETE</Button>
-                      </Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell>Workspace Map</Table.Cell>
-                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/maps/&lt;mapname&gt;</code></Table.Cell>
-                      <Table.Cell>
-                        <Button
-                            toggle
-                            active={this.state.request === 'get-workspace-map'}
-                            onClick={this.setRequest.bind(this, 'get-workspace-map')}
-                        >GET</Button>
-                      </Table.Cell>
-                      <Table.Cell>x</Table.Cell>
-                      <Table.Cell>
-                        <Button
-                            toggle
-                            active={this.state.request === 'patch-workspace-map'}
-                            onClick={this.setRequest.bind(this, 'patch-workspace-map')}
-                        >PATCH</Button>
-                      </Table.Cell>
-                      <Table.Cell>
-                        <Button
-                            toggle
-                            active={this.state.request === 'delete-workspace-map'}
-                            onClick={this.setRequest.bind(this, 'delete-workspace-map')}
                         >DELETE</Button>
                       </Table.Cell>
                     </Table.Row>
