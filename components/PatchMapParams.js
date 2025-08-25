@@ -2,7 +2,7 @@ import React from 'react'
 import {Form} from 'semantic-ui-react'
 import PublicationAccessRightsParams from "./PublicationAccessRightsParams";
 
-class PatchWorkspaceMapParams extends React.PureComponent {
+class PatchMapParams extends React.PureComponent {
 
   render() {
     return (
@@ -26,5 +26,4 @@ class PatchWorkspaceMapParams extends React.PureComponent {
   }
 }
 
-export default PatchWorkspaceMapParams;
-
+export default PatchMapParams;
