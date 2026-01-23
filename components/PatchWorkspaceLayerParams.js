@@ -1,5 +1,5 @@
 import React from 'react'
-import {Form} from 'semantic-ui-react'
+import {Form, Checkbox} from 'semantic-ui-react'
 import PublicationAccessRightsParams from "./PublicationAccessRightsParams";
 import FormDropdown from "./FormDropdown";
 
@@ -11,6 +11,13 @@ class PatchWorkspaceLayerParams extends React.PureComponent {
           <Form.Field inline>
             <label>Data file</label>
             <input name="file" type="file" multiple/>
+          </Form.Field>
+          <Form.Field inline>
+            <label>Append (for timeseries layers)</label>
+            <Checkbox
+                value="true"
+                name="append"
+            />
           </Form.Field>
           <Form.Input
               inline
