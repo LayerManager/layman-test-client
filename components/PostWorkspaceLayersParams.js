@@ -19,6 +19,11 @@ class PostWorkspaceLayersParams extends React.PureComponent {
           </Form.Field>
           <Form.Input
               inline
+              name="file_path"
+              label='File path'
+              placeholder='File path (relative path to directory or raster on server)'/>
+          <Form.Input
+              inline
               name="external_table_uri"
               label='External table connection URI'
               placeholder='External table connection URI'/>
