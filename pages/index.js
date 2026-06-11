@@ -4,7 +4,7 @@ import {Button, Container, Form, Header, Icon, Message, Progress, Segment, Tab, 
 import fetch from 'unfetch';
 import PostWorkspaceLayersParams from "../components/PostWorkspaceLayersParams";
 import scrollIntoView from 'scroll-into-view';
-import PatchWorkspaceLayerParams from "../components/PatchWorkspaceLayerParams";
+import PatchLayerParams from "../components/PatchLayerParams";
 import Resumable from "resumablejs";
 import PostWorkspaceMapsParams from "../components/PostWorkspaceMapsParams";
 import PatchMapParams from "../components/PatchMapParams";
@@ -47,7 +47,7 @@ const requestToParamsClass = {
   'get-layers': GetPublicationsParams,
   'get-workspace-layers': GetPublicationsParams,
   'post-workspace-layers': PostWorkspaceLayersParams,
-  'patch-workspace-layer': PatchWorkspaceLayerParams,
+  'patch-layer': PatchLayerParams,
   'get-maps': GetPublicationsParams,
   'get-workspace-maps': GetPublicationsParams,
   'post-workspace-maps': PostWorkspaceMapsParams,
@@ -58,14 +58,14 @@ const requestToParamsClass = {
 
 const requestToResumableParams = {
   'post-workspace-layers': ['file'],
-  'patch-workspace-layer': ['file'],
+  'patch-layer': ['file'],
 }
 
 const endpointToUrlPartGetter = {
   'publications': () => `/publications`,
   'layers': () => `/layers`,
   'workspace-layers': ({workspace}) => `/workspaces/${workspace}/layers`,
-  'workspace-layer': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}`,
+  'layer': ({uuid}) => `/layers/${uuid}`,
   'layer-thumbnail': ({uuid}) => `/layers/${uuid}/thumbnail`,
   'layer-style': ({uuid}) => `/layers/${uuid}/style`,
   'workspace-layer-metadata-comparison': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/metadata-comparison`,
@@ -86,7 +86,7 @@ const endpointToPathParams = {
   'publications': [],
   'layers': [],
   'workspace-layers': ['workspace'],
-  'workspace-layer': ['workspace', 'name'],
+  'layer': ['uuid'],
   'layer-thumbnail': ['uuid'],
   'layer-style': ['uuid'],
   'workspace-layer-metadata-comparison': ['workspace', 'name'],
@@ -105,7 +105,7 @@ const endpointToPathParams = {
 
 const endpointToPathParamsClass = {
   'workspace-layers': WorkspacePathParams,
-  'workspace-layer': WorkspaceLayerPathParams,
+  'layer': UuidParams,
   'layer-thumbnail': UuidParams,
   'layer-style': UuidParams,
   'workspace-layer-metadata-comparison': WorkspaceLayerPathParams,
@@ -137,7 +137,7 @@ const queryParamValueToString = (request, param_name, param_value) => {
 const getEndpointDefaultParamsState = (endpoint, state) => {
   const getters = {
     'workspace-layers': () => ({layername: ''}),
-    'workspace-layer': ({layername}) => ({layername}),
+    'layer': ({uuid}) => ({uuid}),
     'layer-thumbnail': ({uuid}) => ({uuid}),
     'layer-style': ({uuid}) => ({uuid}),
     'workspace-layer-metadata-comparison': ({layername}) => ({layername}),
@@ -186,7 +186,7 @@ const getEndpointParamsProps = (endpoint, component) => {
     'publications': {},
     'layers': {},
     'workspace-layers': workspace_props,
-    'workspace-layer': layer_props,
+    'layer': layer_uuid_props,
     'layer-thumbnail': layer_uuid_props,
     'layer-style': layer_uuid_props,
     'workspace-layer-metadata-comparison': layer_props,
@@ -208,7 +208,7 @@ const getEndpointParamsProps = (endpoint, component) => {
 const requestResponseToLayername = (request, responseJson) => {
   const getters = {
     'post-workspace-layers': responseJson => responseJson[0]['name'],
-    'patch-workspace-layer': responseJson => responseJson['name'],
+    'patch-layer': responseJson => responseJson['name'],
   }
   const getter = getters[request];
   return getter ? getter(responseJson) : '';
@@ -217,7 +217,7 @@ const requestResponseToLayername = (request, responseJson) => {
 const requestResponseToFilesToUpload = (request, responseJson) => {
   const getters = {
     'post-workspace-layers': responseJson => responseJson[0]['files_to_upload'],
-    'patch-workspace-layer': responseJson => responseJson['files_to_upload'],
+    'patch-layer': responseJson => responseJson['files_to_upload'],
   }
   const getter = getters[request];
   return getter ? getter(responseJson) : '';
@@ -599,6 +599,32 @@ class IndexPage extends React.PureComponent {
                       <Table.Cell>x</Table.Cell>
                     </Table.Row>
                     <Table.Row>
+                      <Table.Cell>Layer</Table.Cell>
+                      <Table.Cell><code>/rest/layers/&lt;uuid&gt;</code></Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'get-layer'}
+                            onClick={this.setRequest.bind(this, 'get-layer')}
+                        >GET</Button>
+                      </Table.Cell>
+                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'patch-layer'}
+                            onClick={this.setRequest.bind(this, 'patch-layer')}
+                        >PATCH</Button>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'delete-layer'}
+                            onClick={this.setRequest.bind(this, 'delete-layer')}
+                        >DELETE</Button>
+                      </Table.Cell>
+                    </Table.Row>
+                    <Table.Row>
                       <Table.Cell>Layer Thumbnail</Table.Cell>
                       <Table.Cell><code>/rest/layers/&lt;uuid&gt;/thumbnail</code></Table.Cell>
                       <Table.Cell>
@@ -649,32 +675,6 @@ class IndexPage extends React.PureComponent {
                             toggle
                             active={this.state.request === 'delete-workspace-layers'}
                             onClick={this.setRequest.bind(this, 'delete-workspace-layers')}
-                        >DELETE</Button>
-                      </Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell>Workspace Layer</Table.Cell>
-                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/layers/&lt;layername&gt;</code></Table.Cell>
-                      <Table.Cell>
-                        <Button
-                            toggle
-                            active={this.state.request === 'get-workspace-layer'}
-                            onClick={this.setRequest.bind(this, 'get-workspace-layer')}
-                        >GET</Button>
-                      </Table.Cell>
-                      <Table.Cell>x</Table.Cell>
-                      <Table.Cell>
-                        <Button
-                            toggle
-                            active={this.state.request === 'patch-workspace-layer'}
-                            onClick={this.setRequest.bind(this, 'patch-workspace-layer')}
-                        >PATCH</Button>
-                      </Table.Cell>
-                      <Table.Cell>
-                        <Button
-                            toggle
-                            active={this.state.request === 'delete-workspace-layer'}
-                            onClick={this.setRequest.bind(this, 'delete-workspace-layer')}
                         >DELETE</Button>
                       </Table.Cell>
                     </Table.Row>
