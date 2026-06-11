@@ -3,7 +3,7 @@ import {Form} from 'semantic-ui-react'
 import PublicationAccessRightsParams from "./PublicationAccessRightsParams";
 import FormDropdown from "./FormDropdown";
 
-class PatchWorkspaceLayerParams extends React.PureComponent {
+class PatchLayerParams extends React.PureComponent {
 
   render() {
     return (
@@ -68,5 +68,5 @@ class PatchWorkspaceLayerParams extends React.PureComponent {
   }
 }
 
-export default PatchWorkspaceLayerParams;
+export default PatchLayerParams;
 
