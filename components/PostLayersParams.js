@@ -3,7 +3,7 @@ import {Form} from 'semantic-ui-react'
 import PublicationAccessRightsParams from "./PublicationAccessRightsParams";
 import FormDropdown from "./FormDropdown";
 
-class PostWorkspaceLayersParams extends React.PureComponent {
+class PostLayersParams extends React.PureComponent {
 
   render() {
     return (
@@ -80,5 +80,5 @@ class PostWorkspaceLayersParams extends React.PureComponent {
   }
 }
 
-export default PostWorkspaceLayersParams;
+export default PostLayersParams;
 

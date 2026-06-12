@@ -2,7 +2,7 @@ import React from 'react'
 import HeaderMenu from './../components/HeaderMenu'
 import {Button, Container, Form, Header, Icon, Message, Progress, Segment, Tab, Table} from 'semantic-ui-react'
 import fetch from 'unfetch';
-import PostWorkspaceLayersParams from "../components/PostWorkspaceLayersParams";
+import PostLayersParams from "../components/PostLayersParams";
 import scrollIntoView from 'scroll-into-view';
 import PatchLayerParams from "../components/PatchLayerParams";
 import Resumable from "resumablejs";
@@ -45,8 +45,7 @@ const publicationTypeToDefaultRequest = {
 const requestToParamsClass = {
   'get-publications': GetPublicationsParams,
   'get-layers': GetPublicationsParams,
-  'get-workspace-layers': GetPublicationsParams,
-  'post-workspace-layers': PostWorkspaceLayersParams,
+  'post-layers': PostLayersParams,
   'patch-layer': PatchLayerParams,
   'get-maps': GetPublicationsParams,
   'get-workspace-maps': GetPublicationsParams,
@@ -57,14 +56,13 @@ const requestToParamsClass = {
 }
 
 const requestToResumableParams = {
-  'post-workspace-layers': ['file'],
+  'post-layers': ['file'],
   'patch-layer': ['file'],
 }
 
 const endpointToUrlPartGetter = {
   'publications': () => `/publications`,
   'layers': () => `/layers`,
-  'workspace-layers': ({workspace}) => `/workspaces/${workspace}/layers`,
   'layer': ({uuid}) => `/layers/${uuid}`,
   'layer-thumbnail': ({uuid}) => `/layers/${uuid}/thumbnail`,
   'layer-style': ({uuid}) => `/layers/${uuid}/style`,
@@ -85,7 +83,6 @@ const endpointToUrlPartGetter = {
 const endpointToPathParams = {
   'publications': [],
   'layers': [],
-  'workspace-layers': ['workspace'],
   'layer': ['uuid'],
   'layer-thumbnail': ['uuid'],
   'layer-style': ['uuid'],
@@ -104,7 +101,7 @@ const endpointToPathParams = {
 }
 
 const endpointToPathParamsClass = {
-  'workspace-layers': WorkspacePathParams,
+  'layers': WorkspacePathParams,
   'layer': UuidParams,
   'layer-thumbnail': UuidParams,
   'layer-style': UuidParams,
@@ -119,7 +116,6 @@ const endpointToPathParamsClass = {
 const requestToQueryParams = {
   'get-publications': ['full_text_filter', 'bbox_filter', 'bbox_filter_crs', 'order_by', 'ordering_bbox', 'ordering_bbox_crs', 'limit', 'offset', ],
   'get-layers': ['full_text_filter', 'bbox_filter', 'bbox_filter_crs', 'order_by', 'ordering_bbox', 'ordering_bbox_crs', 'limit', 'offset', ],
-  'get-workspace-layers': ['full_text_filter', 'bbox_filter', 'bbox_filter_crs', 'order_by', 'ordering_bbox', 'ordering_bbox_crs', 'limit', 'offset', ],
   'get-maps': ['full_text_filter', 'bbox_filter', 'bbox_filter_crs', 'order_by', 'ordering_bbox', 'ordering_bbox_crs', 'limit', 'offset', ],
   'get-workspace-maps': ['full_text_filter', 'bbox_filter', 'bbox_filter_crs', 'order_by', 'ordering_bbox', 'ordering_bbox_crs', 'limit', 'offset', ],
   'patch-current-user': ['adjust_username'],
@@ -136,7 +132,6 @@ const queryParamValueToString = (request, param_name, param_value) => {
 
 const getEndpointDefaultParamsState = (endpoint, state) => {
   const getters = {
-    'workspace-layers': () => ({layername: ''}),
     'layer': ({uuid}) => ({uuid}),
     'layer-thumbnail': ({uuid}) => ({uuid}),
     'layer-style': ({uuid}) => ({uuid}),
@@ -184,8 +179,10 @@ const getEndpointParamsProps = (endpoint, component) => {
   };
   const props = {
     'publications': {},
-    'layers': {},
-    'workspace-layers': workspace_props,
+    'layers': {
+      ...workspace_props,
+      mandatory: component.state.request !== 'get-layers',
+    },
     'layer': layer_uuid_props,
     'layer-thumbnail': layer_uuid_props,
     'layer-style': layer_uuid_props,
@@ -207,7 +204,7 @@ const getEndpointParamsProps = (endpoint, component) => {
 
 const requestResponseToLayername = (request, responseJson) => {
   const getters = {
-    'post-workspace-layers': responseJson => responseJson[0]['name'],
+    'post-layers': responseJson => responseJson[0]['name'],
     'patch-layer': responseJson => responseJson['name'],
   }
   const getter = getters[request];
@@ -216,7 +213,7 @@ const requestResponseToLayername = (request, responseJson) => {
 
 const requestResponseToFilesToUpload = (request, responseJson) => {
   const getters = {
-    'post-workspace-layers': responseJson => responseJson[0]['files_to_upload'],
+    'post-layers': responseJson => responseJson[0]['files_to_upload'],
     'patch-layer': responseJson => responseJson['files_to_upload'],
   }
   const getter = getters[request];
@@ -297,12 +294,22 @@ class IndexPage extends React.PureComponent {
       return obj;
     }, {});
 
+    if (this.state.request === 'get-layers' && this.state.workspace) {
+      queryParams.workspace = this.state.workspace;
+    }
+    if (this.state.request === 'delete-layers') {
+      queryParams.workspace = this.state.workspace;
+    }
+
     if(method !== 'get') {
       const endpoint = requestToEndpoint(this.state.request);
       const pathParams = (endpointToPathParams[endpoint] || []).concat();
       pathParams.forEach(pathParam => {
         formData.delete(pathParam);
       });
+      if (this.state.request === 'post-layers') {
+        formData.append('workspace', this.state.workspace);
+      }
       console.log('RESUMABLE_ENABLED', RESUMABLE_ENABLED);
       if(RESUMABLE_ENABLED) {
         const resumableParams = (requestToResumableParams[this.state.request] || [])
@@ -594,9 +601,21 @@ class IndexPage extends React.PureComponent {
                             onClick={this.setRequest.bind(this, 'get-layers')}
                         >GET</Button>
                       </Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'post-layers'}
+                            onClick={this.setRequest.bind(this, 'post-layers')}
+                        >POST</Button>
+                      </Table.Cell>
                       <Table.Cell>x</Table.Cell>
-                      <Table.Cell>x</Table.Cell>
-                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'delete-layers'}
+                            onClick={this.setRequest.bind(this, 'delete-layers')}
+                        >DELETE</Button>
+                      </Table.Cell>
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Layer</Table.Cell>
@@ -651,32 +670,6 @@ class IndexPage extends React.PureComponent {
                       <Table.Cell>x</Table.Cell>
                       <Table.Cell>x</Table.Cell>
                       <Table.Cell>x</Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell>Workspace Layers</Table.Cell>
-                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/layers</code></Table.Cell>
-                      <Table.Cell>
-                        <Button
-                            toggle
-                            active={this.state.request === 'get-workspace-layers'}
-                            onClick={this.setRequest.bind(this, 'get-workspace-layers')}
-                        >GET</Button>
-                      </Table.Cell>
-                      <Table.Cell>
-                        <Button
-                            toggle
-                            active={this.state.request === 'post-workspace-layers'}
-                            onClick={this.setRequest.bind(this, 'post-workspace-layers')}
-                        >POST</Button>
-                      </Table.Cell>
-                      <Table.Cell>x</Table.Cell>
-                      <Table.Cell>
-                        <Button
-                            toggle
-                            active={this.state.request === 'delete-workspace-layers'}
-                            onClick={this.setRequest.bind(this, 'delete-workspace-layers')}
-                        >DELETE</Button>
-                      </Table.Cell>
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Workspace Layer Metadata Comparison</Table.Cell>
