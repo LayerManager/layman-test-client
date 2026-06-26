@@ -6,7 +6,7 @@ import PostLayersParams from "../components/PostLayersParams";
 import scrollIntoView from 'scroll-into-view';
 import PatchLayerParams from "../components/PatchLayerParams";
 import Resumable from "resumablejs";
-import PostWorkspaceMapsParams from "../components/PostWorkspaceMapsParams";
+import PostMapsParams from "../components/PostMapsParams";
 import PatchMapParams from "../components/PatchMapParams";
 import WorkspacePathParams from "../components/WorkspacePathParams";
 import WorkspaceLayerPathParams from "../components/WorkspaceLayerPathParams";
@@ -48,8 +48,7 @@ const requestToParamsClass = {
   'post-layers': PostLayersParams,
   'patch-layer': PatchLayerParams,
   'get-maps': GetPublicationsParams,
-  'get-workspace-maps': GetPublicationsParams,
-  'post-workspace-maps': PostWorkspaceMapsParams,
+  'post-maps': PostMapsParams,
   'patch-map': PatchMapParams,
   'patch-current-user': PatchCurrentuserParams,
   'delete-user': DeleteUserParams,
@@ -68,7 +67,6 @@ const endpointToUrlPartGetter = {
   'layer-style': ({uuid}) => `/layers/${uuid}/style`,
   'workspace-layer-metadata-comparison': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/metadata-comparison`,
   'maps': () => `/maps`,
-  'workspace-maps': ({workspace}) => `/workspaces/${workspace}/maps`,
   'map': ({uuid}) => `/maps/${uuid}`,
   'map-file': ({uuid}) => `/maps/${uuid}/file`,
   'map-thumbnail': ({uuid}) => `/maps/${uuid}/thumbnail`,
@@ -88,7 +86,6 @@ const endpointToPathParams = {
   'layer-style': ['uuid'],
   'workspace-layer-metadata-comparison': ['workspace', 'name'],
   'maps': [],
-  'workspace-maps': ['workspace'],
   'map': ['uuid'],
   'map-file': ['uuid'],
   'map-thumbnail': ['uuid'],
@@ -106,7 +103,7 @@ const endpointToPathParamsClass = {
   'layer-thumbnail': UuidParams,
   'layer-style': UuidParams,
   'workspace-layer-metadata-comparison': WorkspaceLayerPathParams,
-  'workspace-maps': WorkspacePathParams,
+  'maps': WorkspacePathParams,
   'map': UuidParams,
   'map-file': UuidParams,
   'map-thumbnail': UuidParams,
@@ -117,7 +114,6 @@ const requestToQueryParams = {
   'get-publications': ['full_text_filter', 'bbox_filter', 'bbox_filter_crs', 'order_by', 'ordering_bbox', 'ordering_bbox_crs', 'limit', 'offset', ],
   'get-layers': ['full_text_filter', 'bbox_filter', 'bbox_filter_crs', 'order_by', 'ordering_bbox', 'ordering_bbox_crs', 'limit', 'offset', ],
   'get-maps': ['full_text_filter', 'bbox_filter', 'bbox_filter_crs', 'order_by', 'ordering_bbox', 'ordering_bbox_crs', 'limit', 'offset', ],
-  'get-workspace-maps': ['full_text_filter', 'bbox_filter', 'bbox_filter_crs', 'order_by', 'ordering_bbox', 'ordering_bbox_crs', 'limit', 'offset', ],
   'patch-current-user': ['adjust_username'],
 }
 
@@ -136,7 +132,6 @@ const getEndpointDefaultParamsState = (endpoint, state) => {
     'layer-thumbnail': ({uuid}) => ({uuid}),
     'layer-style': ({uuid}) => ({uuid}),
     'workspace-layer-metadata-comparison': ({layername}) => ({layername}),
-    'workspace-maps': () => ({mapname: ''}),
     'map': ({uuid}) => ({uuid}),
     'map-file': ({uuid}) => ({uuid}),
     'map-thumbnail': ({uuid}) => ({uuid}),
@@ -187,8 +182,10 @@ const getEndpointParamsProps = (endpoint, component) => {
     'layer-thumbnail': layer_uuid_props,
     'layer-style': layer_uuid_props,
     'workspace-layer-metadata-comparison': layer_props,
-    'maps': {},
-    'workspace-maps': workspace_props,
+    'maps': {
+      ...workspace_props,
+      mandatory: component.state.request !== 'get-maps',
+    },
     'map': map_uuid_props,
     'map-file': map_uuid_props,
     'map-thumbnail': map_uuid_props,
@@ -300,6 +297,12 @@ class IndexPage extends React.PureComponent {
     if (this.state.request === 'delete-layers') {
       queryParams.workspace = this.state.workspace;
     }
+    if (this.state.request === 'get-maps' && this.state.workspace) {
+      queryParams.workspace = this.state.workspace;
+    }
+    if (this.state.request === 'delete-maps') {
+      queryParams.workspace = this.state.workspace;
+    }
 
     if(method !== 'get') {
       const endpoint = requestToEndpoint(this.state.request);
@@ -308,6 +311,9 @@ class IndexPage extends React.PureComponent {
         formData.delete(pathParam);
       });
       if (this.state.request === 'post-layers') {
+        formData.append('workspace', this.state.workspace);
+      }
+      if (this.state.request === 'post-maps') {
         formData.append('workspace', this.state.workspace);
       }
       console.log('RESUMABLE_ENABLED', RESUMABLE_ENABLED);
@@ -718,9 +724,21 @@ class IndexPage extends React.PureComponent {
                             onClick={this.setRequest.bind(this, 'get-maps')}
                         >GET</Button>
                       </Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'post-maps'}
+                            onClick={this.setRequest.bind(this, 'post-maps')}
+                        >POST</Button>
+                      </Table.Cell>
                       <Table.Cell>x</Table.Cell>
-                      <Table.Cell>x</Table.Cell>
-                      <Table.Cell>x</Table.Cell>
+                      <Table.Cell>
+                        <Button
+                            toggle
+                            active={this.state.request === 'delete-maps'}
+                            onClick={this.setRequest.bind(this, 'delete-maps')}
+                        >DELETE</Button>
+                      </Table.Cell>
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Map</Table.Cell>
@@ -775,32 +793,6 @@ class IndexPage extends React.PureComponent {
                       <Table.Cell>x</Table.Cell>
                       <Table.Cell>x</Table.Cell>
                       <Table.Cell>x</Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell>Workspace Maps</Table.Cell>
-                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/maps</code></Table.Cell>
-                      <Table.Cell>
-                        <Button
-                            toggle
-                            active={this.state.request === 'get-workspace-maps'}
-                            onClick={this.setRequest.bind(this, 'get-workspace-maps')}
-                        >GET</Button>
-                      </Table.Cell>
-                      <Table.Cell>
-                        <Button
-                            toggle
-                            active={this.state.request === 'post-workspace-maps'}
-                            onClick={this.setRequest.bind(this, 'post-workspace-maps')}
-                        >POST</Button>
-                      </Table.Cell>
-                      <Table.Cell>x</Table.Cell>
-                      <Table.Cell>
-                        <Button
-                            toggle
-                            active={this.state.request === 'delete-workspace-maps'}
-                            onClick={this.setRequest.bind(this, 'delete-workspace-maps')}
-                        >DELETE</Button>
-                      </Table.Cell>
                     </Table.Row>
                     <Table.Row>
                       <Table.Cell>Workspace Map Metadata Comparison</Table.Cell>
