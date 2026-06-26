@@ -202,10 +202,10 @@ const getEndpointParamsProps = (endpoint, component) => {
   return props[endpoint];
 }
 
-const requestResponseToLayername = (request, responseJson) => {
+const requestResponseToLayerUuid = (request, responseJson) => {
   const getters = {
-    'post-layers': responseJson => responseJson[0]['name'],
-    'patch-layer': responseJson => responseJson['name'],
+    'post-layers': responseJson => responseJson[0]['uuid'],
+    'patch-layer': responseJson => responseJson['uuid'],
   }
   const getter = getters[request];
   return getter ? getter(responseJson) : '';
@@ -382,11 +382,11 @@ class IndexPage extends React.PureComponent {
 
     }).then( () => {
       if(response.resumable && response.json) {
-        const layername = requestResponseToLayername(this.state.request,
+        const layerUuid = requestResponseToLayerUuid(this.state.request,
             response.json);
         // console.log('create resumable');
         const resumable = new Resumable({
-          target: `${ASSET_PREFIX}/rest/workspaces/${this.state.workspace}/layers/${layername}/chunk`,
+          target: `${ASSET_PREFIX}/rest/layers/${layerUuid}/chunk`,
           query: resumable_file => ({
             'layman_original_parameter': files_to_upload.find(
                 fo => fo.file === resumable_file.file
