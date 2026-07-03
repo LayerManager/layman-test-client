@@ -9,7 +9,6 @@ import Resumable from "resumablejs";
 import PostMapsParams from "../components/PostMapsParams";
 import PatchMapParams from "../components/PatchMapParams";
 import WorkspacePathParams from "../components/WorkspacePathParams";
-import WorkspaceLayerPathParams from "../components/WorkspaceLayerPathParams";
 import WorkspaceMapPathParams from "../components/WorkspaceMapPathParams";
 import UuidParams from "../components/UuidParams";
 import PatchCurrentuserParams from "../components/PatchCurrentuserParams";
@@ -65,7 +64,7 @@ const endpointToUrlPartGetter = {
   'layer': ({uuid}) => `/layers/${uuid}`,
   'layer-thumbnail': ({uuid}) => `/layers/${uuid}/thumbnail`,
   'layer-style': ({uuid}) => `/layers/${uuid}/style`,
-  'workspace-layer-metadata-comparison': ({workspace, layername}) => `/workspaces/${workspace}/layers/${layername}/metadata-comparison`,
+  'layer-metadata-comparison': ({uuid}) => `/layers/${uuid}/metadata-comparison`,
   'maps': () => `/maps`,
   'map': ({uuid}) => `/maps/${uuid}`,
   'map-file': ({uuid}) => `/maps/${uuid}/file`,
@@ -84,7 +83,7 @@ const endpointToPathParams = {
   'layer': ['uuid'],
   'layer-thumbnail': ['uuid'],
   'layer-style': ['uuid'],
-  'workspace-layer-metadata-comparison': ['workspace', 'name'],
+  'layer-metadata-comparison': ['uuid'],
   'maps': [],
   'map': ['uuid'],
   'map-file': ['uuid'],
@@ -102,7 +101,7 @@ const endpointToPathParamsClass = {
   'layer': UuidParams,
   'layer-thumbnail': UuidParams,
   'layer-style': UuidParams,
-  'workspace-layer-metadata-comparison': WorkspaceLayerPathParams,
+  'layer-metadata-comparison': UuidParams,
   'maps': WorkspacePathParams,
   'map': UuidParams,
   'map-file': UuidParams,
@@ -131,7 +130,7 @@ const getEndpointDefaultParamsState = (endpoint, state) => {
     'layer': ({uuid}) => ({uuid}),
     'layer-thumbnail': ({uuid}) => ({uuid}),
     'layer-style': ({uuid}) => ({uuid}),
-    'workspace-layer-metadata-comparison': ({layername}) => ({layername}),
+    'layer-metadata-comparison': ({uuid}) => ({uuid}),
     'map': ({uuid}) => ({uuid}),
     'map-file': ({uuid}) => ({uuid}),
     'map-thumbnail': ({uuid}) => ({uuid}),
@@ -145,11 +144,6 @@ const getEndpointParamsProps = (endpoint, component) => {
   const workspace_props = {
     workspace: component.state.workspace,
     handleWorkspaceChange: component.handleWorkspaceChange.bind(component),
-  };
-  const layer_props = {
-    ...workspace_props,
-    layername: component.state.layername,
-    handleLayernameChange: component.handleLayernameChange.bind(component),
   };
   const map_props = {
     ...workspace_props,
@@ -181,7 +175,7 @@ const getEndpointParamsProps = (endpoint, component) => {
     'layer': layer_uuid_props,
     'layer-thumbnail': layer_uuid_props,
     'layer-style': layer_uuid_props,
-    'workspace-layer-metadata-comparison': layer_props,
+    'layer-metadata-comparison': layer_uuid_props,
     'maps': {
       ...workspace_props,
       mandatory: component.state.request !== 'get-maps',
@@ -678,13 +672,13 @@ class IndexPage extends React.PureComponent {
                       <Table.Cell>x</Table.Cell>
                     </Table.Row>
                     <Table.Row>
-                      <Table.Cell>Workspace Layer Metadata Comparison</Table.Cell>
-                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/layers/&lt;layername&gt;/metadata-comparison</code></Table.Cell>
+                      <Table.Cell>Layer Metadata Comparison</Table.Cell>
+                      <Table.Cell><code>/rest/layers/&lt;uuid&gt;/metadata-comparison</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'get-workspace-layer-metadata-comparison'}
-                            onClick={this.setRequest.bind(this, 'get-workspace-layer-metadata-comparison')}
+                            active={this.state.request === 'get-layer-metadata-comparison'}
+                            onClick={this.setRequest.bind(this, 'get-layer-metadata-comparison')}
                         >GET</Button>
                       </Table.Cell>
                       <Table.Cell>x</Table.Cell>
