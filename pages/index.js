@@ -9,7 +9,6 @@ import Resumable from "resumablejs";
 import PostMapsParams from "../components/PostMapsParams";
 import PatchMapParams from "../components/PatchMapParams";
 import WorkspacePathParams from "../components/WorkspacePathParams";
-import WorkspaceMapPathParams from "../components/WorkspaceMapPathParams";
 import UuidParams from "../components/UuidParams";
 import PatchCurrentuserParams from "../components/PatchCurrentuserParams";
 import GetPublicationsParams from "../components/GetPublicationsParams";
@@ -69,7 +68,7 @@ const endpointToUrlPartGetter = {
   'map': ({uuid}) => `/maps/${uuid}`,
   'map-file': ({uuid}) => `/maps/${uuid}/file`,
   'map-thumbnail': ({uuid}) => `/maps/${uuid}/thumbnail`,
-  'workspace-map-metadata-comparison': ({workspace, mapname}) => `/workspaces/${workspace}/maps/${mapname}/metadata-comparison`,
+  'map-metadata-comparison': ({uuid}) => `/maps/${uuid}/metadata-comparison`,
   'users': () => `/users`,
   'user': ({username}) => `/users/${username}`,
   'version': () => `/about/version`,
@@ -88,7 +87,7 @@ const endpointToPathParams = {
   'map': ['uuid'],
   'map-file': ['uuid'],
   'map-thumbnail': ['uuid'],
-  'workspace-map-metadata-comparison': ['workspace', 'name'],
+  'map-metadata-comparison': ['uuid'],
   'users': [],
   'user': ['username'],
   'version': [],
@@ -106,7 +105,7 @@ const endpointToPathParamsClass = {
   'map': UuidParams,
   'map-file': UuidParams,
   'map-thumbnail': UuidParams,
-  'workspace-map-metadata-comparison': WorkspaceMapPathParams,
+  'map-metadata-comparison': UuidParams,
 }
 
 const requestToQueryParams = {
@@ -134,7 +133,7 @@ const getEndpointDefaultParamsState = (endpoint, state) => {
     'map': ({uuid}) => ({uuid}),
     'map-file': ({uuid}) => ({uuid}),
     'map-thumbnail': ({uuid}) => ({uuid}),
-    'workspace-map-metadata-comparison': ({mapname}) => ({mapname}),
+    'map-metadata-comparison': ({uuid}) => ({uuid}),
   }
   const getter = getters[endpoint];
   return getter ? getter(state) : {};
@@ -144,11 +143,6 @@ const getEndpointParamsProps = (endpoint, component) => {
   const workspace_props = {
     workspace: component.state.workspace,
     handleWorkspaceChange: component.handleWorkspaceChange.bind(component),
-  };
-  const map_props = {
-    ...workspace_props,
-    mapname: component.state.mapname,
-    handleMapnameChange: component.handleMapnameChange.bind(component),
   };
   const layer_uuid_props = {
     uuid: component.state.uuid,
@@ -183,7 +177,7 @@ const getEndpointParamsProps = (endpoint, component) => {
     'map': map_uuid_props,
     'map-file': map_uuid_props,
     'map-thumbnail': map_uuid_props,
-    'workspace-map-metadata-comparison': map_props,
+    'map-metadata-comparison': map_uuid_props,
     'users': {},
     'user': user_props,
     'version': {},
@@ -789,13 +783,13 @@ class IndexPage extends React.PureComponent {
                       <Table.Cell>x</Table.Cell>
                     </Table.Row>
                     <Table.Row>
-                      <Table.Cell>Workspace Map Metadata Comparison</Table.Cell>
-                      <Table.Cell><code>/rest/workspaces/&lt;workspace_name&gt;/maps/&lt;mapname&gt;/metadata-comparison</code></Table.Cell>
+                      <Table.Cell>Map Metadata Comparison</Table.Cell>
+                      <Table.Cell><code>/rest/maps/&lt;uuid&gt;/metadata-comparison</code></Table.Cell>
                       <Table.Cell>
                         <Button
                             toggle
-                            active={this.state.request === 'get-workspace-map-metadata-comparison'}
-                            onClick={this.setRequest.bind(this, 'get-workspace-map-metadata-comparison')}
+                            active={this.state.request === 'get-map-metadata-comparison'}
+                            onClick={this.setRequest.bind(this, 'get-map-metadata-comparison')}
                         >GET</Button>
                       </Table.Cell>
                       <Table.Cell>x</Table.Cell>
